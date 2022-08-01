@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>nodular test</title>
+	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="test.css">
+	<link rel="icon" href="n.svg">
+</head>
+
+<body>
+	<div id="canvas">
+
+		<div class="workbench">
+			<img src="n.svg" class="wbn">
+		</div>
+
+		<svg class="bezpaths"></svg>
+	</div>
+</body>
+<script src="nodular.js"></script>
+<script>
+	var n1 = new Node("NODE");
+	var n2 = new Node("NODE");
+	n1.moveTo(200, 150);
+	n2.moveTo(550, 300);
+
+	n1.addInput("INPUT");
+	n1.addInput("INPUT");
+	n1.addOutput("OUTPUT");
+
+	n2.addInput("INPUT");
+	n2.addOutput("OUTPUT");
+	n1.connectTo(n2, 0);
+	
+
+</script>
+
+</html>
