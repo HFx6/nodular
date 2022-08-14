@@ -39,6 +39,11 @@
 	display: flex;
 	flex-direction: row;
 	z-index: 99999;
+	pointer-events: none;
+}
+
+.control  div{
+	pointer-events: auto;
 }
 
 .details {
@@ -80,12 +85,12 @@
 .navbar:hover {
 	border: solid 2px #13304c;
 	transition: border 0.1s ease-in-out;
-	cursor: pointer;
 }
 
 .navbarbutton {
 	margin: auto;
 	padding: 15px;
+	cursor: pointer;
 }
 
 .buttondiv{
@@ -96,6 +101,7 @@
 
 	margin: auto;
 	padding: 15px;
+	cursor: pointer;
 }
 
 .wbn {
@@ -554,7 +560,9 @@
   } 
 
 .name{
-	text-align: center;
+	background-color: transparent;
+    text-decoration: none;
+    border: none;
    line-height: 20px;
 	color: white;
 	font-weight: 700;
