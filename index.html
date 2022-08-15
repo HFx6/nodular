@@ -20,39 +20,42 @@
 <script src="nodular.js"></script>
 <script>
 	var editor = new Editor("canvas");
-	var n1 = new Node("node 1");
-	var n2 = new Node("node 2");
-	var n3 = new Node("node 3");
-	var n4 = new Node("node 4");
+	var n1 = new InNode("IN A");
+	var n2 = new Node("A + B");
+	var n3 = new InNode("IN B");
+	var n4 = new Node("OUT C");
 
 
 	editor.addNode(n1);
 	editor.addNode(n2);
 	editor.addNode(n3);
-	// editor.addNode(n4);
+	editor.addNode(n4);
 
 	n1.moveTo(200, 150);
 	n2.moveTo(550, 300);
 	n3.moveTo(200, 350);
-	// n4.moveTo(900, 350);
+	n4.moveTo(900, 350);
 
-	n1.addOutput("5");
+	n1.addOutput();
 
 
 	n2.addInput("ADD");
-	// n2.addOutput("ADD");
-	// n4.addInput("ADD");
+	n2.addOutput("OUT");
+	
 	n2.addInput("ADD");
 
-	n3.addOutput("3");
+	n4.addInput("IN");
+	
+	n3.addOutput();
 
 	n1.setFunc(function () { return 5; });
 	n3.setFunc(function () { return 3; });
-	n2.setFunc(function (a, b) { console.log(a + b); });
+	n2.setFunc(function (a, b) { return (a + b); });
+	n4.setFunc(function (c) { console.log(c); });
 	
 	editor.connect(n1.outputs[0], n2.inputs[0]);
 	editor.connect(n3.outputs[0], n2.inputs[1]);
-	// editor.connect(n2.outputs[0], n4.inputs[0]);
+	editor.connect(n2.outputs[0], n4.inputs[0]);
 
 	// function lineFeed(e) {
 	// 	document.getElementsByClassName("linec")[0].innerHTML = Array.from(Array(document.getElementsByClassName("idecode")[0].value.split("\n").length)).map((e, i) => i + 1).join("<br>");

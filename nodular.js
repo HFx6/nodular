@@ -274,6 +274,7 @@ class Canvas {
 			var curi = node.inputs[input];
 			if (curi.pearl.classList.contains("connected")) {
 				curi.funcvalue = this.getOutput(curi.fromId);
+				console.log(curi.fromId, curi.funcvalue);
 				count -= 1;
 			}
 		}
@@ -555,6 +556,225 @@ class Node {
 		return data;
 	}
 }
+
+
+class InNode {
+	constructor(name = "NODE") {
+		this.id = uuidv4();
+		this.name = name;
+
+		var node = document.createElement("div");
+		node.className = "node";
+		node.id = this.id;
+		this.node = node;
+
+		var nodeheader = document.createElement("div");
+		nodeheader.className = "nodeheader";
+
+		var nodetitle = document.createElement("div");
+		nodetitle.className = "nodetitle";
+
+		var titlespan = document.createElement("span");
+		titlespan.innerText = this.name;
+		this.titlespan = nodetitle.appendChild(titlespan);
+
+		var cimg = document.createElement("span");
+		// cimg.src = "code.svg";
+		cimg.className = "codeopen";
+		cimg.innerHTML = "&#8249;&#8250;";
+
+		var nodebody = document.createElement("div");
+		nodebody.className = "nodebody";
+
+		var inputs = document.createElement("div");
+		inputs.className = "inputs";
+
+		var outputs = document.createElement("div");
+		outputs.className = "outputs";
+
+		nodeheader.appendChild(nodetitle);
+		nodeheader.appendChild(cimg);
+		node.appendChild(nodeheader);
+		node.appendChild(nodebody);
+		this.inputs = nodebody.appendChild(inputs);
+		this.outputs = nodebody.appendChild(outputs);
+
+		// this.function = "";
+
+		this.props = {
+			connections: [],
+			inputs: {},
+			outputs: {},
+			name: name,
+			function: "",
+		};
+		this.dragElement(node);
+
+		return {
+			node: node,
+			id: this.id,
+			moveTo: this.moveTo.bind(this),
+			addOutput: this.addOutput.bind(this),
+			inputs: this.props.inputs,
+			outputs: this.props.outputs,
+			props: this.props,
+			setFunc: this.setFunc.bind(this),
+			function: this.func.bind(this),
+			funcstr: this.funcstr.bind(this),
+			changeName: this.changeName.bind(this),
+			cimg: cimg,
+		};
+	}
+	createPath(i1, i2) {
+		var diff = {
+			x: i2.x - i1.x,
+			y: i2.y - i1.y,
+		};
+
+		var pathStr = "M" + i1.x + "," + i1.y + " ";
+		pathStr += "C";
+		pathStr += i1.x + (diff.x / 3) * 2 + "," + i1.y + " ";
+		pathStr += i1.x + diff.x / 3 + "," + i2.y + " ";
+		pathStr += i2.x + "," + i2.y;
+
+		return pathStr;
+	}
+
+	changeName(newname) {
+		this.props.name = newname;
+		this.titlespan.innerText = newname;
+	}
+
+	updatePath() {
+		var paths = this.props.connections;
+		// fastdom.mutate(() => {
+		for (var i = 0; i < paths.length; i++) {
+			var input = paths[i].input;
+			var output = paths[i].output;
+			var path = paths[i].path;
+			var iPoint = input.position;
+			var oPoint = output.position;
+			var pathStr = this.createPath(iPoint, oPoint);
+			path.setAttributeNS(null, "d", pathStr);
+		}
+		// });
+	}
+
+	dragElement(elmnt) {
+		var pos1 = 0,
+			pos2 = 0,
+			pos3 = 0,
+			pos4 = 0;
+		elmnt.onpointerdown = dragMouseDown;
+		var x = 0,
+			y = 0;
+		var that = this;
+		this.dragElement.z = this.dragElement.z || 1;
+		function dragMouseDown(e) {
+			that.node.style.zIndex = ++that.dragElement.z;
+			e.stopPropagation();
+			e = e || window.event;
+			pos3 = parseInt(e.clientX);
+			pos4 = parseInt(e.clientY);
+			(x = e.offsetX), (y = e.offsetY);
+			document.onpointerup = closeDragElement;
+			document.onpointermove = elementDrag;
+			return false;
+		}
+
+		function scaleT(v) {
+			return (1 / 1.2) * v;
+		}
+
+		function elementDrag(e) {
+			e = e || window.event;
+			pos1 = pos3 - parseInt(e.clientX);
+			pos2 = pos4 - parseInt(e.clientY);
+			pos3 = parseInt(e.clientX);
+			pos4 = parseInt(e.clientY);
+
+			// elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+			// elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+
+			elmnt.style.cssText +=
+				"; left: " +
+				(elmnt.offsetLeft - pos1) +
+				"px; top: " +
+				(elmnt.offsetTop - pos2) +
+				"px;";
+			that.updatePath();
+		}
+
+		function closeDragElement() {
+			document.onpointerup = null;
+			document.onpointermove = null;
+		}
+	}
+
+	setFunc(i) {
+		this.props.function = i;
+	}
+
+	func(i) {
+		return this.props.function.apply(this, i);
+	}
+
+	funcstr() {
+		return this.props.function.toString();
+	}
+
+	moveTo(x, y) {
+		this.node.style.transform = "translate(" + x + "px, " + y + "px)";
+		this.updatePath();
+	}
+
+
+	addOutput(name = "input", title = "") {
+		var nodeout = document.createElement("div");
+		var outpearl = document.createElement("div");
+		var outlabel = document.createElement("div");
+		var outinput = document.createElement("input");
+		this.path = document.createElementNS(svg.ns, "path");
+		this.path.setAttributeNS(null, "stroke", "#44535a");
+		this.path.setAttributeNS(null, "stroke-width", "4");
+		this.path.setAttributeNS(null, "fill", "none");
+
+		var outid = Object.keys(this.props.outputs).length;
+		var tops = this.props.svgoffsets;
+		var data = {
+			get position() {
+				var pos = outpearl.getBoundingClientRect();
+				return {
+					x: pos.x + pos.width - 9.5 - tops.x,
+					y: pos.y + pos.height * 0.5 + 1 - tops.y,
+				};
+			},
+			path: this.path,
+			pearl: outpearl,
+			nodeid: this.node.id,
+			outide: outid,
+		};
+
+		nodeout.className = "nodeout";
+		outpearl.className = "outpearl";
+
+		outpearl.setAttribute("data-outid", outid);
+		nodeout.appendChild(outpearl);
+		// outlabel.innerText = name;
+		outlabel.className = "outlabel";
+		outlabel.appendChild(outinput);
+		nodeout.appendChild(outlabel);
+
+		this.props.outputs[outid] = data;
+		nodeout.data = data;
+		nodeout = this.outputs.appendChild(nodeout);
+		return data;
+	}
+}
+
+
+
+
 
 class Overlay {
 	constructor(activenodedata) {
