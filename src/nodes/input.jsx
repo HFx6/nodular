@@ -14,7 +14,6 @@ export default function functionNode({ id, data }) {
 					type="source"
 					position="right"
 					style={{ background: "#555" }}
-					onConnect={(params) => console.log("handle onConnect", params)}
 				/>
 				{/* <RiInputMethodFill /> */}
 				<Icon icon="ri:input-method-fill" />

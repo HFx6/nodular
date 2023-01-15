@@ -31,8 +31,15 @@ const useStore = create((set, get) => ({
 		set({
 			topo: topologicalSort(get().edges),
 		});
-		console.log("topo: ",get().topo);
-		// console.log("try eval: ",evalgraph(get().edges, get().nodes));
+		get().nodes.map((node) => {
+			if (node.id === connection.target) {
+				set({
+					nodes: evalgraph(node, get().edges, get().nodes),
+				});
+			}
+		})
+		console.log(get().nodes);
+		
 	},
 	updateInputValue: (nodeId, value) => {
 		set({
@@ -51,13 +58,13 @@ const useStore = create((set, get) => ({
 			nodes: get().nodes.map((node) => {
 				if (node.id === nodeId) {
 					// it's important to create a new object here, to inform React Flow about the cahnges
-					node.data = { ...node.data, ...value, ...evalnode(get().topo, get().nodes, node) };
+					node.data = { ...node.data, ...value};
+					console.log("try new eval: ",evalgraph(node, get().edges, get().nodes));
 				}
 
 				return node;
 			}),
 		});
-		// console.log("try new eval: ",evalgraph(get().edges, get().nodes));
 	},
 	setNodes: (nodes) => {
 		set({

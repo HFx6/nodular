@@ -41,6 +41,7 @@ const selector = (state) => ({
 	onConnect: state.onConnect,
 	setNodes: state.setNodes,
 	setEdges: state.setEdges,
+	onConnectEnd: state.onConnectEnd,
 });
 
 const SaveRestore = () => {

@@ -57,7 +57,7 @@ export default function functionNode({ nodeData, setCurrentNode }) {
 		(evn) => {
 			var vals = getArguments(evn["func"]);
 			updateEditorContent(evn["id"], {
-				func: evn["func"],
+				func: Function(evn["func"]),
 				args: vals[0],
 				label: vals[1],
 			});
@@ -68,7 +68,7 @@ export default function functionNode({ nodeData, setCurrentNode }) {
 	useEffect(() => {
 		console.log(nodeData);
 		const view = new EditorView({
-			doc: jBeautify(nodeData?.data?.func, {
+			doc: jBeautify(nodeData?.data?.func.toString(), {
 				indent_size: 3,
 				indent_with_tabs: true,
 			}),

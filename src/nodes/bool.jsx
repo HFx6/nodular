@@ -17,7 +17,7 @@ export default function functionNode({ data }) {
 				<Icon icon="mdi:circle-box" />
 			</div>
 			<div className="boolresult">
-				<p>{data.funcval}</p>
+				<p>{String(data.funceval)}</p>
 			</div>
 		</div>
 	);
