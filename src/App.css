@@ -1,0 +1,229 @@
+.App {
+	height: 100vh;
+	width: 100vw;
+}
+
+/* graph controls */
+.save__controls {
+	position: absolute;
+	right: 10px;
+	top: 10px;
+	z-index: 4;
+	font-size: 12px;
+}
+
+.save__controls button {
+	margin-left: 5px;
+}
+
+.react-flow__panel.react-flow__attribution.bottom.right {
+	background-color: #ffffff14;
+	opacity: 0.1;
+}
+
+/* base nodes */
+.react-flow__node-default,
+.react-flow__node-nodeFunction,
+.react-flow__node-nodeBool,
+.react-flow__node-nodeInput,
+.react-flow__node-input,
+.react-flow__node-nodeEditor,
+.react-flow__node-output {
+	background-color: #1c1c1c;
+	border: none;
+	border-radius: 8px;
+	font-family: "Roboto";
+	font-size: 17.027px;
+	line-height: 20px;
+	/* identical to box height */
+
+	color: #ffffff;
+}
+
+.react-flow__node-default.selected,
+.react-flow__node-input.selected,
+.react-flow__node-nodeFunction.selected,
+.react-flow__node-nodeBool.selected,
+.react-flow__node-nodeInput.selected,
+.react-flow__node-nodeEditor.selected,
+.react-flow__node-output.selected {
+	border-color: #107eea;
+	box-shadow: 0 0 0 5px rgba(16, 126, 234, 0.3), 0 0 0 2px rgba(16, 126, 234, 1) !important;
+}
+
+.react-flow__edge-path,
+.react-flow__connection-path {
+	stroke-width: 4px;
+	stroke: #4d585e;
+}
+.react-flow__handle.connectable {
+	z-index: 1;
+}
+
+/* minimap */
+.react-flow__minimap-mask {
+	fill: #343435b0;
+}
+
+.react-flow__minimap-node {
+	fill: #343435;
+	stroke: none;
+}
+
+svg {
+	margin: auto;
+	height: 100%;
+}
+
+.nstring {
+	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+	border-radius: 8px;
+	width: 184px;
+	font-family: "Roboto";
+	display: flex;
+	overflow: hidden;
+}
+
+.idicon {
+	color: #37373d;
+	padding: 0.5rem;
+	font-size: 22px;
+}
+
+/* function node */
+
+.funcnode {
+	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+	display: flex;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.funcnode > .header {
+	display: flex;
+	align-items: center;
+}
+.inputs{
+	margin: 0 0 0.5rem 0.5rem;
+}
+.inputs > p{
+	margin: 0;
+}
+
+.label > p {
+	margin: 0;
+	margin-right: 0.5rem;
+}
+
+.node {
+	position: absolute;
+}
+
+.nodrag {
+	cursor: auto;
+}
+.nstring > .input {
+	background: #37373d;
+	border-radius: 0px 8px 8px 0px;
+	flex: 1;
+	padding: 5px;
+}
+
+.nstring > .input input {
+	box-sizing: border-box;
+	height: 100%;
+	width: 100%;
+	background: #37373d;
+	outline: none;
+	border: 0;
+	color: white;
+	font-family: "Roboto";
+	font-size: 17.027px;
+	line-height: 20px;
+}
+
+.cmbody {
+	overflow: auto;
+	border-radius: 8px;
+	max-height: 71vh;
+}
+
+/* editor */
+
+.editorpanel {
+	background-color: #1c1c1c;
+	border: none;
+	border-radius: 8px;
+	font-family: "Roboto";
+	font-size: 17.027px;
+	line-height: 20px;
+	max-width: 70vw;
+	max-height: 50vh;
+	width: 30vw;
+}
+.cm-editor {
+	height: 100%;
+}
+.cm-scroller {
+	overflow: auto;
+}
+
+.editorcontext{
+	display: flex;
+	color: #82828d;
+	overflow: hidden;
+	user-select: none;
+}
+
+.editorcontext > p{
+	padding: 5px;
+    margin: 0;
+	
+}
+
+.editorcontext > p:hover {
+    background-color: #2e2e2e;
+}
+
+.editorcontext > p:not(:nth-child(1)){
+	cursor: pointer;
+}
+
+.editorcontext > p:nth-child(1){
+	background-color: black;
+}
+
+.editorcontext > p:last-child {
+	margin-left: auto;
+  }
+
+/* .toolbar{
+	background-color: #1c1c1c;
+	border: none;
+	border-radius: 8px;
+	display: flex;
+	color: #37373d;
+    font-size: 22px;
+} */
+
+/* toolbar */
+
+.controlbar {
+	background: #1c1c1c;
+	border-radius: 5.66px;
+
+	padding: 8px;
+	display: flex;
+	gap: 8px;
+	font-size: 1.7rem;
+	color: #82828D;
+}
+
+/* zoom */
+.react-flow__controls-button {
+stroke: #82828d;
+    fill: #82828d;
+	background: #1c1c1c;
+	border-bottom: none;
+}
