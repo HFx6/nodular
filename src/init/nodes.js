@@ -55,7 +55,7 @@ export default [
 			func: function (b) {
 				return b;
 			},
-			funcedit: false,
+			funcedit: true,
 			args: ["b"],
 			funceval: null,
 		},

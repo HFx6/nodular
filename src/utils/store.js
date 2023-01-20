@@ -4,9 +4,18 @@ import { addEdge, applyNodeChanges, applyEdgeChanges } from "reactflow";
 import initialNodes from "../init/nodes";
 import initialEdges from "../init/edges";
 
-import { topologicalSort } from './tsort';
-import { evalgraph } from './evalgraph';
-import { evalnode } from './evalnode';
+import { topologicalSort } from "./tsort";
+import { evalgraph } from "./evalgraph";
+import { evalnode } from "./evalnode";
+
+// const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+// 				console.log();
+// 				setNodes(flow.nodes || []);
+// 				setEdges(flow.edges || []);
+// 				setViewport({ x, y, zoom });
+
+// const localGraph = JSON.parse(localStorage.getItem("example-flow"));;
+
 // this is our useStore hook that we can use in our components to get parts of the store and call actions
 const useStore = create((set, get) => ({
 	nodes: initialNodes,
@@ -18,13 +27,11 @@ const useStore = create((set, get) => ({
 		});
 	},
 	onEdgesChange: (changes) => {
-		
 		set({
 			edges: applyEdgeChanges(changes, get().edges),
 		});
 	},
 	onConnect: (connection) => {
-		
 		set({
 			edges: addEdge(connection, get().edges),
 		});
@@ -37,16 +44,19 @@ const useStore = create((set, get) => ({
 					nodes: evalgraph(node, get().edges, get().nodes),
 				});
 			}
-		})
-		console.log(get().nodes);
-		
+		});
+		// console.log(get().nodes);
 	},
 	updateInputValue: (nodeId, value) => {
+		console.log("update ", value);
 		set({
 			nodes: get().nodes.map((node) => {
 				if (node.id === nodeId) {
 					// it's important to create a new object here, to inform React Flow about the cahnges
 					node.data = { ...node.data, funceval: value };
+					set({
+						nodes: evalgraph(node, get().edges, get().nodes),
+					});
 				}
 
 				return node;
@@ -58,8 +68,10 @@ const useStore = create((set, get) => ({
 			nodes: get().nodes.map((node) => {
 				if (node.id === nodeId) {
 					// it's important to create a new object here, to inform React Flow about the cahnges
-					node.data = { ...node.data, ...value};
-					console.log("try new eval: ",evalgraph(node, get().edges, get().nodes));
+					node.data = { ...node.data, ...value };
+					set({
+						nodes: evalgraph(node, get().edges, get().nodes),
+					});
 				}
 
 				return node;

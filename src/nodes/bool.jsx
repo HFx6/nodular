@@ -1,9 +1,14 @@
-import React from "react";
-import { Handle } from "reactflow";
+import React, { useEffect } from "react";
+import { Handle, useUpdateNodeInternals } from "reactflow";
 import { FaDotCircle } from "react-icons/fa";
 import { Icon } from "@iconify/react";
 
 export default function functionNode({ data }) {
+	const updateNodeInternals = useUpdateNodeInternals();
+	useEffect(() => {
+		console.log(data);
+		updateNodeInternals(data.id);
+	}, [data]);
 	return (
 		<div className="nstring">
 			<div className="idicon">
@@ -11,7 +16,6 @@ export default function functionNode({ data }) {
 					type="target"
 					position="left"
 					style={{ background: "#555" }}
-					onConnect={(params) => console.log("handle onConnect", params)}
 				/>
 				{/* <FaDotCircle /> */}
 				<Icon icon="mdi:circle-box" />

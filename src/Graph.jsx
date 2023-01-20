@@ -8,8 +8,10 @@ import ReactFlow, {
 	MiniMap,
 	Controls,
 	Background,
-	Panel
+	Panel,
+	ControlButton,
 } from "reactflow";
+import { Icon } from "@iconify/react";
 
 import NFunction from "./nodes/function";
 import NBool from "./nodes/bool";
@@ -45,8 +47,15 @@ const selector = (state) => ({
 });
 
 const SaveRestore = () => {
-	const { nodes, edges, onNodesChange, onEdgesChange, onConnect, setNodes, setEdges } =
-		useStore(selector, shallow);
+	const {
+		nodes,
+		edges,
+		onNodesChange,
+		onEdgesChange,
+		onConnect,
+		setNodes,
+		setEdges,
+	} = useStore(selector, shallow);
 	// const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
 	// const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 	const [rfInstance, setRfInstance] = useState(null);
@@ -63,14 +72,16 @@ const SaveRestore = () => {
 		}
 	}, [rfInstance]);
 
-	const onNodeDoubleClick = useCallback((event, node) => {
-		if(node.data.funcedit){
-			setCurrentNode(node);
-		}else{
-			setCurrentNode({});
-		}
-		
-	}, [currentNode]);
+	const onNodeDoubleClick = useCallback(
+		(event, node) => {
+			if (node.data.funcedit) {
+				setCurrentNode(node);
+			} else {
+				setCurrentNode({});
+			}
+		},
+		[currentNode]
+	);
 
 	const onRestore = useCallback(() => {
 		const restoreFlow = async () => {
@@ -111,6 +122,8 @@ const SaveRestore = () => {
 			// onConnectEnd={onConnectEnd}
 			nodeTypes={nodeTypes}
 			onNodeDoubleClick={onNodeDoubleClick}
+			multiSelectionKeyCode={"Control"}
+			selectionKeyCode={"Control"}
 		>
 			<Background
 				color="#1F1F1F"
@@ -118,7 +131,13 @@ const SaveRestore = () => {
 				size={3}
 				gap={30}
 			/>
-			{currentNode?.data?.func ?  <Editor key={currentNode.data.id} nodeData={currentNode} setCurrentNode={setCurrentNode}/>:null}
+			{currentNode?.data?.func ? (
+				<Editor
+					key={currentNode.data.id}
+					nodeData={currentNode}
+					setCurrentNode={setCurrentNode}
+				/>
+			) : null}
 			<Toolbar />
 			{/* <div className="save__controls">
 				<button onClick={onSave}>save</button>
@@ -126,7 +145,14 @@ const SaveRestore = () => {
 				<button onClick={onAdd}>add node</button>
 			</div> */}
 			<MiniMap style={{ backgroundColor: "black" }} />
-			<Controls />
+			<Controls>
+				<ControlButton onClick={onRestore}>
+					<Icon icon="material-symbols:drive-folder-upload" />
+				</ControlButton>
+				<ControlButton onClick={onSave}>
+					<Icon icon="material-symbols:save-rounded" />
+				</ControlButton>
+			</Controls>
 		</ReactFlow>
 	);
 };
@@ -136,5 +162,3 @@ export default () => (
 		<SaveRestore />
 	</ReactFlowProvider>
 );
-
-// https://reactflow.dev/docs/guides/custom-nodes/

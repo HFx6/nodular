@@ -1,9 +1,8 @@
 import { topologicalSort } from "./tsort";
-import ReactFlow, { getIncomers  } from 'reactflow';
+import ReactFlow, { getIncomers, getOutgoers } from "reactflow";
 
-
-function depGraph(edges){
-	var dependencies = {}
+function depGraph(edges) {
+	var dependencies = {};
 	for (const edge of edges) {
 		if (!dependencies[edge.source]) dependencies[edge.source] = [];
 		if (!dependencies[edge.target]) dependencies[edge.target] = [];
@@ -14,46 +13,46 @@ function depGraph(edges){
 	return dependencies;
 }
 
+function evalNode(node, nodes, edges) {
+	var nodeIns = getIncomers(node, nodes, edges);
+	var nodeOuts = getOutgoers(node, nodes, edges);
+}
 
 var evalgraph = (node, edges, nodes) => {
-
+	console.log("called on: ", node);
 	var nodeIns = getIncomers(node, nodes, edges);
-	var dependencies = depGraph(edges);	
-	var topo = topologicalSort(edges);
-	console.log("nodeIns: ",nodeIns);
-	console.log("dependencies: ",dependencies[node.id]);
-	console.log("topo: ",topo);
-
-	function evalDeps(){
-		var _deps = [];
-	}
-
-	function traverse(_node){
-		var _nodein = getIncomers(_node, nodes, edges);
-		console.log("nodein for: ",_node.data.label,_nodein);
-        if(_nodein.length==0 || _node.data?.args?.length==0){
-			if(_node.data.funceval==null) _node.data.funceval = _node.data.func();
-		} else {
-			var args = [];
-			for(const _subnode of _nodein){
-				if(_subnode.data.funceval==null) return nodes;
-				args.push(_subnode.data.funceval);
+	var dependmet = node.data.args.length == nodeIns.length;
+	if (dependmet) {
+		var args = [];
+		for (const _subnode of nodeIns) {
+			// console.log(`got arg ${_subnode}`);
+			try {
+				console.log();
+				args.push(_subnode.data.funceval ?? _subnode.data.func());
+				// if (_subnode.data.args.length > 0) _subnode.data.funceval = null;
+			} catch (err) {
+				console.log("upstream failure ", err);
+				console.log("subnode ", _subnode);
+				break;
 			}
-			console.log("args :", args);
-			console.log("cureent node :", _node.data.label);
-			if(args.length==_node.data?.args.length) _node.data.funceval = _node.data.func(...args);
 		}
-		console.log("nodes: ", nodes);
+		console.log("built args array: ", args);
+		console.log(String(node.data.func));
+		if (node.data.funcedit) node.data.funceval = node.data.func(...args);
+		var nodeOuts = getOutgoers(node, nodes, edges);
+		for (const _subnode of nodeOuts) {
+			console.log(`propgating to`, _subnode);
+			evalgraph(_subnode, edges, nodes);
+		}
 	}
+	// var dependencies = depGraph(edges);
+	// var topo = topologicalSort(edges);
+	// console.log("nodeIns: ", nodeIns);
+	// console.log("inputs met: ", dependmet);
+	// console.log("dependencies: ",dependencies[node.id]);
+	// console.log("topo: ",topo);
 
-	traverse(node);
-
-	for (const innodes of nodeIns) {
-		traverse(innodes)
-	}
-	
 	return nodes;
-
 };
 
 export { evalgraph };

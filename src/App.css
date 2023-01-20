@@ -48,7 +48,8 @@
 .react-flow__node-nodeEditor.selected,
 .react-flow__node-output.selected {
 	border-color: #107eea;
-	box-shadow: 0 0 0 5px rgba(16, 126, 234, 0.3), 0 0 0 2px rgba(16, 126, 234, 1) !important;
+	box-shadow: 0 0 0 5px rgba(16, 126, 234, 0.3),
+		0 0 0 2px rgba(16, 126, 234, 1) !important;
 }
 
 .react-flow__edge-path,
@@ -104,10 +105,10 @@ svg {
 	display: flex;
 	align-items: center;
 }
-.inputs{
+.inputs {
 	margin: 0 0 0.5rem 0.5rem;
 }
-.inputs > p{
+.inputs > p {
 	margin: 0;
 }
 
@@ -169,34 +170,33 @@ svg {
 	overflow: auto;
 }
 
-.editorcontext{
+.editorcontext {
 	display: flex;
 	color: #82828d;
 	overflow: hidden;
 	user-select: none;
 }
 
-.editorcontext > p{
+.editorcontext > p {
 	padding: 5px;
-    margin: 0;
-	
+	margin: 0;
 }
 
 .editorcontext > p:hover {
-    background-color: #2e2e2e;
+	background-color: #2e2e2e;
 }
 
-.editorcontext > p:not(:nth-child(1)){
+.editorcontext > p:not(:nth-child(1)) {
 	cursor: pointer;
 }
 
-.editorcontext > p:nth-child(1){
+.editorcontext > p:nth-child(1) {
 	background-color: black;
 }
 
 .editorcontext > p:last-child {
 	margin-left: auto;
-  }
+}
 
 /* .toolbar{
 	background-color: #1c1c1c;
@@ -217,13 +217,24 @@ svg {
 	display: flex;
 	gap: 8px;
 	font-size: 1.7rem;
-	color: #82828D;
+	color: #82828d;
 }
 
 /* zoom */
 .react-flow__controls-button {
-stroke: #82828d;
-    fill: #82828d;
+	stroke: #82828d;
+	color: #82828d;
+	fill: #82828d;
 	background: #1c1c1c;
 	border-bottom: none;
 }
+
+/* .react-flow .react-flow__controls-button {
+    width: 40px;
+    height: 40px;
+    border: none;
+}
+.react-flow .react-flow__controls-button svg {
+    max-height: 20px;
+    max-width: 20px;
+} */
