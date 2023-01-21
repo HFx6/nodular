@@ -83,7 +83,7 @@ export default function functionNode({ data }) {
 		() =>
 			data?.args?.map((x, i) => {
 				// const handleId = `target-handle-${i + 1}`;
-				// console.log(x, i);
+				// console.log(data.types, i, x, data.types[i]);
 				return (
 					// <p className="handletext" key={i}>{x}</p>
 					// <Handle
@@ -95,7 +95,7 @@ export default function functionNode({ data }) {
 					// />
 					<div className="custom-node__select funcin" key={i}>
 						<div>{x}</div>
-						<Handle key={x} type="target" position="left" id={x} />
+						<Handle key={x} type="target" style={data.argTypeColors[i]} position="left" id={x} />
 					</div>
 				);
 			}),
@@ -118,7 +118,7 @@ export default function functionNode({ data }) {
 				{targetHandles}
 				<div className="custom-node__select funcout">
 					<div style={{paddingRight: '10px'}}>output</div>
-					<Handle type="source" position="right" />
+					<Handle type="source" position="right" style={data.returnTypeColor}/>
 				</div>
 			</div>
 		</div>

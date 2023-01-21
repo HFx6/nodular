@@ -19,12 +19,25 @@ export default [
 		dragHandle: ".funcnode",
 		data: {
 			label: "isInArray",
-			func: function isinarray(input, array) {
-				var bool = array.includes(input);
-				return bool;
-			},
+			func:
+				// /*
+				// * @param {String} input
+				// * @param {Array} array
+				// * @return {Boolean}
+				// */
+				function isinarray(input, array) {
+					var bool = array.includes(input);
+					return bool;
+				},
 			args: ["input", "array"],
 			funcedit: true,
+			argTypes: ["String", "Array"],
+			returnType: "Boolean",
+			argTypeColors: [
+				{ backgroundColor: "green" },
+				{ backgroundColor: "yellow" },
+			],
+			returnTypeColor: {backgroundColor: "blue"},
 			hasfunc: true,
 			funceval: null,
 		},
@@ -38,9 +51,7 @@ export default [
 		data: {
 			label: "Array:arr",
 			func: function () {
-				return [
-					"yellow"
-				]
+				return ["yellow"];
 			},
 			funcedit: true,
 			hasfunc: true,

@@ -74,14 +74,15 @@ export default function functionNode({ nodeData, setCurrentNode }) {
 		(evn) => {
 			var vals = getArguments(evn["func"]);
 			const _types = getJSDocTypes(evn["func"]);
-			var types = []
+			var argTypeColors = []
 			for (const type of _types.argTypes) {
-				types.push({[type]: handleTypes[type]})
+				argTypeColors.push(handleTypes[type])
 			}
 			updateEditorContent(evn["id"], {
 				func: Function(evn["func"]),
 				args: vals[0],
-				types,
+				argTypeColors,
+				returnTypeColor: handleTypes[_types.returnType],
 				label: vals[1],
 			});
 		},
