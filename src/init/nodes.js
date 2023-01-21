@@ -4,9 +4,10 @@ export default [
 		type: "nodeInput",
 		data: {
 			label: "textinput",
-			func: function () {},
+			func: null,
 			args: [],
-			funcedit: false,
+			funcedit: true,
+			hasfunc: false,
 			funceval: "yellow",
 		},
 		position: { x: 177, y: 178 },
@@ -24,6 +25,7 @@ export default [
 			},
 			args: ["input", "array"],
 			funcedit: true,
+			hasfunc: true,
 			funceval: null,
 		},
 		position: { x: 483, y: 312 },
@@ -41,6 +43,7 @@ export default [
 				]
 			},
 			funcedit: true,
+			hasfunc: true,
 			args: [],
 			funceval: null,
 		},
@@ -56,6 +59,7 @@ export default [
 				return b;
 			},
 			funcedit: true,
+			hasfunc: true,
 			args: ["b"],
 			funceval: null,
 		},

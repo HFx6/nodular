@@ -131,7 +131,7 @@ const SaveRestore = () => {
 				size={3}
 				gap={30}
 			/>
-			{currentNode?.data?.func ? (
+			{currentNode?.data ? (
 				<Editor
 					key={currentNode.data.id}
 					nodeData={currentNode}

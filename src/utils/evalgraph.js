@@ -38,7 +38,7 @@ var evalgraph = (node, edges, nodes) => {
 		}
 		console.log("built args array: ", args);
 		console.log(String(node.data.func));
-		if (node.data.funcedit) node.data.funceval = node.data.func(...args);
+		if (node.data.hasfunc) node.data.funceval = node.data.func(...args);
 		var nodeOuts = getOutgoers(node, nodes, edges);
 		for (const _subnode of nodeOuts) {
 			console.log(`propgating to`, _subnode);

@@ -13,11 +13,28 @@ import { debounce } from "lodash";
 import { shallow } from "zustand/shallow";
 import useStore from "../utils/store";
 
+import handleTypes from "../utils/handletypes";
+
 const selector = (state) => ({
 	updateEditorContent: state.updateEditorContent,
 });
 
 const extensions = [javascript({ jsx: true })];
+
+function getJSDocTypes(fn) {
+	const argTypes = fn.match(/@param {(.*?)}/g);
+	const returnType = fn.match(/@return {(.*?)}/g);
+	
+	if(argTypes) {
+	  var argTypesClean = argTypes.map(arg => arg.split(" ")[1].replace("{","").replace("}",""));
+	}
+	if(returnType) {
+	  var returnTypeClean = returnType[0].split(" ")[1].replace("{","").replace("}","");
+	}
+	
+	return { argTypes: argTypesClean, returnType: returnTypeClean };
+  }
+  
 
 function getArguments(func) {
 	var funcName = func.match(/function(.*?)\(/)[1].trim();
@@ -56,9 +73,15 @@ export default function functionNode({ nodeData, setCurrentNode }) {
 	const updateNode = useCallback(
 		(evn) => {
 			var vals = getArguments(evn["func"]);
+			const _types = getJSDocTypes(evn["func"]);
+			var types = []
+			for (const type of _types.argTypes) {
+				types.push({[type]: handleTypes[type]})
+			}
 			updateEditorContent(evn["id"], {
 				func: Function(evn["func"]),
 				args: vals[0],
+				types,
 				label: vals[1],
 			});
 		},
@@ -67,18 +90,25 @@ export default function functionNode({ nodeData, setCurrentNode }) {
 
 	useEffect(() => {
 		console.log(nodeData);
+		var content = nodeData?.data?.func
+			? nodeData?.data?.func.toString()
+			: nodeData?.data?.funceval;
+		console.log(content);
 		const view = new EditorView({
-			doc: jBeautify(nodeData?.data?.func.toString(), {
+			doc: jBeautify(content, {
 				indent_size: 3,
 				indent_with_tabs: true,
 			}),
 			extensions: [
 				basicSetup,
-				javascript({ jsx: true }),
+				javascript({ jsx: true, typescript: true }),
 				keymap.of([indentWithTab]),
 				EditorView.updateListener.of((v) => {
 					if (v.docChanged) {
-						debounceUpdate({id:nodeData.id, func: v.state.doc.toString()});
+						debounceUpdate({
+							id: nodeData.id,
+							func: v.state.doc.toString(),
+						});
 					}
 				}),
 				vscodeDark,

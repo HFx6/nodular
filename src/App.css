@@ -93,22 +93,22 @@ svg {
 
 /* function node */
 
-.funcnode {
+/* .funcnode {
 	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-	display: flex;
+	 display: flex; 
 	overflow: hidden;
 	display: flex;
-	flex-direction: column;
-}
+	flex-direction: column; 
+} */
 
-.funcnode > .header {
+.custom-node__header > .header {
 	display: flex;
 	align-items: center;
 }
 .inputs {
 	margin: 0 0 0.5rem 0.5rem;
 }
-.inputs > p {
+.inputs > div > p {
 	margin: 0;
 }
 
@@ -238,3 +238,49 @@ svg {
     max-height: 20px;
     max-width: 20px;
 } */
+
+.funcout{
+	float: right;
+}
+
+.funcin {
+	padding-left: 10px;
+}
+
+.handlecus {
+	width: 100%;
+	margin-top: 5px;
+	font-size: 10px;
+}
+
+.react-flow__node-custom {
+	font-size: 10px;
+	width: 180px;
+	background: #f5f5f6;
+	color: #222;
+	box-shadow: 0 4px 6px -1px rgb(0 0 0 / 15%), 0 2px 4px -1px rgb(0 0 0 / 8%);
+	border-radius: 2px;
+}
+
+.react-flow__node-custom .react-flow__handle {
+	top: 24px;
+	right: -15px;
+	width: 6px;
+	height: 10px;
+	border-radius: 2px;
+	background-color: #778899;
+}
+
+.custom-node__header {
+}
+
+.custom-node__select {
+	position: relative;
+	margin-bottom: 10px;
+}
+
+.custom-node__select select {
+	width: 100%;
+	margin-top: 5px;
+	font-size: 10px;
+}
