@@ -25,6 +25,7 @@
 .react-flow__node-default,
 .react-flow__node-nodeFunction,
 .react-flow__node-nodeBool,
+.react-flow__node-nodeArray,
 .react-flow__node-nodeInput,
 .react-flow__node-input,
 .react-flow__node-nodeEditor,
@@ -36,7 +37,7 @@
 	font-size: 17.027px;
 	line-height: 20px;
 	/* identical to box height */
-
+	visibility: visible !important;
 	color: #ffffff;
 }
 
@@ -44,6 +45,7 @@
 .react-flow__node-input.selected,
 .react-flow__node-nodeFunction.selected,
 .react-flow__node-nodeBool.selected,
+.react-flow__node-nodeArray.selected,
 .react-flow__node-nodeInput.selected,
 .react-flow__node-nodeEditor.selected,
 .react-flow__node-output.selected {
@@ -161,7 +163,7 @@ svg {
 	line-height: 20px;
 	max-width: 70vw;
 	max-height: 50vh;
-	width: 30vw;
+	width: 35vw;
 }
 .cm-editor {
 	height: 100%;
@@ -218,6 +220,10 @@ svg {
 	gap: 8px;
 	font-size: 1.7rem;
 	color: #82828d;
+}
+
+.controlbar + svg {
+	user-select: none;
 }
 
 /* zoom */
@@ -283,4 +289,25 @@ svg {
 	width: 100%;
 	margin-top: 5px;
 	font-size: 10px;
+}
+
+
+.reactflow-wrapper {
+	flex-grow: 1;
+	height: 100%;
+  }
+
+  .react-flow__handle-left {
+    left: -7px;
+}
+
+.react-flow__handle-right {
+    right: -7px;
+}
+
+  .react-flow__handle {
+    width: 10px;
+    height: 16px;
+    border: 1px solid #838383;
+    border-radius: 5px;
 }

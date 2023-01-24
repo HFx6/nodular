@@ -54,7 +54,7 @@ const useStore = create((set, get) => ({
 				if (node.id === nodeId) {
 					// it's important to create a new object here, to inform React Flow about the cahnges
 					node.data = { ...node.data, funceval: value };
-					set({
+					if(node.data.funceval) set({
 						nodes: evalgraph(node, get().edges, get().nodes),
 					});
 				}

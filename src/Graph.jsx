@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import ReactFlow, {
 	ReactFlowProvider,
 	useNodesState,
@@ -16,11 +16,14 @@ import { Icon } from "@iconify/react";
 import NFunction from "./nodes/function";
 import NBool from "./nodes/bool";
 import NInput from "./nodes/input";
+import NArray from "./nodes/array";
 
 import Editor from "./panels/editor";
 import Toolbar from "./panels/toolbar";
 
 import { shallow } from "zustand/shallow";
+import nodeDefaults from "./init/nodedefaults";
+
 import useStore from "./utils/store";
 
 import "reactflow/dist/style.css";
@@ -28,11 +31,11 @@ import "./index.css";
 
 const flowKey = "example-flow";
 
-const getNodeId = () => `randomnode_${+new Date()}`;
 const nodeTypes = {
 	nodeFunction: NFunction,
 	nodeBool: NBool,
 	nodeInput: NInput,
+	nodeArray: NArray
 };
 
 const selector = (state) => ({
@@ -41,10 +44,12 @@ const selector = (state) => ({
 	onNodesChange: state.onNodesChange,
 	onEdgesChange: state.onEdgesChange,
 	onConnect: state.onConnect,
-	setNodes: state.setNodes,
 	setEdges: state.setEdges,
+	setNodes: state.setNodes,
 	onConnectEnd: state.onConnectEnd,
 });
+
+const getId = () => `randomnode_${+new Date()}`;
 
 const SaveRestore = () => {
 	const {
@@ -59,6 +64,7 @@ const SaveRestore = () => {
 	// const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
 	// const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 	const [rfInstance, setRfInstance] = useState(null);
+	const reactFlowWrapper = useRef(null);
 	const [currentNode, setCurrentNode] = useState({});
 	const { setViewport } = useReactFlow();
 	// const onConnectStart = (_, { nodeId, handleType }) =>
@@ -98,17 +104,41 @@ const SaveRestore = () => {
 
 		restoreFlow();
 	}, [setNodes, setViewport]);
-	const onAdd = useCallback(() => {
-		const newNode = {
-			id: getNodeId(),
-			data: { label: "Added node" },
-			position: {
-				x: Math.random() * window.innerWidth - 100,
-				y: Math.random() * window.innerHeight,
-			},
-		};
-		setNodes((nds) => nds.concat(newNode));
-	}, [setNodes]);
+
+	const onDragOver = useCallback((event) => {
+		event.preventDefault();
+		event.dataTransfer.dropEffect = 'move';
+	  }, []);
+
+	  const onDrop = useCallback(
+		(event) => {
+		  event.preventDefault();
+	
+		//   const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+		  const type = event.dataTransfer.getData('application/reactflow');
+	
+		  // check if the dropped element is valid
+		  if (typeof type === 'undefined' || !type) {
+			return;
+		  }
+	
+		  const position = rfInstance.project({
+			x: event.clientX,
+			y: event.clientY,
+		  });
+		  console.log(nodes);
+		  const newNode = {
+			id: getId(),
+			type,
+			position,
+			data: nodeDefaults[type].data,
+		  };
+		  
+		  setNodes([...nodes, newNode]);
+		// setNodes((nds) => nds.concat(newNode));
+		},
+		[rfInstance, nodes]
+	  );
 
 	return (
 		<ReactFlow
@@ -124,6 +154,8 @@ const SaveRestore = () => {
 			onNodeDoubleClick={onNodeDoubleClick}
 			multiSelectionKeyCode={"Control"}
 			selectionKeyCode={"Control"}
+			onDrop={onDrop}
+            onDragOver={onDragOver}
 		>
 			<Background
 				color="#1F1F1F"
@@ -139,11 +171,11 @@ const SaveRestore = () => {
 				/>
 			) : null}
 			<Toolbar />
-			{/* <div className="save__controls">
+			 {/* <div className="save__controls">
 				<button onClick={onSave}>save</button>
 				<button onClick={onRestore}>restore</button>
 				<button onClick={onAdd}>add node</button>
-			</div> */}
+			</div>  */}
 			<MiniMap style={{ backgroundColor: "black" }} />
 			<Controls>
 				<ControlButton onClick={onRestore}>

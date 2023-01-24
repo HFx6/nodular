@@ -1,6 +1,6 @@
 export default {
-    "String": {backgroundColor: "green"},
-    "Int": {backgroundColor: "red"},
-    "Array": {backgroundColor: "yellow"},
-    "Boolean": {backgroundColor: "blue"},
+    "String": {backgroundColor: "#A0D468"},
+    "Int": {backgroundColor: "#EB6D5F"},
+    "Array": {backgroundColor: "#D19A66"},
+    "Boolean": {backgroundColor: "#3380bd"},
 }

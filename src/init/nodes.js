@@ -8,6 +8,8 @@ export default [
 			args: [],
 			funcedit: true,
 			hasfunc: false,
+			returnType: "String",
+			returnTypeColor: {backgroundColor: "#A0D468"},
 			funceval: "yellow",
 		},
 		position: { x: 177, y: 178 },
@@ -19,7 +21,7 @@ export default [
 		dragHandle: ".funcnode",
 		data: {
 			label: "isInArray",
-			func:
+			func:`
 				// /*
 				// * @param {String} input
 				// * @param {Array} array
@@ -28,16 +30,16 @@ export default [
 				function isinarray(input, array) {
 					var bool = array.includes(input);
 					return bool;
-				},
+				}`,
 			args: ["input", "array"],
 			funcedit: true,
 			argTypes: ["String", "Array"],
 			returnType: "Boolean",
 			argTypeColors: [
-				{ backgroundColor: "green" },
-				{ backgroundColor: "yellow" },
+				{ backgroundColor: "#A0D468" },
+				{ backgroundColor: "#D19A66" },
 			],
-			returnTypeColor: {backgroundColor: "blue"},
+			returnTypeColor: {backgroundColor: "#3380bd"},
 			hasfunc: true,
 			funceval: null,
 		},
@@ -47,15 +49,17 @@ export default [
 	},
 	{
 		id: "3",
-		type: "input",
+		type: "nodeArray",
 		data: {
-			label: "Array:arr",
-			func: function () {
+			label: "Array",
+			func: `function Array() {
 				return ["yellow"];
-			},
+			}`,
 			funcedit: true,
 			hasfunc: true,
 			args: [],
+			returnType: "Array",
+			returnTypeColor: {backgroundColor: "#D19A66"},
 			funceval: null,
 		},
 		position: { x: 163, y: 389 },
@@ -66,11 +70,15 @@ export default [
 		type: "nodeBool",
 		data: {
 			label: "Bool",
-			func: function (b) {
+			func: `function (b) {
 				return b;
-			},
+			}`,
 			funcedit: true,
 			hasfunc: true,
+			argTypes: ["Bolean"],
+			argTypeColors: [
+				{ backgroundColor: "#3380bd" },
+			],
 			args: ["b"],
 			funceval: null,
 		},

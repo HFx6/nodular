@@ -1,5 +1,5 @@
 import { topologicalSort } from "./tsort";
-import ReactFlow, { getIncomers, getOutgoers } from "reactflow";
+import ReactFlow, { getIncomers, getOutgoers, useUpdateNodeInternals } from "reactflow";
 
 function depGraph(edges) {
 	var dependencies = {};
@@ -28,7 +28,9 @@ var evalgraph = (node, edges, nodes) => {
 			// console.log(`got arg ${_subnode}`);
 			try {
 				console.log();
-				args.push(_subnode.data.funceval ?? _subnode.data.func());
+				
+				// args.push(_subnode.data.funceval ?? _subnode.data.func());
+				args.push(_subnode.data.funceval ?? new Function("return function"+_subnode.data.func.replace("function", ""))()());
 				// if (_subnode.data.args.length > 0) _subnode.data.funceval = null;
 			} catch (err) {
 				console.log("upstream failure ", err);
@@ -38,7 +40,9 @@ var evalgraph = (node, edges, nodes) => {
 		}
 		console.log("built args array: ", args);
 		console.log(String(node.data.func));
-		if (node.data.hasfunc) node.data.funceval = node.data.func(...args);
+		
+		// if (node.data.hasfunc) node.data.funceval = node.data.func(...args);
+		if (node.data.hasfunc) node.data.funceval = new Function("return function"+node.data.func.replace("function", ""))()(...args);
 		var nodeOuts = getOutgoers(node, nodes, edges);
 		for (const _subnode of nodeOuts) {
 			console.log(`propgating to`, _subnode);

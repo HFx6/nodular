@@ -72,14 +72,15 @@ export default function functionNode({ nodeData, setCurrentNode }) {
 	).current;
 	const updateNode = useCallback(
 		(evn) => {
-			var vals = getArguments(evn["func"]);
+			var vals = nodeData.hasfunc ? getArguments(evn["func"]) : [[],"input"];
 			const _types = getJSDocTypes(evn["func"]);
 			var argTypeColors = []
-			for (const type of _types.argTypes) {
+			console.log(_types);
+			for (const type of _types.argTypes || []) {
 				argTypeColors.push(handleTypes[type])
 			}
 			updateEditorContent(evn["id"], {
-				func: Function(evn["func"]),
+				func: evn["func"],
 				args: vals[0],
 				argTypeColors,
 				returnTypeColor: handleTypes[_types.returnType],
