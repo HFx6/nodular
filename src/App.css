@@ -50,8 +50,7 @@
 .react-flow__node-nodeEditor.selected,
 .react-flow__node-output.selected {
 	border-color: #107eea;
-	box-shadow: 0 0 0 5px rgba(16, 126, 234, 0.3),
-		0 0 0 2px rgba(16, 126, 234, 1) !important;
+	box-shadow: 0 0 0 5px rgba(16, 126, 234, 0.3), 0 0 0 2px rgba(16, 126, 234, 1) !important;
 }
 
 .react-flow__edge-path,
@@ -245,7 +244,7 @@ svg {
     max-width: 20px;
 } */
 
-.funcout{
+.funcout {
 	float: right;
 }
 
@@ -291,23 +290,22 @@ svg {
 	font-size: 10px;
 }
 
-
 .reactflow-wrapper {
 	flex-grow: 1;
 	height: 100%;
-  }
+}
 
-  .react-flow__handle-left {
-    left: -7px;
+.react-flow__handle-left {
+	left: -7px;
 }
 
 .react-flow__handle-right {
-    right: -7px;
+	right: -7px;
 }
 
-  .react-flow__handle {
-    width: 10px;
-    height: 16px;
-    border: 1px solid #838383;
-    border-radius: 5px;
+.react-flow__handle {
+	width: 10px;
+	height: 16px;
+	border: 1px solid #838383;
+	border-radius: 5px;
 }
