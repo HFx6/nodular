@@ -20,7 +20,12 @@ function evalNode(node, nodes, edges) {
 
 var evalgraph = (node, edges, nodes) => {
 	console.log("called on: ", node);
-	var nodeIns = getIncomers(node, nodes, edges);
+	try{
+		var nodeIns = getIncomers(node, nodes, edges);
+	}catch(err){
+		return nodes;
+	}
+	
 	var dependmet = node.data.args.length == nodeIns.length;
 	if (dependmet) {
 		var args = [];
@@ -42,7 +47,13 @@ var evalgraph = (node, edges, nodes) => {
 		console.log(String(node.data.func));
 		
 		// if (node.data.hasfunc) node.data.funceval = node.data.func(...args);
-		if (node.data.hasfunc) node.data.funceval = new Function("return function"+node.data.func.replace("function", ""))()(...args);
+		try{
+			if (node.data.hasfunc) node.data.funceval = new Function("return function"+node.data.func.replace("function", ""))()(...args);
+		}
+		catch(err){
+			console.log("bad function");
+			return nodes;
+		}
 		var nodeOuts = getOutgoers(node, nodes, edges);
 		for (const _subnode of nodeOuts) {
 			console.log(`propgating to`, _subnode);

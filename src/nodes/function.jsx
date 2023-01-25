@@ -77,8 +77,9 @@ import { Icon } from "@iconify/react";
 export default function functionNode({ data }) {
 	const updateNodeInternals = useUpdateNodeInternals();
 	useEffect(() => {
+		console.log(123);
 		updateNodeInternals(data.id);
-	}, [data?.args]);
+	}, [data?.args, data.label]);
 	const targetHandles = useMemo(
 		() =>
 			data?.args?.map((x, i) => {

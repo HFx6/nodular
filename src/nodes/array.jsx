@@ -10,7 +10,7 @@ export default function arrayNode({ data }) {
 				<Handle
 					type="source"
 					position="right"
-					style={data.returnTypeColor}
+					style={{backgroundColor: "#D19A66"}}
 				/>
 				{/* <FaDotCircle /> */}
 				<Icon icon="mdi:code-array" />

@@ -31,7 +31,7 @@ export default function functionNode({ id, data }) {
 				<Handle
 					type="source"
 					position="right"
-					style={data.returnTypeColor}
+					style={{backgroundColor: "#A0D468"}}
 					
 				/>
 				{/* <RiInputMethodFill /> */}

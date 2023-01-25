@@ -29,7 +29,7 @@ import useStore from "./utils/store";
 import "reactflow/dist/style.css";
 import "./index.css";
 
-const flowKey = "example-flow";
+const flowKey = "nodular_schema";
 
 const nodeTypes = {
 	nodeFunction: NFunction,
@@ -49,7 +49,7 @@ const selector = (state) => ({
 	onConnectEnd: state.onConnectEnd,
 });
 
-const getId = () => `randomnode_${+new Date()}`;
+const getId = () => `nodular_${+new Date()}`;
 
 const SaveRestore = () => {
 	const {

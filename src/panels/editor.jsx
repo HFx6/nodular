@@ -72,7 +72,8 @@ export default function functionNode({ nodeData, setCurrentNode }) {
 	).current;
 	const updateNode = useCallback(
 		(evn) => {
-			var vals = nodeData.hasfunc ? getArguments(evn["func"]) : [[],"input"];
+			var vals = getArguments(evn["func"]);
+			console.log(vals, nodeData.hasfunc);
 			const _types = getJSDocTypes(evn["func"]);
 			var argTypeColors = []
 			console.log(_types);
