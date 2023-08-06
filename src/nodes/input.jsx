@@ -4,7 +4,7 @@ import { RiInputMethodFill } from "react-icons/ri";
 import { Icon } from "@iconify/react";
 import { debounce } from "lodash";
 
-import useStore from '../utils/store';
+import useStore from "../utils/store";
 
 export default function functionNode({ id, data }) {
 	const [inputVal, setInputVal] = useState(data.funceval);
@@ -15,14 +15,13 @@ export default function functionNode({ id, data }) {
 		}, 1000)
 	).current;
 
-	useEffect(()=>{
+	useEffect(() => {
 		// console.log(didMountRef.current);
-		if (didMountRef.current) { 
-			debounceUpdate({id: id, val:inputVal});
-		  }
-		  didMountRef.current = true;
-		
-	}, [inputVal])
+		if (didMountRef.current) {
+			debounceUpdate({ id: id, val: inputVal });
+		}
+		didMountRef.current = true;
+	}, [inputVal]);
 
 	const updateInputValue = useStore((state) => state.updateInputValue);
 	return (
@@ -31,14 +30,17 @@ export default function functionNode({ id, data }) {
 				<Handle
 					type="source"
 					position="right"
-					style={{backgroundColor: "#A0D468"}}
-					
+					style={{ backgroundColor: "#A0D468" }}
 				/>
 				{/* <RiInputMethodFill /> */}
 				<Icon icon="ri:input-method-fill" />
 			</div>
 			<div className="input">
-				<input className="nodrag" value={inputVal} onChange={(evt) => setInputVal(evt.target.value)}/>
+				<input
+					className="nodrag"
+					value={inputVal}
+					onChange={(evt) => setInputVal(evt.target.value)}
+				/>
 			</div>
 		</div>
 	);

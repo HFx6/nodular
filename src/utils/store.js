@@ -20,6 +20,8 @@ import { evalnode } from "./evalnode";
 const useStore = create((set, get) => ({
 	nodes: initialNodes,
 	edges: initialEdges,
+	selectedNodeId: "",
+	selectedNode: {},
 	topo: topologicalSort(initialEdges),
 	onNodesChange: (changes) => {
 		set({
@@ -45,18 +47,30 @@ const useStore = create((set, get) => ({
 				});
 			}
 		});
-		// console.log(get().nodes);
 	},
 	updateInputValue: (nodeId, value) => {
-		console.log("update ", value);
 		set({
 			nodes: get().nodes.map((node) => {
 				if (node.id === nodeId) {
 					// it's important to create a new object here, to inform React Flow about the cahnges
 					node.data = { ...node.data, funceval: value };
-					if(node.data.funceval) set({
-						nodes: evalgraph(node, get().edges, get().nodes),
-					});
+					if (node.data.funceval)
+						set({
+							nodes: evalgraph(node, get().edges, get().nodes),
+						});
+				}
+
+				return node;
+			}),
+		});
+	},
+	updateLoading: (nodeId, value) => {
+		set({
+			nodes: get().nodes.map((node) => {
+				if (node.id === nodeId) {
+					// it's important to create a new object here, to inform React Flow about the cahnges
+
+					node.data = { ...node.data, ...{ loading: value } };
 				}
 
 				return node;
@@ -69,13 +83,22 @@ const useStore = create((set, get) => ({
 				if (node.id === nodeId) {
 					// it's important to create a new object here, to inform React Flow about the cahnges
 					node.data = { ...node.data, ...value };
-					set({
-						nodes: evalgraph(node, get().edges, get().nodes),
-					});
 				}
 
 				return node;
 			}),
+		});
+	},
+	setSelectedNode: (nodeId) => {
+		set({
+			selectedNodeId: nodeId,
+		});
+		get().nodes.map((node) => {
+			if (node.id === nodeId) {
+				set({
+					selectedNode: node,
+				});
+			}
 		});
 	},
 	setNodes: (nodes) => {

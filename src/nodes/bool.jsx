@@ -6,7 +6,6 @@ import { Icon } from "@iconify/react";
 export default function boolNode({ data }) {
 	const updateNodeInternals = useUpdateNodeInternals();
 	useEffect(() => {
-		console.log(data);
 		updateNodeInternals(data.id);
 	}, [data.funceval]);
 	return (

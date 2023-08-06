@@ -50,7 +50,8 @@
 .react-flow__node-nodeEditor.selected,
 .react-flow__node-output.selected {
 	border-color: #107eea;
-	box-shadow: 0 0 0 5px rgba(16, 126, 234, 0.3), 0 0 0 2px rgba(16, 126, 234, 1) !important;
+	box-shadow: 0 0 0 5px rgba(16, 126, 234, 0.3),
+		0 0 0 2px rgba(16, 126, 234, 1) !important;
 }
 
 .react-flow__edge-path,
@@ -145,11 +146,11 @@ svg {
 	line-height: 20px;
 }
 
-.cmbody {
+/* .cmbody {
 	overflow: auto;
 	border-radius: 8px;
 	max-height: 71vh;
-}
+} */
 
 /* editor */
 
@@ -165,7 +166,8 @@ svg {
 	width: 35vw;
 }
 .cm-editor {
-	height: 100%;
+	height: 100vh;
+	max-height: 100vh;
 }
 .cm-scroller {
 	overflow: auto;

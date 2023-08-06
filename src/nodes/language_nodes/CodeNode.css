@@ -1,0 +1,89 @@
+.code-container {
+	color: #323330;
+	display: flex;
+	flex-direction: column;
+	font-family: Roboto;
+}
+.code-header {
+	display: flex;
+	justify-content: space-between;
+	width: 90%;
+	margin: auto;
+}
+
+.code-info {
+	display: flex;
+	align-items: center;
+	color: #323330;
+}
+.code-play {
+	cursor: pointer !important;
+}
+.code-more button {
+	outline: none;
+	border: none;
+	background-color: inherit;
+	color: inherit;
+	cursor: pointer;
+}
+.code-icon svg {
+	display: block;
+}
+.code-name {
+}
+.code-options {
+	display: flex;
+}
+.code-body {
+	border-radius: 10px;
+	border: 2px solid #f0db4f;
+	background: #1c1c1c;
+	color: white;
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 78px;
+	padding: 8px;
+}
+
+.code-body p {
+	margin: 0;
+}
+
+/* javscript-node */
+.node-node {
+	border-radius: 10px;
+	background: #f0db4f;
+}
+.custom-node__select.codenode > .react-flow__handle-left {
+	background-color: #f0db4f;
+	border: none;
+	width: 17px;
+	height: 16px;
+	flex-shrink: 0;
+	border-radius: 6px 0px 0px 6px;
+	left: -26px;
+}
+.custom-node__select.codenode > .react-flow__handle-right {
+	background-color: #f0db4f;
+	border: none;
+	width: 17px;
+	height: 16px;
+	flex-shrink: 0;
+	border-radius: 0px 6px 6px 0px;
+	right: -26px;
+}
+
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  animation: spin 2s linear infinite; 
+}

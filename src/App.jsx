@@ -1,12 +1,8 @@
-import Flow from "./Graph";
-import './App.css'
+import Enviroment from "./components/Enviroment";
+import "./App.css";
 
 function App() {
-  return (
-    <div className="App">
-      <Flow />
-    </div>
-  )
+	return <Enviroment />;
 }
 
-export default App
+export default App;
