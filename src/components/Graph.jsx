@@ -18,6 +18,8 @@ import NBool from "../nodes/bool";
 import NInput from "../nodes/input";
 import NArray from "../nodes/array";
 import JavascriptNode from "../nodes/language_nodes/JavascriptNode";
+import LuaNode from "../nodes/language_nodes/LuaNode";
+import CanvasNode from "../nodes/language_nodes/CanvasNode";
 import PythonNode from "../nodes/language_nodes/PythonNode";
 
 import { shallow } from "zustand/shallow";
@@ -36,8 +38,9 @@ const nodeTypes = {
 	nodeBool: NBool,
 	nodeInput: NInput,
 	nodeArray: NArray,
-	javascriptNode: JavascriptNode,
+	luaNode: LuaNode,
 	pythonNode: PythonNode,
+	canvasNode: CanvasNode,
 };
 
 const selector = (state) => ({
@@ -99,8 +102,8 @@ function SaveRestore() {
 	const onPlay = async () => {
 		setPlaying(true);
 		try {
-			const result = await evalgraph(getNode("nodular_1691055280024"), getNodes(), getEdges(), updateLoadingCallback);
-			// console.log("Time taken:", result.timeTaken, "ms");
+			const result = await evalgraph(topo, getNodes(), getEdges(), getNode, updateLoadingCallback);
+			console.log("Time taken:", result.timeTaken, "ms");
 		} catch (err) {
 			console.error("Error during evaluation:", err);
 		}
@@ -201,11 +204,6 @@ function SaveRestore() {
 			/>
 
 			{/* <Toolbar /> */}
-			{/* <div className="save__controls">
-				<button onClick={onSave}>save</button>
-				<button onClick={onRestore}>restore</button>
-				<button onClick={onAdd}>add node</button>
-			</div>  */}
 			<MiniMap
 				style={{ backgroundColor: "black" }}
 				position={"bottom-left"}

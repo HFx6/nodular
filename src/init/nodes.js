@@ -9,6 +9,7 @@ export default [
 			y: 232,
 		},
 		data: {
+			lang: "node",
 			label: "textinput",
 			func: null,
 			args: [],
@@ -37,6 +38,7 @@ export default [
 			y: 392,
 		},
 		data: {
+			lang: "node",
 			label: "Array",
 			func: 'function Array() {\n\treturn ["yellow", "blue"];\n}',
 			funcedit: true,
@@ -57,7 +59,7 @@ export default [
 		width: 184,
 		height: 54,
 		id: "nodular_1674617455844",
-		type: "nodeBool",
+		type: "canvasNode",
 		position: {
 			x: 983,
 			y: 381,
@@ -67,6 +69,7 @@ export default [
 			func: "function (b) {\n            return b;\n        }",
 			funcedit: true,
 			hasfunc: true,
+			lang: "node",
 			argTypes: ["Bolean"],
 			argTypeColors: [
 				{
@@ -87,7 +90,7 @@ export default [
 		width: 176,
 		height: 112,
 		id: "nodular_1691055280024",
-		type: "javascriptNode",
+		type: "luaNode",
 		position: {
 			x: 602,
 			y: 283,

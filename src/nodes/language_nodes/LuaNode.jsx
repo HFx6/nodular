@@ -2,12 +2,15 @@ import React, { useState, useEffect } from "react";
 import CodeNode from "./CodeNode";
 import { FaNodeJs } from "react-icons/fa";
 
+
+
+
 function JavascriptNode({ data, id }) {
 	const playFromNode = (id) => {
 		console.log(id);
 	};
 	return (
-		
+		<>
 			<CodeNode
 				icon={<FaNodeJs />}
 				name={"isinarray()"}
@@ -16,6 +19,8 @@ function JavascriptNode({ data, id }) {
 				playCallback={() => playFromNode(id)}
 			/>
 			
+			<div id="editor" style={{ flex: "auto" }}></div>
+		</>
 	);
 }
 

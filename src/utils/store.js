@@ -40,13 +40,11 @@ const useStore = create((set, get) => ({
 		set({
 			topo: topologicalSort(get().edges),
 		});
-		get().nodes.map((node) => {
-			if (node.id === connection.target) {
-				set({
-					nodes: evalgraph(node, get().edges, get().nodes),
-				});
-			}
-		});
+		// get().nodes.map((node) => {
+		// 	if (node.id === connection.target && node.data.hasfunc) {
+		// 		evalgraph(node, get().nodes, get().edges, get().updateLoading);
+		// 	}
+		// });
 	},
 	updateInputValue: (nodeId, value) => {
 		set({
@@ -54,10 +52,8 @@ const useStore = create((set, get) => ({
 				if (node.id === nodeId) {
 					// it's important to create a new object here, to inform React Flow about the cahnges
 					node.data = { ...node.data, funceval: value };
-					if (node.data.funceval)
-						set({
-							nodes: evalgraph(node, get().edges, get().nodes),
-						});
+					// if (node.data.funceval)
+					// evalgraph(node, get().nodes, get().edges, get().updateLoading);
 				}
 
 				return node;

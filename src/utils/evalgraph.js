@@ -1,28 +1,27 @@
-import { topologicalSort } from "./tsort";
-import useStore from "../utils/store";
-import ReactFlow, {
+// import { topologicalSort } from "./tsort";
+// import useStore from "../utils/store";
+import {
 	getIncomers,
-	getOutgoers,
-	useUpdateNodeInternals,
+	// getOutgoers,
+	// useUpdateNodeInternals,
 } from "reactflow";
 
-function depGraph(edges) {
-	var dependencies = {};
-	for (const edge of edges) {
-		if (!dependencies[edge.source]) dependencies[edge.source] = [];
-		if (!dependencies[edge.target]) dependencies[edge.target] = [];
-	}
-	for (const edge of edges) {
-		dependencies[edge.target].push(edge.source);
-	}
-	return dependencies;
-}
+// function depGraph(edges) {
+// 	var dependencies = {};
+// 	for (const edge of edges) {
+// 		if (!dependencies[edge.source]) dependencies[edge.source] = [];
+// 		if (!dependencies[edge.target]) dependencies[edge.target] = [];
+// 	}
+// 	for (const edge of edges) {
+// 		dependencies[edge.target].push(edge.source);
+// 	}
+// 	return dependencies;
+// }
 
-function evalNode(node, nodes, edges) {
-	var nodeIns = getIncomers(node, nodes, edges);
-	var nodeOuts = getOutgoers(node, nodes, edges);
-}
-
+// function evalNode(node, nodes, edges) {
+// 	var nodeIns = getIncomers(node, nodes, edges);
+// 	var nodeOuts = getOutgoers(node, nodes, edges);
+// }
 
 // var evalgraph = (node, edges, nodes) => {
 // 	// console.log("called on: ", node);
@@ -123,61 +122,82 @@ function evalNode(node, nodes, edges) {
 // 	return nodes;
 // }
 
-function evalgraph(node, nodes, edges, updateLoadingCallback) {
+function evalNodeJavascript(node, nodeIns) {
+	const args = nodeIns.map((_subnode) => {
+		return _subnode.data.funceval;
+	});
+	return new Function(
+		`return function ${node.data.func.replace("function", "")}`
+	)()(...args);
+}
+
+async function evalNodePython(node, nodeIns, ato_run) {
+	const args = nodeIns.map((_subnode) => {
+		return _subnode.data.funceval;
+	});
+	const output = await ato_run(args, node.data.lang, node.data.func);
+	console.log("Final Output:", output);
+	return output;
+}
+
+function evalNodeFunc(node, nodeIns, ato_run) {
+	switch (node.data.lang) {
+		case "node":
+			return evalNodeJavascript(node, nodeIns);
+		case "python":
+			return evalNodePython(node, nodeIns, ato_run);
+		default:
+			return node;
+	}
+}
+
+function evalNode(node, nodeIns, ato_run) {
+	return evalNodeFunc(node, nodeIns, ato_run);
+}
+
+function evalgraph(topo, nodes, edges, getNode, updateLoadingCallback, ato_run) {
 	return new Promise((resolve, reject) => {
 		const startTime = Date.now();
+		console.log("evaluating graph: ", topo);
 
-		const nodeIns = getIncomers(node, nodes, edges);
-		const dependmet = node.data.args.length === nodeIns.length;
-
-		if (!dependmet) {
-			resolve(nodes);
+		if (topo.length === 0) {
+			resolve({ nodes, timeTaken: 0 });
 			return;
 		}
 
-		try {
-			const args = nodeIns.map((_subnode) => {
-				return (
-					_subnode.data.funceval ??
-					new Function(
-						`return function ${_subnode.data.func.replace(
-							"function",
-							""
-						)}`
-					)()()
-				);
-			});
+		const currentNode = getNode(topo[0]);
 
-			if (node.data.hasfunc) {
-				// console.log(node.id);
-				updateLoadingCallback(node.id, true);
-				node.data.funceval = new Function(
-					`return function ${node.data.func.replace("function", "")}`
-				)()(...args);
-				setTimeout(() => {
-					updateLoadingCallback(node.id, false);
-				}, 300);
-        
-			}
-			
-			const nodeOuts = getOutgoers(node, nodes, edges);
-			const promises = nodeOuts.map((_subnode) =>
-				evalgraph(_subnode, edges, nodes)
+		const nodeIns = getIncomers(currentNode, nodes, edges);
+
+		if (nodeIns.length === 0) {
+			currentNode.data.funceval = currentNode.data.hasfunc
+				? evalNode(currentNode, nodeIns, ato_run)
+				: currentNode.data.funceval;
+		} else {
+			currentNode.data.funceval = evalNodeFunc(
+				currentNode,
+				nodeIns,
+				ato_run
 			);
+		}
 
-			Promise.all(promises)
-				.then(() => {
-					const endTime = Date.now();
-					const timeTaken = endTime - startTime;
-					resolve({ nodes, timeTaken });
-				})
-				.catch((err) => {
-					reject(err);
-				});
-		} catch (err) {
+		evalgraph(
+			topo.slice(1),
+			nodes,
+			edges,
+			getNode,
+			updateLoadingCallback,
+			ato_run
+		)
+		.then(() => {
+			const endTime = Date.now();
+			const timeTaken = endTime - startTime;
+			resolve({ nodes, timeTaken });
+		})
+		.catch(err => {
 			console.error("Error during evaluation:", err);
 			reject(err);
-		}
+		});
 	});
 }
 
