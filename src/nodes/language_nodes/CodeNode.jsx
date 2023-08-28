@@ -22,8 +22,9 @@ import {
 	MenuTriggerItem,
 	Portal,
 } from "@ark-ui/react";
+import { onPlay } from "../../utils/play";
 
-function CodeNode({ name, icon, data, playCallback, id }) {
+function CodeNode({ name, icon, data, id }) {
 	const updateNodeInternals = useUpdateNodeInternals();
 	useEffect(() => {
 		updateNodeInternals(data.id);
@@ -38,7 +39,7 @@ function CodeNode({ name, icon, data, playCallback, id }) {
 		() =>
 			data?.args?.map((x, i) => {
 				return (
-					<div className="custom-node__select codenode" key={i}>
+					<div className={`custom-node__select ${data.lang}-codenode`} key={i}>
 						<div>{x}</div>
 						<Handle key={x} type="target" position="left" id={x} />
 					</div>
@@ -46,22 +47,34 @@ function CodeNode({ name, icon, data, playCallback, id }) {
 			}),
 		[data.args]
 	);
+	const sourceHandles = useMemo(
+		() =>
+			data?.returnArgs?.map((x, i) => {
+				return (
+					<div className={`custom-node__select ${data.lang}-codenode`} key={i}>
+						<div>{x}</div>
+						<Handle key={x} type="source" position="right" id={x} />
+					</div>
+				);
+			}),
+		[data.returnArgs]
+	);
 	return (
-		<div className={`code-container ${data.lang}-node`}>
-			<div className="code-header">
-				<div className="code-info">
-					<div className="code-icon">{icon}</div>
-					<div className="code-name">{data.label}</div>
+		<div className={`${data.lang}-code-container ${data.lang}-node`}>
+			<div className={`${data.lang}-code-header`}>
+				<div className={`${data.lang}-code-info`}>
+					<div className={`${data.lang}-code-icon`}>{icon}</div>
+					<div className={`${data.lang}-code-name`}>{data.label}</div>
 				</div>
-				<div className="code-options ignore-double-click nodrag">
-					<div className="code-play" onClick={playCallback}>
+				<div className={`${data.lang}-code-options ignore-double-click nodrag`}>
+					<div className={`${data.lang}-code-play`} onClick={(e) => onPlay(e, id)}>
 						{data.loading ? (
 							<PiSpinnerGapDuotone className="spinner" />
 						) : (
 							<PiPlayFill />
 						)}
 					</div>
-					<div className="code-more">
+					<div className={`${data.lang}-code-more`}>
 						<Menu>
 							<MenuTrigger>
 								<PiDotsThreeOutlineFill />
@@ -83,7 +96,7 @@ function CodeNode({ name, icon, data, playCallback, id }) {
 					</div>
 				</div>
 			</div>
-			<div className="code-body">
+			<div className={`${data.lang}-code-body`}>
 				<div className="input-args">
 					{targetHandles}
 					{/* <div className="custom-node__select codenode">
@@ -96,10 +109,11 @@ function CodeNode({ name, icon, data, playCallback, id }) {
 					</div> */}
 				</div>
 				<div className="return">
-					<div className="custom-node__select codenode">
+					{/* <div className={`custom-node__select ${data.lang}-codenode`}>
 						<div>return</div>
 						<Handle type="source" position="right" id="return" />
-					</div>
+					</div> */}
+					{sourceHandles}
 				</div>
 			</div>
 		</div>

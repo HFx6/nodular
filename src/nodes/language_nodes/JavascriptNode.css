@@ -1,0 +1,23 @@
+.node-code-container {
+	color: #323330;
+}
+
+.node-code-info {
+	color: #323330;
+}
+.node-code-body {
+	border: 2px solid #f0db4f;
+	background: #1c1c1c;
+	color: white;
+}
+
+/* javscript-node */
+.node-node {
+	background: #f0db4f;
+}
+.custom-node__select.node-codenode > .react-flow__handle-left {
+	background-color: #f0db4f;
+}
+.custom-node__select.node-codenode > .react-flow__handle-right {
+	background-color: #f0db4f;
+}

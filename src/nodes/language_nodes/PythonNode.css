@@ -1,0 +1,23 @@
+.python-code-container {
+	color: #FFD43B;
+}
+
+.python-code-info {
+	color: #FFD43B;
+}
+.python-code-body {
+	border: 2px solid #306998;
+	background: #1c1c1c;
+	color: white;
+}
+
+/* javscript-node */
+.python-node {
+	background: #306998;
+}
+.custom-node__select.python-codenode > .react-flow__handle-left {
+	background-color: #306998;
+}
+.custom-node__select.python-codenode > .react-flow__handle-right {
+	background-color: #306998;
+}

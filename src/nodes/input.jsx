@@ -5,25 +5,21 @@ import { Icon } from "@iconify/react";
 import { debounce } from "lodash";
 
 import useStore from "../utils/store";
+import { shallow } from "zustand/shallow";
 
-export default function functionNode({ id, data }) {
-	const [inputVal, setInputVal] = useState(data.funceval);
-	const didMountRef = useRef(false);
+const selector = (id) => (state) => ({
+  setInputValue: (e) => state.updateNode(id, { funceval: e }),
+});
+
+export default function FunctionNode({ id, data }) {
+	const { setInputValue } = useStore(selector(id), shallow);
+	
 	const debounceUpdate = useRef(
 		debounce(async (evn) => {
-			updateInputValue(evn.id, evn.val);
+			setInputValue(evn);
 		}, 1000)
 	).current;
 
-	useEffect(() => {
-		// console.log(didMountRef.current);
-		if (didMountRef.current) {
-			debounceUpdate({ id: id, val: inputVal });
-		}
-		didMountRef.current = true;
-	}, [inputVal]);
-
-	const updateInputValue = useStore((state) => state.updateInputValue);
 	return (
 		<div className="nstring">
 			<div className="idicon">
@@ -38,8 +34,8 @@ export default function functionNode({ id, data }) {
 			<div className="input">
 				<input
 					className="nodrag"
-					value={inputVal}
-					onChange={(evt) => setInputVal(evt.target.value)}
+					defaultValue={data.funceval}
+					onChange={(evt) => debounceUpdate(evt.target.value)}
 				/>
 			</div>
 		</div>

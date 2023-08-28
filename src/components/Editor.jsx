@@ -2,7 +2,8 @@ import { basicSetup } from "codemirror";
 import { EditorView, keymap } from "@codemirror/view";
 import { indentWithTab } from "@codemirror/commands";
 import { javascript } from "@codemirror/lang-javascript";
-import React, { useMemo, seState, useCallback, useRef, useEffect } from "react";
+import { python } from "@codemirror/lang-python";
+import React, { useRef, useEffect } from "react";
 import { js as jBeautify } from "js-beautify";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { shallow } from "zustand/shallow";
@@ -15,63 +16,51 @@ const selector = (state) => ({
 	selectedNodeId: state.selectedNodeId,
 	selectedNode: state.selectedNode,
 	setSelectedNode: state.setSelectedNode,
-	updateEditorContent: state.updateEditorContent,
+	updateNodeData: (e) => state.updateNode(state.selectedNodeId, e),
 });
-const code = `function isinarray(input, array) {\n\tvar bool = array.includes(input);\n\treturn bool;\n}`;
+// const code = `function isinarray(input, array) {\n\tvar bool = array.includes(input);\n\treturn bool;\n}`;
+
+const editor_lang = {
+	node: javascript(),
+	python: python(),
+};
 
 function Editor() {
-	const { selectedNodeId, selectedNode, setSelectedNode } = useStore(
-		selector,
-		shallow
-	);
+	const { selectedNodeId, selectedNode, setSelectedNode, updateNodeData } =
+		useStore(selector, shallow);
 
-	// const args = useMemo(() => {
-	// 	return jsFunctionArgs(code);
-	// }, []);
 	const refEditor = useRef(null);
+	console.log(editor_lang, selectedNode.data.lang);
+
 	const debounceUpdate = useRef(
 		debounce(async (criteria) => {
-			updateNode(criteria);
+			console.log(jsFunctionArgs(criteria.func));
+			updateNodeData(criteria);
 		}, 1000)
 	).current;
 
-	const updateNode = useCallback(
-		(evn) => {
-			// var vals = evn.data.args;
-			// const _types = getJSDocTypes(evn["func"]);
-			// var argTypeColors = [];
-			// console.log(_types);
-			// for (const type of _types.argTypes || []) {
-			// 	argTypeColors.push(handleTypes[type]);
-			// }
-			updateEditorContent(evn["id"], {
-				label: jsFunctionArgs(evn["func"]).functionName,
-				func: evn["func"],
-				args: jsFunctionArgs(evn["func"]).args,
-			});
-		},
-		[selectedNode?.data?.func]
-	);
-	// useEffect(() => {
-	// 		(async () => {
-	// 			const output = await ato_run();
-	// 			console.log("Final Output:", output);
-	// 		})();
-	// 	}, []);
 	useEffect(() => {
-		const view = new EditorView({
-			doc: jBeautify(selectedNode?.data?.func || code, {
+		const editorContent = selectedNode.data?.funcedit
+			? selectedNode.data.hasfunc
+				? selectedNode.data.func
+				: selectedNode.data.funceval
+			: "non editable node";
+		const editor_content = {
+			node: jBeautify(editorContent, {
 				indent_size: 2,
 				indent_with_tabs: true,
 			}),
+			python: editorContent,
+		};
+		const view = new EditorView({
+			doc: editor_content[selectedNode.data.lang] || editor_content.node,
 			extensions: [
 				basicSetup,
-				javascript({ jsx: true, typescript: true }),
+				editor_lang[selectedNode.data.lang] || editor_lang.node,
 				keymap.of([indentWithTab]),
 				EditorView.updateListener.of((v) => {
 					if (v.docChanged) {
 						debounceUpdate({
-							id: selectedNodeId,
 							func: v.state.doc.toString(),
 						});
 					}
@@ -80,21 +69,20 @@ function Editor() {
 			],
 			parent: refEditor.current,
 		});
-		// (async () => {
-		// 	const output = await ato_run(selectedNode?.data?.func || code);
-		// 	console.log("Final Output:", output);
-		// })();
 		return () => {
 			view.destroy();
 		};
 	}, [selectedNodeId]);
-	const { updateEditorContent } = useStore(selector, shallow);
-	const closehandle = () => {
+
+	const closeHandle = () => {
 		setSelectedNode("");
 	};
+
 	return (
 		<>
-			<div onClick={closehandle}>close</div>
+			<div onClick={closeHandle} style={{ top: "0", position: "sticky" }}>
+				close
+			</div>
 			<div ref={refEditor} />
 		</>
 	);

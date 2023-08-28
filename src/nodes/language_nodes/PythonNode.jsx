@@ -1,14 +1,17 @@
+import React, { useState, useEffect } from "react";
 import CodeNode from "./CodeNode";
+import { TbBrandPython } from "react-icons/tb";
+import './PythonNode.css';
 
-function PythonNode() {
-    return (
-        <CodeNode
-            icon={"234"}
-            name={"Array()"}
-            lang="python"
-            args={[]}
-        />
-    );
+function PythonNode({ data, id }) {
+	return (
+		<CodeNode
+			icon={<TbBrandPython />}
+			name={data.label || `Function`}
+			data={data}
+			id={id}
+		/>
+	);
 }
 
 export default PythonNode;

@@ -5,18 +5,7 @@ import initialNodes from "../init/nodes";
 import initialEdges from "../init/edges";
 
 import { topologicalSort } from "./tsort";
-import { evalgraph } from "./evalgraph";
-import { evalnode } from "./evalnode";
 
-// const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-// 				console.log();
-// 				setNodes(flow.nodes || []);
-// 				setEdges(flow.edges || []);
-// 				setViewport({ x, y, zoom });
-
-// const localGraph = JSON.parse(localStorage.getItem("example-flow"));;
-
-// this is our useStore hook that we can use in our components to get parts of the store and call actions
 const useStore = create((set, get) => ({
 	nodes: initialNodes,
 	edges: initialEdges,
@@ -40,49 +29,14 @@ const useStore = create((set, get) => ({
 		set({
 			topo: topologicalSort(get().edges),
 		});
-		// get().nodes.map((node) => {
-		// 	if (node.id === connection.target && node.data.hasfunc) {
-		// 		evalgraph(node, get().nodes, get().edges, get().updateLoading);
-		// 	}
-		// });
 	},
-	updateInputValue: (nodeId, value) => {
+	updateNode(id, data) {
 		set({
-			nodes: get().nodes.map((node) => {
-				if (node.id === nodeId) {
-					// it's important to create a new object here, to inform React Flow about the cahnges
-					node.data = { ...node.data, funceval: value };
-					// if (node.data.funceval)
-					// evalgraph(node, get().nodes, get().edges, get().updateLoading);
-				}
-
-				return node;
-			}),
-		});
-	},
-	updateLoading: (nodeId, value) => {
-		set({
-			nodes: get().nodes.map((node) => {
-				if (node.id === nodeId) {
-					// it's important to create a new object here, to inform React Flow about the cahnges
-
-					node.data = { ...node.data, ...{ loading: value } };
-				}
-
-				return node;
-			}),
-		});
-	},
-	updateEditorContent: (nodeId, value) => {
-		set({
-			nodes: get().nodes.map((node) => {
-				if (node.id === nodeId) {
-					// it's important to create a new object here, to inform React Flow about the cahnges
-					node.data = { ...node.data, ...value };
-				}
-
-				return node;
-			}),
+			nodes: get().nodes.map((node) =>
+				node.id === id
+					? { ...node, data: Object.assign(node.data, data) }
+					: node
+			),
 		});
 	},
 	setSelectedNode: (nodeId) => {

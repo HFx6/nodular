@@ -1,3 +1,5 @@
+import { PiTrainDuotone } from "react-icons/pi";
+
 export default {
 	nodeFunction: {
 		type: "nodeFunction",
@@ -14,6 +16,48 @@ export default {
 			hasfunc: true,
 			funceval: null,
 		},
+		sourcePosition: "right",
+		targetPosition: "left",
+	},
+	javascriptNode: {
+		type: "javascriptNode",
+		dragHandle: ".funcnode",
+		data: {
+			label: "isinarray",
+			lang: "node",
+			loading: false,
+			func: "function isinarray(input, array) {\n\tvar bool = array.includes(input);\n\treturn bool;\n}",
+			args: ["input", "array"],
+			funcedit: true,
+			argTypes: [],
+			returnType: "",
+			argTypeColors: [],
+			hasfunc: true,
+			funceval: null,
+		},
+		dragging: false,
+		selected: false,
+		sourcePosition: "right",
+		targetPosition: "left",
+	},
+	pythonNode: {
+		type: "pythonNode",
+		dragHandle: ".funcnode",
+		data: {
+			label: "isinarray",
+			lang: "python",
+			loading: false,
+			func: "function isinarray(input, array) {\n\tvar bool = array.includes(input);\n\treturn bool;\n}",
+			args: ["input", "array"],
+			funcedit: true,
+			argTypes: [],
+			returnType: "",
+			argTypeColors: [],
+			hasfunc: true,
+			funceval: null,
+		},
+		dragging: false,
+		selected: false,
 		sourcePosition: "right",
 		targetPosition: "left",
 	},
@@ -52,14 +96,14 @@ export default {
 		data: {
 			label: "Array",
 			func: `function Array() {
-            return [];
-        }`,
+				return [];
+		}`,
+			args: [],
 			funcedit: true,
 			hasfunc: true,
-			args: [],
-			returnType: "Array",
-			returnTypeColor: { backgroundColor: "#D19A66" },
-			funceval: null,
+			returnType: "String",
+			returnTypeColor: { backgroundColor: "#A0D468" },
+			funceval: [],
 		},
 		sourcePosition: "right",
 	},
