@@ -14,12 +14,12 @@ const selector = (state) => ({
 function Enviroment() {
 	const [htmlFileString, setHtmlFileString] = useState();
 
-  async function fetchHtml() {
-    setHtmlFileString(await (await fetch(`src/components/c.html`)).text());
-  }
-  useEffect(() => {
-    fetchHtml();
-  }, []);
+	async function fetchHtml() {
+		setHtmlFileString(await (await fetch(`src/components/c.html`)).text());
+	}
+	useEffect(() => {
+		fetchHtml();
+	}, []);
 	const { selectedNodeId } = useStore(selector, shallow);
 	return (
 		<ContextMenu>
@@ -33,16 +33,19 @@ function Enviroment() {
 					<NodularGraph />
 				</SplitterPanel>
 
-				{/* {selectedNodeId ? ( */}
+				{selectedNodeId ? (
 					<>
-					
-					 <SplitterResizeTrigger id="a:b" />
-							<SplitterPanel id="b">
+						<SplitterResizeTrigger id="a:b" />
+						<SplitterPanel id="b">
 							{/*<Editor />*/}
-							<div dangerouslySetInnerHTML={{ __html: htmlFileString }}></div>
-						</SplitterPanel> 
+							<div
+								dangerouslySetInnerHTML={{
+									__html: htmlFileString,
+								}}
+							></div>
+						</SplitterPanel>
 					</>
-				{/* ) : null} */}
+				) : null}
 			</Splitter>
 		</ContextMenu>
 	);

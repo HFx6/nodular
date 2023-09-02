@@ -23,7 +23,7 @@ export default function functionNode() {
 				<div draggable onDragStart={(event) => onDragStart(event, "nodeArray")}>
 					<Icon icon="mdi:code-array" />
 				</div>
-				<div draggable onDragStart={(event) => onDragStart(event, "nodeBool")}>
+				<div draggable onDragStart={(event) => onDragStart(event, "canvasNode")}>
 					<Icon icon="material-symbols:image" />
 				</div>
 				<div draggable onDragStart={(event) => onDragStart(event, "nodeBool")}>

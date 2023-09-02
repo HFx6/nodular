@@ -91,6 +91,20 @@ export default {
 		},
 		sourcePosition: "right",
 	},
+	canvasNode: {
+		type: "canvasNode",
+		data: {
+			label: "canvas",
+			func: null,
+			args: [],
+			funcedit: true,
+			hasfunc: false,
+			returnType: "",
+			returnTypeColor: { backgroundColor: "#A0D468" },
+			funceval: "",
+		},
+		sourcePosition: "right",
+	},
 	nodeArray: {
 		type: "nodeArray",
 		data: {
