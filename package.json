@@ -25,6 +25,9 @@
     "@radix-ui/react-collapsible": "^1.0.3",
     "@radix-ui/react-context-menu": "^2.1.4",
     "@radix-ui/react-popover": "1.0.6",
+    "@rollup/browser": "^3.28.1",
+    "@rollup/plugin-inject": "^5.0.3",
+    "@rollup/pluginutils": "^5.0.4",
     "@uiw/codemirror-theme-vscode": "^4.21.9",
     "@uiw/react-codemirror": "^4.21.9",
     "codemirror": "^6.0.1",
@@ -32,6 +35,7 @@
     "js-beautify": "^1.14.9",
     "lezer": "^0.13.5",
     "lodash": "^4.17.21",
+    "magic-string": "^0.30.3",
     "nanoid": "^4.0.2",
     "pako": "^2.1.0",
     "react": "^18.2.0",
@@ -44,6 +48,7 @@
     "zustand": "^4.3.9"
   },
   "devDependencies": {
+    "@rollup/plugin-url": "^8.0.1",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react-swc": "^3.3.2",

@@ -1,6 +1,6 @@
 import NodularGraph from "./Graph";
 import Editor from "./Editor";
-
+import React, { useEffect, useState } from "react";
 import { Splitter, SplitterPanel, SplitterResizeTrigger } from "@ark-ui/react";
 
 import useStore from "../utils/store";
@@ -12,6 +12,14 @@ const selector = (state) => ({
 });
 
 function Enviroment() {
+	const [htmlFileString, setHtmlFileString] = useState();
+
+  async function fetchHtml() {
+    setHtmlFileString(await (await fetch(`src/components/c.html`)).text());
+  }
+  useEffect(() => {
+    fetchHtml();
+  }, []);
 	const { selectedNodeId } = useStore(selector, shallow);
 	return (
 		<ContextMenu>
@@ -25,14 +33,16 @@ function Enviroment() {
 					<NodularGraph />
 				</SplitterPanel>
 
-				{selectedNodeId ? (
+				{/* {selectedNodeId ? ( */}
 					<>
-						<SplitterResizeTrigger id="a:b" />
-						<SplitterPanel id="b">
-							<Editor />
-						</SplitterPanel>
+					
+					 <SplitterResizeTrigger id="a:b" />
+							<SplitterPanel id="b">
+							{/*<Editor />*/}
+							<div dangerouslySetInnerHTML={{ __html: htmlFileString }}></div>
+						</SplitterPanel> 
 					</>
-				) : null}
+				{/* ) : null} */}
 			</Splitter>
 		</ContextMenu>
 	);
