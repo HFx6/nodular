@@ -5,6 +5,11 @@ import { ato_run } from "./client/ato";
 import { TIO } from "./client/tio";
 import { rollup } from "@rollup/browser";
 import fs from "fs";
+import { ViaClass } from "./via";
+import MyWorker from "./worker?worker&inline";
+
+let worker = null;
+
 
 const modules = {
 	"chip8.js":
@@ -105,21 +110,49 @@ const modules2 = {
 	"foo.js": "export default 42;",
 };
 
+// function rU() {
+// 	rollup({
+// 		input: "chip8.js",
+// 		plugins: [
+// 			{
+// 				name: "loader",
+// 				resolveId(source) {
+// 					if (modules.hasOwnProperty(source)) {
+// 						return source;
+// 					}
+// 				},
+// 				load(id) {
+// 					if (modules.hasOwnProperty(id)) {
+// 						return modules[id];
+// 					}
+// 				},
+// 			},
+// 		],
+// 	})
+// 		.then((bundle) => bundle.generate({ format: "es" }))
+// 		.then(({ output }) => {
+// 			const code = output[0].code;
+// 			// console.log(code);
+// 			const fn = new Function(code); // Create a function from the generated code
+// 			fn(); // Execute the function
+// 		});
+// }
 
-function rU() {
+function rU2(modulesOBJ) {
 	rollup({
 		input: "chip8.js",
 		plugins: [
 			{
 				name: "loader",
 				resolveId(source) {
-					if (modules.hasOwnProperty(source)) {
+					// console.log(source);
+					if (modulesOBJ.hasOwnProperty(source)) {
 						return source;
 					}
 				},
 				load(id) {
-					if (modules.hasOwnProperty(id)) {
-						return modules[id];
+					if (modulesOBJ.hasOwnProperty(id)) {
+						return modulesOBJ[id];
 					}
 				},
 			},
@@ -127,33 +160,55 @@ function rU() {
 	})
 		.then((bundle) => bundle.generate({ format: "es" }))
 		.then(({ output }) => {
+			// Rollup bundled code string.
 			const code = output[0].code;
-			// console.log(code);
-			const fn = new Function(code); // Create a function from the generated code
-			fn(); // Execute the function
+			if (worker) worker.terminate();
+
+			worker = new MyWorker();
+
+			// Hook up Via's messages with the worker's postMessage bridge
+			worker.onmessage = (e) => ViaReceiver.OnMessage(e.data);
+			ViaReceiver.postMessage = (data) => worker.postMessage(data);
+
+			// Start the worker
+			// worker.postMessage("start");
+
+			const fetchRaw = async (url) => {
+				const res = await fetch(url).then((response) => {
+					return response;
+				})
+				return res;
+			} 
+
+			worker.postMessage({code, type: "start"});
 		});
 }
 
 function evalGraph(startingNodeID) {
-	rU();
+	// rU2();
+	const OBJM = {};
 	return new Promise((resolve, reject) => {
 		const startTime = Date.now();
 		const { nodes, edges } = useStore.getState();
-		// const _topological_sort = topologicalSort(edges);
-		// const indexOfNode = _topological_sort.indexOf(startingNodeID);
-		// const topological_sort =
-		// 	indexOfNode == -1
-		// 		? _topological_sort
-		// 		: _topological_sort.slice(indexOfNode);
+		const _topological_sort = topologicalSort(edges);
+		const indexOfNode = _topological_sort.indexOf(startingNodeID);
+		const topological_sort =
+			indexOfNode == -1
+				? _topological_sort
+				: _topological_sort.slice(indexOfNode);
 
 		(async () => {
-			// while (topological_sort.length > 0) {
-			// 	const current_node = nodes.find(
-			// 		(obj) => obj.id === topological_sort[0]
-			// 	);
-			// 	await graphTraversal(nodes, edges, current_node);
-			// 	topological_sort.shift();
-			// }
+			while (topological_sort.length > 0) {
+				const current_node = nodes.find(
+					(obj) => obj.id === topological_sort[0]
+				);
+				if (current_node)
+					OBJM[current_node?.data?.label] = current_node.data.func;
+				// await graphTraversal(nodes, edges, current_node);
+				topological_sort.shift();
+			}
+			// console.log(OBJM);
+			rU2(OBJM);
 
 			const endTime = Date.now();
 			const timeTaken = endTime - startTime;

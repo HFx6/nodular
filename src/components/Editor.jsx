@@ -9,7 +9,7 @@ import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { shallow } from "zustand/shallow";
 import useStore from "../utils/store";
 import { debounce } from "lodash";
-import { functionArgs as jsFunctionArgs } from "../utils/language_parsers/javascript";
+import { functionArgs } from "../utils/language_parsers/javascript";
 import { ato_run } from "../utils/client/ato";
 
 const selector = (state) => ({
@@ -34,7 +34,7 @@ function Editor() {
 
 	const debounceUpdate = useRef(
 		debounce(async (criteria) => {
-			console.log(jsFunctionArgs(criteria.func));
+			if(criteria.func) console.log(functionArgs(criteria.func));
 			updateNodeData(criteria);
 		}, 1000)
 	).current;
@@ -80,6 +80,15 @@ function Editor() {
 
 	return (
 		<>
+			{/* input for the label */}
+			<input
+				type="text"
+				defaultValue={selectedNode.data.label}
+				onChange={(e) => {
+					debounceUpdate({ label: e.target.value });
+				}}
+			/>
+
 			<div onClick={closeHandle} style={{ top: "0", position: "sticky" }}>
 				close
 			</div>

@@ -67,7 +67,7 @@ function CanvasNode() {
 				</div>
 			</div>
 			<div className={`${data.lang}-code-body`}>
-				<canvas className="rounded"></canvas>
+				<canvas id="node-canvas" className="rounded"></canvas>
 
 				<div style={{display: "none"}}>
 					<section className="px-5 py-4">

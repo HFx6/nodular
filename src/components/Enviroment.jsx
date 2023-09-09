@@ -37,12 +37,7 @@ function Enviroment() {
 					<>
 						<SplitterResizeTrigger id="a:b" />
 						<SplitterPanel id="b">
-							{/*<Editor />*/}
-							<div
-								dangerouslySetInnerHTML={{
-									__html: htmlFileString,
-								}}
-							></div>
+							<Editor />
 						</SplitterPanel>
 					</>
 				) : null}
