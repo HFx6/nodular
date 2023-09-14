@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import CodeNode from "./CodeNode";
 import { FaNodeJs } from "react-icons/fa";
-import './JavascriptNode.css'
+import "./JavascriptNode.css";
 
 function JavascriptNode({ data, id }) {
-	return (
-		<CodeNode
-			icon={<FaNodeJs />}
-			name={data.label || `Function`}
-			data={data}
-			id={id}
-		/>
-	);
+	const Node = useMemo(() => {
+		return (
+			<CodeNode
+				data={data}
+				id={id}
+				language="javascript"
+				icon={<FaNodeJs />}
+			/>
+		);
+	}, [data, id]);
+	return <>{Node}</>;
 }
 
 export default JavascriptNode;

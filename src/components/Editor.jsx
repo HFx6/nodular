@@ -34,7 +34,7 @@ function Editor() {
 
 	const debounceUpdate = useRef(
 		debounce(async (criteria) => {
-			if(criteria.func) console.log(functionArgs(criteria.func));
+			// if(criteria.func) console.log(functionArgs(criteria.func));
 			updateNodeData(criteria);
 		}, 1000)
 	).current;

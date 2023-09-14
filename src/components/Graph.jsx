@@ -148,6 +148,7 @@ function NodularGraph() {
 			multiSelectionKeyCode={"Control"}
 			selectionKeyCode={"Control"}
 			onDrop={onDrop}
+			minZoom={0.2}
 			onDragOver={onDragOver}
 			fitView
 		>

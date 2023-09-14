@@ -4,6 +4,7 @@
 import { ViaClass } from "./via";
 // fix import of react
 import { fetchRaw } from "./fetchHandle.js";
+// import { AudioContextRaw } from "./audioHandle";
 
 const Via = self.Via;
 const via = self.via;
@@ -19,15 +20,17 @@ self.addEventListener("message", (e) => {
 				console.error(error);
 			}
 		};
-		Start(e.data.code);
+		const { code, offscreenCanvas } = e.data;
+    const canvas = offscreenCanvas;
+		Start(code, canvas);
 	} else {
 		Via.onMessage(e.data);
 	}
 });
 
-async function Start(code) {
+async function Start(code, canvas) {
 	const document = via.document;
-	fetchRaw("src/utils/roms/INVADERS?raw-hex");
-	const fn = new Function("document", "fetch", code); // Create a function from the generated code
-	fn(document, fetchRaw); // Execute the function
+	const fn = new Function("document", "fetch", "canvas", code); // Create a function from the generated code
+	// postMessage({ type: "wokerOperation", data: { name: "my_val", value: 2 } });
+	fn(document, fetchRaw, canvas); // Execute the function
 }

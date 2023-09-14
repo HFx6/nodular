@@ -43,6 +43,11 @@
 	margin: 0;
 }
 
+
+[class*="-code-body"] > .return {
+	text-align: end;
+ }
+
 /* javscript-node */
 [class*="-node"] {
 	border-radius: 10px;

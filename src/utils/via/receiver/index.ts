@@ -26,7 +26,7 @@ class ViaReceiverClass {
     // object parameters. To avoid ID collisions with the controller, receiver object IDs are
     // negative and decrement, and controller object IDs are positive and increment.
     nextObjectId = -1
-    postMessage: (arg0: { type?: string; id?: number, args?: any[], cmds?: any[], flushId?: number, getResults?: any[] }) => any
+    postMessage: (arg0: { payload?: any, type?: string; id?: number, args?: any[], cmds?: any[], flushId?: number, getResults?: any[] }) => any
 
     // Wrap an argument. This is used for sending values back to the controller. Anything that can be directly
     // posted is sent as-is, but any kind of object is represented by its object ID instead.
@@ -124,6 +124,11 @@ class ViaReceiverClass {
             case "cleanup":
                 this.OnCleanupMessage(data)
                 break
+            case "wokerOperation":
+                console.log({data: data.data});
+                this.postMessage({type: "wokerOperation", payload: data.data});
+                break;
+
             default:
                 console.error("Unknown message type: " + data.type)
                 break

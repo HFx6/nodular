@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { Handle, useReactFlow, useUpdateNodeInternals } from "reactflow";
-import "./CodeNode.css";
+import "./CanvasNode.css";
 import {
 	PiPlayFill,
 	PiDotsThreeOutlineFill,
@@ -24,24 +24,18 @@ import {
 } from "@ark-ui/react";
 import { onPlay } from "../../utils/play";
 
-function CanvasNode() {
-	const data = { lang: "canvas" };
-
+function CanvasNode({ data, id }) {
 	return (
-		<div className={`${data.lang}-code-container ${data.lang}-node`}>
-			<div className={`${data.lang}-code-header`}>
-				<div className={`${data.lang}-code-info`}>
-					<div className={`${data.lang}-code-icon`}>
-						<PiSpinnerGapDuotone />
-					</div>
-					<div className={`${data.lang}-code-name`}>{data.label}</div>
+		<div className={`${data.label}-code-container ${data.label}-node`}>
+			<div className={`${data.label}-code-header`}>
+				<div className={`${data.label}-code-info`}>
+					<div className={`${data.label}-code-name`}>{data.label}</div>
 				</div>
 				<div
-					className={`${data.lang}-code-options ignore-double-click nodrag`}
+					className={`${data.label}-code-options ignore-double-click nodrag`}
 				>
 					<div
-						className={`${data.lang}-code-play`}
-						onClick={(e) => onPlay(e, id)}
+						className={`${data.label}-code-play`}
 					>
 						{data.loading ? (
 							<PiSpinnerGapDuotone className="spinner" />
@@ -49,7 +43,7 @@ function CanvasNode() {
 							<PiPlayFill />
 						)}
 					</div>
-					<div className={`${data.lang}-code-more`}>
+					<div className={`${data.label}-code-more`}>
 						<Menu>
 							<MenuTrigger>
 								<PiDotsThreeOutlineFill />
@@ -66,10 +60,24 @@ function CanvasNode() {
 					</div>
 				</div>
 			</div>
-			<div className={`${data.lang}-code-body`}>
-				<canvas id="node-canvas" className="rounded"></canvas>
+			<div className={`${data.label}-code-body`}>
+				<canvas id="node-canvas" className="rounded" width="640" height="400" tabIndex="0"></canvas>
 
 				<div style={{display: "none"}}>
+				<h1>DooM</h1>
+    <p>A wasm32 port of 1997 linuxdoom-1.10 with minimal modifications to the <a href="https://github.com/id-Software/DOOM">sources</a>. Find all the details in the README of the <a href="https://github.com/diekmann/wasm-fizzbuzz">WebAssembly from Scratch Article</a>.</p>
+    <p id="focushint"></p>
+    <p>Use <button id="enterButton">&#x23CE;</button> to start the game, 
+      arrow keys <button id="leftButton">&#x2190;</button> <button id="upButton">&#x2191;</button> <button id="downButton">&#x2193;</button> <button id="rightButton">&#x2192;</button> to move, 
+      <button id="ctrlButton">ctrl</button> to shoot, 
+      spacebar <button id="spaceButton">&nbsp;&nbsp;&nbsp;&nbsp;</button> to open gates, 
+      <button id="altButton">alt</button> and arrow keys to strafe (if your browser does not handle these keys otherwise). 
+      On mobile (and mobile only) touch the buttons above. Yeah, I'm not good a UX design.</p>
+    <div className="container">
+      {/* <canvas id="screen" width="640" height="400" tabIndex="0">This is where the DooM screen should render.</canvas> */}
+      <span>&nbsp;</span>
+      <div id="output"></div>
+    </div>
 					<section className="px-5 py-4">
 						<div className="text-center text-white">
 							<h1>

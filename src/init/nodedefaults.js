@@ -69,6 +69,7 @@ export default {
             return b;
         }`,
 			funcedit: true,
+			funcnode: false,
 			hasfunc: true,
 			argTypes: ["Bolean"],
 			argTypeColors: [{ backgroundColor: "#3380bd" }],
@@ -97,7 +98,8 @@ export default {
 			label: "canvas",
 			func: null,
 			args: [],
-			funcedit: true,
+			funcnode: false,
+			funcedit: false,
 			hasfunc: false,
 			returnType: "",
 			returnTypeColor: { backgroundColor: "#A0D468" },

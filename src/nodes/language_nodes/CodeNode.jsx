@@ -8,29 +8,21 @@ import {
 } from "react-icons/pi";
 import {
 	Menu,
-	MenuArrow,
-	MenuArrowTip,
 	MenuContent,
-	MenuContextTrigger,
 	MenuItem,
-	MenuItemGroup,
-	MenuItemGroupLabel,
-	MenuOptionItem,
 	MenuPositioner,
-	MenuSeparator,
 	MenuTrigger,
-	MenuTriggerItem,
 	Portal,
 } from "@ark-ui/react";
 import { onPlay } from "../../utils/play";
 
-function CodeNode({ name, icon, data, id }) {
+function CodeNode({ icon, data, id }) {
 	const updateNodeInternals = useUpdateNodeInternals();
 	useEffect(() => {
 		updateNodeInternals(data.id);
 	}, [data?.args, data?.label]);
 
-	const { getNodes, setNodes, getEdges, fitView } = useReactFlow();
+	const { setNodes } = useReactFlow();
 
 	const deleteNodeById = (id) => {
 		setNodes((nds) => nds.filter((node) => node.id !== id));
@@ -39,7 +31,10 @@ function CodeNode({ name, icon, data, id }) {
 		() =>
 			data?.args?.map((x, i) => {
 				return (
-					<div className={`custom-node__select ${data.lang}-codenode`} key={i}>
+					<div
+						className={`custom-node__select ${data.lang}-codenode`}
+						key={i}
+					>
 						<div>{x}</div>
 						<Handle key={x} type="target" position="left" id={x} />
 					</div>
@@ -51,7 +46,10 @@ function CodeNode({ name, icon, data, id }) {
 		() =>
 			data?.returnArgs?.map((x, i) => {
 				return (
-					<div className={`custom-node__select ${data.lang}-codenode`} key={i}>
+					<div
+						className={`custom-node__select ${data.lang}-codenode`}
+						key={i}
+					>
 						<div>{x}</div>
 						<Handle key={x} type="source" position="right" id={x} />
 					</div>
@@ -66,8 +64,13 @@ function CodeNode({ name, icon, data, id }) {
 					<div className={`${data.lang}-code-icon`}>{icon}</div>
 					<div className={`${data.lang}-code-name`}>{data.label}</div>
 				</div>
-				<div className={`${data.lang}-code-options ignore-double-click nodrag`}>
-					<div className={`${data.lang}-code-play`} onClick={(e) => onPlay(e, id)}>
+				<div
+					className={`${data.lang}-code-options ignore-double-click nodrag`}
+				>
+					<div
+						className={`${data.lang}-code-play`}
+						onClick={(e) => onPlay(e, id)}
+					>
 						{data.loading ? (
 							<PiSpinnerGapDuotone className="spinner" />
 						) : (
@@ -97,24 +100,8 @@ function CodeNode({ name, icon, data, id }) {
 				</div>
 			</div>
 			<div className={`${data.lang}-code-body`}>
-				<div className="input-args">
-					{targetHandles}
-					{/* <div className="custom-node__select codenode">
-						<div>input</div>
-						<Handle type="target" position="left" id="input" />
-					</div>
-					<div className="custom-node__select codenode">
-						<div>array</div>
-						<Handle type="target" position="left" id="array" />
-					</div> */}
-				</div>
-				<div className="return">
-					{/* <div className={`custom-node__select ${data.lang}-codenode`}>
-						<div>return</div>
-						<Handle type="source" position="right" id="return" />
-					</div> */}
-					{sourceHandles}
-				</div>
+				<div className="input-args">{targetHandles}</div>
+				<div className="return">{sourceHandles}</div>
 			</div>
 		</div>
 	);
