@@ -20,6 +20,9 @@ export default function functionNode() {
 				<div draggable onDragStart={(event) => onDragStart(event, "javascriptNode")}>
 					<Icon icon="mdi:code-braces-box" />
 				</div>
+				<div draggable onDragStart={(event) => onDragStart(event, "htmlNode")}>
+					<Icon icon="material-symbols:html" />
+				</div>
 				<div draggable onDragStart={(event) => onDragStart(event, "nodeArray")}>
 					<Icon icon="mdi:code-array" />
 				</div>

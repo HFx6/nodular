@@ -107,6 +107,21 @@ export default {
 		},
 		sourcePosition: "right",
 	},
+	htmlNode: {
+		type: "htmlNode",
+		data: {
+			label: "html",
+			func: null,
+			args: [],
+			funcnode: false,
+			funcedit: true,
+			hasfunc: false,
+			returnType: "",
+			returnTypeColor: { backgroundColor: "#A0D468" },
+			funceval: "",
+		},
+		sourcePosition: "right",
+	},
 	nodeArray: {
 		type: "nodeArray",
 		data: {

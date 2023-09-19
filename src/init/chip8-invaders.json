@@ -133,7 +133,7 @@
 				"hasfunc": true,
 				"funceval": null
 			},
-			"selected": true,
+			"selected": false,
 			"dragging": false,
 			"positionAbsolute": {
 				"x": 465.1573635153359,
@@ -185,7 +185,7 @@
 				"lang": "node",
 				"funcnode": true,
 				"loading": false,
-				"func": "import { BG_COLOR, COLOR, DISPLAY_HEIGHT, DISPLAY_WIDTH, SCALE } from \"DisplayConstants.js\";\n\nexport class Display {\n    constructor() {\n        //Display properties\n        this.scale = SCALE; //Screen Scale\n       console.log(`this is the bg color${BG_COLOR}`); this.bgColor = BG_COLOR; //Background Color\n        this.color = COLOR; //Fore Color\n\n        //Get Screen and Context\n        this.screen = document.querySelector('canvas'); //Screen\n        this.context = this.screen.getContext('2d'); //2D Context\n\n        //Create a frameBuffer to hold all of the pixels\n        this.frameBuffer = new Array(DISPLAY_WIDTH * DISPLAY_HEIGHT); //Frame Buffer array\n\n        //Call Reset\n        this.reset();\n    }\n\n    //Reset the display\n    reset() {\n        //Clear the array of pixels by filling with 0s\n        this.frameBuffer.fill(0);\n        //Set the fill style to background color\n        this.context.fillStyle = this.bgColor;\n        //Fill the screen\n        this.context.fillRect(0, 0, this.screen.width, this.screen.height);\n\n        //Render display\n        this.render();\n    }\n\n    //Scales the screen by multiplying the scale against the default height and width\n    scaleScreen() {\n        //Set screen width and height and scale it\n        this.screen.width = DISPLAY_WIDTH * this.scale;\n        this.screen.height = DISPLAY_HEIGHT * this.scale;\n    }\n\n    //Sets a pixel to 1 or 0 inside the frameBuffer by XOR pixels\n    setPixel(x, y) {\n        //Constant Pixel X and Pixel Y location\n        //Calculate using modulo to handle screen wrap\n        const px = x % DISPLAY_WIDTH;\n        const py = y % DISPLAY_HEIGHT;\n\n        //Set pixelLocation to px + (py * width of the display constant)\n        let pixelLoc = px + (py * DISPLAY_WIDTH);\n\n        //Set pixel inside frameBuffer[pixelLoc as index] to XOR bitwise operation 0 or 1\n        this.frameBuffer[pixelLoc] ^= 1;\n\n        //Opposite Return if pixel was erased. 1 true for erased, 0 false for nothing erased\n        return !this.frameBuffer[pixelLoc];\n    }\n\n    render() {\n        //Scale the screen first\n        this.scaleScreen();\n\n        //Clear the canvas\n        this.context.clearRect(0, 0, this.screen.width, this.screen.height);\n        //Set background color\n        this.context.fillStyle = this.bgColor;\n        //Fill the canvas\n        this.context.fillRect(0, 0, this.screen.width, this.screen.height);\n\n        //Loop through the display width * height\n        for (let i = 0; i < DISPLAY_WIDTH * DISPLAY_HEIGHT; i++) {\n            //Get x location (i mod width) * scale\n            let x = (i % DISPLAY_WIDTH) * this.scale;\n\n            //Get y = Math.floor(i divide width) * scale\n            let y = Math.floor(i / DISPLAY_WIDTH) * this.scale;\n\n            //Check the frame buffer at location i for 0 or 1\n            if (this.frameBuffer[i]) {\n                //Set the fillstyle to color\n                this.context.fillStyle = this.color;\n\n                //Fill a new rectangle at location x,y setting its size to scale variable\n                this.context.fillRect(x, y, this.scale, this.scale);\n            }\n        }\n    }\n\n}",
+				"func": "import { BG_COLOR, COLOR, DISPLAY_HEIGHT, DISPLAY_WIDTH, SCALE } from \"DisplayConstants.js\";\n\nexport class Display {\n    constructor() {\n        //Display properties\n        this.scale = SCALE; //Screen Scale\n       console.log(`this is the bg color${BG_COLOR}`); this.bgColor = BG_COLOR; //Background Color\n        this.color = COLOR; //Fore Color\n\n        //Get Screen and Context\n        this.screen = canvas; //Screen\n        this.context = this.screen.getContext('2d'); //2D Context\n\n        //Create a frameBuffer to hold all of the pixels\n        this.frameBuffer = new Array(DISPLAY_WIDTH * DISPLAY_HEIGHT); //Frame Buffer array\n\n        //Call Reset\n        this.reset();\n    }\n\n    //Reset the display\n    reset() {\n        //Clear the array of pixels by filling with 0s\n        this.frameBuffer.fill(0);\n        //Set the fill style to background color\n        this.context.fillStyle = this.bgColor;\n        //Fill the screen\n        this.context.fillRect(0, 0, this.screen.width, this.screen.height);\n\n        //Render display\n        this.render();\n    }\n\n    //Scales the screen by multiplying the scale against the default height and width\n    scaleScreen() {\n        //Set screen width and height and scale it\n        this.screen.width = DISPLAY_WIDTH * this.scale;\n        this.screen.height = DISPLAY_HEIGHT * this.scale;\n    }\n\n    //Sets a pixel to 1 or 0 inside the frameBuffer by XOR pixels\n    setPixel(x, y) {\n        //Constant Pixel X and Pixel Y location\n        //Calculate using modulo to handle screen wrap\n        const px = x % DISPLAY_WIDTH;\n        const py = y % DISPLAY_HEIGHT;\n\n        //Set pixelLocation to px + (py * width of the display constant)\n        let pixelLoc = px + (py * DISPLAY_WIDTH);\n\n        //Set pixel inside frameBuffer[pixelLoc as index] to XOR bitwise operation 0 or 1\n        this.frameBuffer[pixelLoc] ^= 1;\n\n        //Opposite Return if pixel was erased. 1 true for erased, 0 false for nothing erased\n        return !this.frameBuffer[pixelLoc];\n    }\n\n    render() {\n        //Scale the screen first\n        this.scaleScreen();\n\n        //Clear the canvas\n        this.context.clearRect(0, 0, this.screen.width, this.screen.height);\n        //Set background color\n        this.context.fillStyle = this.bgColor;\n        //Fill the canvas\n        this.context.fillRect(0, 0, this.screen.width, this.screen.height);\n\n        //Loop through the display width * height\n        for (let i = 0; i < DISPLAY_WIDTH * DISPLAY_HEIGHT; i++) {\n            //Get x location (i mod width) * scale\n            let x = (i % DISPLAY_WIDTH) * this.scale;\n\n            //Get y = Math.floor(i divide width) * scale\n            let y = Math.floor(i / DISPLAY_WIDTH) * this.scale;\n\n            //Check the frame buffer at location i for 0 or 1\n            if (this.frameBuffer[i]) {\n                //Set the fillstyle to color\n                this.context.fillStyle = this.color;\n\n                //Fill a new rectangle at location x,y setting its size to scale variable\n                this.context.fillRect(x, y, this.scale, this.scale);\n            }\n        }\n    }\n\n}",
 				"args": [
 					"BG_COLOR",
 					"COLOR",
@@ -636,8 +636,8 @@
 			"dragging": false
 		},
 		{
-			"width": 656,
-			"height": 360,
+			"width": 676,
+			"height": 460,
 			"id": "nodular_1694151916161",
 			"type": "canvasNode",
 			"position": {
@@ -661,6 +661,35 @@
 				"y": -462.22461089369153
 			},
 			"selected": false,
+			"dragging": false
+		},
+		{
+			"width": 73,
+			"height": 40,
+			"id": "nodular_1695107210213",
+			"type": "htmlNode",
+			"position": {
+				"x": 1565.4992518704494,
+				"y": 195.44226170972541
+			},
+			"data": {
+				"label": "html",
+				"func": null,
+				"args": [],
+				"funcnode": false,
+				"funcedit": true,
+				"hasfunc": false,
+				"returnType": "",
+				"returnTypeColor": {
+					"backgroundColor": "#A0D468"
+				},
+				"funceval": ""
+			},
+			"selected": true,
+			"positionAbsolute": {
+				"x": 1565.4992518704494,
+				"y": 195.44226170972541
+			},
 			"dragging": false
 		}
 	],
@@ -919,8 +948,8 @@
 		}
 	],
 	"viewport": {
-		"x": 612.2190295437931,
-		"y": 733.1123054468458,
-		"zoom": 0.5
+		"x": 325.25904730991795,
+		"y": 349.9976939754556,
+		"zoom": 0.36840704459040485
 	}
 }
