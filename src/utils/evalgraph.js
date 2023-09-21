@@ -4,7 +4,7 @@ import { getIncomers } from "reactflow";
 import { ato_run } from "./client/ato";
 import { TIO } from "./client/tio";
 import { rollup } from "@rollup/browser";
-import { wasm } from "@rollup/plugin-wasm";
+// import { wasm } from "@rollup/plugin-wasm";
 import fs from "fs";
 import { ViaClass } from "./via";
 import MyWorker from "./worker?worker&inline";
@@ -70,7 +70,6 @@ function rollupBundle(modulesOBJ) {
 	rollup({
 		input: "chip8.js",
 		plugins: [
-			wasm(),
 			{
 				name: "loader",
 				resolveId(source) {

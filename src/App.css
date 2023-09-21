@@ -48,10 +48,12 @@
 .react-flow__node-nodeArray.selected,
 .react-flow__node-nodeInput.selected,
 .react-flow__node-nodeEditor.selected,
+.react-flow__node-javascriptNode.selected,
 .react-flow__node-output.selected {
 	border-color: #107eea;
 	box-shadow: 0 0 0 5px rgba(16, 126, 234, 0.3),
 		0 0 0 2px rgba(16, 126, 234, 1) !important;
+		border-radius: 10px;
 }
 
 .react-flow__edge-path,

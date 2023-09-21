@@ -1,16 +1,15 @@
 import { basicSetup } from "codemirror";
 import { EditorView, keymap } from "@codemirror/view";
-import { indentWithTab } from "@codemirror/commands";
+import { insertTab } from "@codemirror/commands";
 import { javascript } from "@codemirror/lang-javascript";
 import { python } from "@codemirror/lang-python";
+import { autocompletion, acceptCompletion } from "@codemirror/autocomplete";
 import React, { useRef, useEffect } from "react";
 import { js as jBeautify } from "js-beautify";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { shallow } from "zustand/shallow";
 import useStore from "../utils/store";
 import { debounce } from "lodash";
-import { functionArgs } from "../utils/language_parsers/javascript";
-import { ato_run } from "../utils/client/ato";
 
 const selector = (state) => ({
 	selectedNodeId: state.selectedNodeId,
@@ -18,7 +17,6 @@ const selector = (state) => ({
 	setSelectedNode: state.setSelectedNode,
 	updateNodeData: (e) => state.updateNode(state.selectedNodeId, e),
 });
-// const code = `function isinarray(input, array) {\n\tvar bool = array.includes(input);\n\treturn bool;\n}`;
 
 const editor_lang = {
 	node: javascript(),
@@ -30,11 +28,9 @@ function Editor() {
 		useStore(selector, shallow);
 
 	const refEditor = useRef(null);
-	console.log(editor_lang, selectedNode.data.lang);
 
 	const debounceUpdate = useRef(
 		debounce(async (criteria) => {
-			// if(criteria.func) console.log(functionArgs(criteria.func));
 			updateNodeData(criteria);
 		}, 1000)
 	).current;
@@ -57,7 +53,19 @@ function Editor() {
 			extensions: [
 				basicSetup,
 				editor_lang[selectedNode.data.lang] || editor_lang.node,
-				keymap.of([indentWithTab]),
+				keymap.of([
+					{
+						key: "Tab",
+						run: (state, dispatch) => {
+							if (state.selection && !state.selection.empty) {
+								insertTab(state, dispatch);
+								return true;
+							}
+							if (acceptCompletion(state, dispatch)) return true;
+							return insertTab(state, dispatch);
+						},
+					},
+				]),
 				EditorView.updateListener.of((v) => {
 					if (v.docChanged) {
 						debounceUpdate({
@@ -66,9 +74,14 @@ function Editor() {
 					}
 				}),
 				vscodeDark,
+				autocompletion(),
 			],
 			parent: refEditor.current,
+			theme: "my-theme",
 		});
+
+		view.dom.style.height = "calc(100vh - 24px)";
+
 		return () => {
 			view.destroy();
 		};
@@ -77,23 +90,47 @@ function Editor() {
 	const closeHandle = () => {
 		setSelectedNode("");
 	};
-
+	const handleNameUpdate = (fname) => {
+		var rg1 = /^[^\\/:\*\?"<>\|]+$/; // forbidden characters \ / : * ? " < > |
+		var rg2 = /^\./; // cannot start with dot (.)
+		var rg3 = /^(nul|prn|con|lpt[0-9]|com[0-9])(\.|$)/i; // forbidden file names
+		if (rg1.test(fname) && !rg2.test(fname) && !rg3.test(fname)) {
+			debounceUpdate({ label: fname });
+		}else{
+			console.log("invalid name")
+		}
+	};
 	return (
-		<>
-			{/* input for the label */}
-			<input
-				type="text"
-				defaultValue={selectedNode.data.label}
-				onChange={(e) => {
-					debounceUpdate({ label: e.target.value });
+		<div
+			style={{
+				display: "flex",
+				flexDirection: "column",
+				height: "100vh",
+			}}
+		>
+			<div
+				style={{
+					display: "flex",
+					flexDirection: "row",
+					justifyContent: "space-between",
+					position: "sticky",
+					top: "0",
 				}}
-			/>
-
-			<div onClick={closeHandle} style={{ top: "0", position: "sticky" }}>
-				close
+			>
+				<input
+					type="text"
+					defaultValue={selectedNode.data.label}
+					onChange={(e) => {
+						handleNameUpdate(e.target.value);
+					}}
+					style={{ width: "50%" }}
+				/>
+				<div onClick={closeHandle} style={{ cursor: "pointer" }}>
+					close
+				</div>
 			</div>
 			<div ref={refEditor} />
-		</>
+		</div>
 	);
 }
 

@@ -11,7 +11,7 @@ const useStore = create((set, get) => ({
 	edges: initialEdges,
 	selectedNodeId: "",
 	selectedNode: {},
-	topo: topologicalSort(initialEdges),
+	// topo: topologicalSort(initialEdges),
 	onNodesChange: (changes) => {
 		set({
 			nodes: applyNodeChanges(changes, get().nodes),

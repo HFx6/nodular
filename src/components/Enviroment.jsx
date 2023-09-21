@@ -2,7 +2,7 @@ import NodularGraph from "./Graph";
 import Editor from "./Editor";
 import React, { useEffect, useState } from "react";
 import { Splitter, SplitterPanel, SplitterResizeTrigger } from "@ark-ui/react";
-
+import { GoGrabber } from "react-icons/go";
 import useStore from "../utils/store";
 import { shallow } from "zustand/shallow";
 import ContextMenu from "./ContextMenu";
@@ -12,14 +12,6 @@ const selector = (state) => ({
 });
 
 function Enviroment() {
-	const [htmlFileString, setHtmlFileString] = useState();
-
-	async function fetchHtml() {
-		setHtmlFileString(await (await fetch(`src/components/c.html`)).text());
-	}
-	useEffect(() => {
-		fetchHtml();
-	}, []);
 	const { selectedNodeId } = useStore(selector, shallow);
 	return (
 		<ContextMenu>
@@ -35,7 +27,9 @@ function Enviroment() {
 
 				{selectedNodeId ? (
 					<>
-						<SplitterResizeTrigger id="a:b" />
+						<SplitterResizeTrigger id="a:b" asChild>
+							<GoGrabber />
+						</SplitterResizeTrigger>
 						<SplitterPanel id="b">
 							<Editor />
 						</SplitterPanel>
