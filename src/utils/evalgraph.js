@@ -68,7 +68,7 @@ async function graphTraversal(nodes, edges, current_node) {
 
 function rollupBundle(modulesOBJ) {
 	rollup({
-		input: "chip8.js",
+		input: "LoadNes.js",
 		plugins: [
 			{
 				name: "loader",
