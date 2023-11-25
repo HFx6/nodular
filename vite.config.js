@@ -22,6 +22,6 @@ export default defineConfig({
 	optimizeDeps: { exclude: ["src/utils/chip8"] },
 	plugins: [hexLoader, react()],
 	define: {
-    'process.env': {}
-  }
+		"process.env": {},
+	},
 });
