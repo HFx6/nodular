@@ -15,13 +15,7 @@ const hexLoader = {
 	},
 };
 
-// ignore folder src\utils\chip8
-
 // https://vitejs.dev/config/
 export default defineConfig({
-	optimizeDeps: { exclude: ["src/utils/chip8"] },
 	plugins: [hexLoader, react()],
-	define: {
-		"process.env": {},
-	},
 });

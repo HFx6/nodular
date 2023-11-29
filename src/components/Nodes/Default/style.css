@@ -1,0 +1,11 @@
+.function-node > .custom-node__select{
+  background-color: #1d2229;
+	padding: 5px;
+	border-radius: 3px;
+}
+
+.function-node>.custom-node__select.node >.react-flow__handle-left.react-flow__handle-left {
+	top: 16px;
+	left: -17px;
+	transform: translate(0, -50%);
+}
