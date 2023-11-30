@@ -2,10 +2,12 @@ import { topologicalSort } from "./tsort";
 import useStore from "./store";
 import { getIncomers } from "reactflow";
 import * as esbuild from "esbuild-wasm";
+import { MarkerType } from "reactflow";
 
 await esbuild.initialize({
 	wasmURL: "./node_modules/esbuild-wasm/esbuild.wasm",
 });
+
 async function bundle(entry, modules) {
 	try {
 		const result = await esbuild.build({
@@ -16,7 +18,6 @@ async function bundle(entry, modules) {
 			footer: {
 				js: "return A;",
 			},
-
 			plugins: [
 				{
 					name: "in-memory",
@@ -44,47 +45,47 @@ async function bundle(entry, modules) {
 	}
 }
 
-function getObjectBySourceAndTarget(array, sourceId, targetId) {
-	return array.filter(
-		(item) => item.source === sourceId && item.target === targetId
-	);
-}
-
 async function evalGraph(startingNodeID) {
-	const OBJM = {};
 	const startTime = Date.now();
-	const { nodes, edges } = useStore.getState();
-	const _topological_sort = topologicalSort(edges);
-	const topological_sort = [..._topological_sort];
-	const entry_node = topological_sort[topological_sort.length - 1];
+	const { nodes, edges, updateNode, setEdges } = useStore.getState();
+	const topologicalSortResult = topologicalSort(edges);
+	let rootExport = "";
+	const rootExportIds = [];
+	const moduleObj = {};
 
-	while (topological_sort.length > 0) {
-		const current_node = nodes.find(
-			(obj) => obj.id === topological_sort[0]
+	while (topologicalSortResult.length > 0) {
+		const currentNode = nodes.find(
+			(obj) => obj.id === topologicalSortResult[0]
 		);
-		const incomers = getIncomers(current_node, nodes, edges);
-		let s = "";
+		if (!currentNode.data.returnArgs) {
+			rootExport += `import { ${currentNode.id} } from '${currentNode.id}';\n`;
+			rootExportIds.push(currentNode.id);
+		}
+		const incomers = getIncomers(currentNode, nodes, edges);
+		let imports = "";
 
 		for (let i = 0; i < incomers.length; i++) {
-			let sourceId = incomers[i].id;
-			let targetId = current_node.id;
-			let result = getObjectBySourceAndTarget(edges, sourceId, targetId);
-			s += `import { ${incomers[i].data.returnArgs} as ${current_node.data.args[i]} } from '${incomers[i].id}';\n`;
+			imports += `import { ${incomers[i].data.returnArgs} as ${currentNode.data.args[i]} } from '${incomers[i].id}';\n`;
 		}
 
-		OBJM[current_node.id] = s + current_node.data.func;
-		console.log(OBJM[current_node.id]);
-		topological_sort.shift();
+		moduleObj[currentNode.id] = imports + currentNode.data.func;
+		topologicalSortResult.shift();
 	}
+	rootExport += `module.exports = { ${rootExportIds.join(",")} }`;
+	moduleObj["rootExport"] = rootExport;
+	const bundledCode = await bundle("rootExport", moduleObj);
+	const moduleExports = new Function(bundledCode)();
 
-	const bundledCode = await bundle(entry_node, OBJM);
-	const A = new Function(bundledCode)();
-
-	console.log(A);
+	const updateNodeIDs = Object.keys(moduleExports);
+	for (let i = 0; i < updateNodeIDs.length; i++) {
+		updateNode(updateNodeIDs[i], {
+			funceval: moduleExports[updateNodeIDs[i]],
+		});
+	}
 
 	const endTime = Date.now();
 	const timeTaken = endTime - startTime;
-	return { _topological_sort, timeTaken };
+	return { topologicalSortResult, timeTaken };
 }
 
 export { evalGraph };

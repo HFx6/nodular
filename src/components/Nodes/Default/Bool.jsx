@@ -19,7 +19,7 @@ export default function Bool({ data, type }) {
 					i={i}
 				/>
 			)),
-		[data.args]
+		[data.args, data.funceval]
 	);
 	return (
 		<Base label={data.label} type={type}>

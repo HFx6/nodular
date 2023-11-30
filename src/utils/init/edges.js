@@ -20,4 +20,11 @@ export default [
 		targetHandle: null,
 		id: "reactflow__edge-nodular_1699757014128bool-nodular_1699757045106",
 	},
+	{
+		source: "nodular_1699757014128",
+		sourceHandle: "val",
+		target: "nodular_new892345uh",
+		targetHandle: "null",
+		id: "reactflow__edge-nodular_1699757014128val-nodular_new892345uhnull",
+	},
 ];

@@ -1,5 +1,7 @@
 export default [
 	{
+		width: 158,
+		height: 157,
 		id: "nodular_1699757014128",
 		type: "Function",
 		position: {
@@ -10,9 +12,9 @@ export default [
 			label: "isinarray",
 			lang: "node",
 			loading: false,
-			func: "function isinarray(input, array) {\n\tvar bool = array.includes(input);\n\treturn bool;\n}\n\nmodule.exports = { isinarray }",
+			func: "function isinarray(i, a) {\n\tvar bool = a.includes(i);\n\treturn bool;\n}\n\n const val = isinarray(input, array);module.exports = { val }",
 			args: ["input", "array"],
-			returnArgs: ["isinarray"],
+			returnArgs: ["val"],
 			funcedit: true,
 			argTypes: [],
 			returnType: "",
@@ -28,6 +30,8 @@ export default [
 		dragging: false,
 	},
 	{
+		width: 158,
+		height: 75,
 		id: "nodular_1699757045106",
 		type: "Bool",
 		position: {
@@ -36,7 +40,7 @@ export default [
 		},
 		data: {
 			label: "bool",
-			func: "function yorno(bool) {\n\treturn !!bool;\n} module.exports = { yorno: yorno(bool) }",
+			func: "function yorno(value) {\n\treturn value;\n} const boolval = yorno(bool); module.exports = {nodular_1699757045106: boolval };",
 			funcedit: true,
 			funcnode: false,
 			hasfunc: true,
@@ -58,6 +62,40 @@ export default [
 		dragging: false,
 	},
 	{
+		width: 158,
+		height: 75,
+		id: "nodular_new892345uh",
+		type: "Bool",
+		position: {
+			x: 302.5176090689936,
+			y: -73.53540070801365,
+		},
+		data: {
+			label: "bool",
+			func: "function yorno(value) {\n\treturn value;\n} const boolval = yorno(bool); module.exports = {nodular_new892345uh: boolval };",
+			funcedit: true,
+			funcnode: false,
+			hasfunc: true,
+			defaultNode: true,
+			argTypes: ["Bolean"],
+			argTypeColors: [
+				{
+					backgroundColor: "#3380bd",
+				},
+			],
+			args: ["bool"],
+			funceval: null,
+		},
+		selected: true,
+		positionAbsolute: {
+			x: 302.5176090689936,
+			y: -73.53540070801365,
+		},
+		dragging: false,
+	},
+	{
+		width: 158,
+		height: 93,
 		id: "nodular_1699757046394",
 		type: "Input",
 		position: {
@@ -66,7 +104,6 @@ export default [
 		},
 		data: {
 			label: "input",
-			// func: "const input = 'yellow';module.exports = {input }",
 			defaultNode: true,
 			args: [],
 			returnArgs: ["input"],
@@ -76,10 +113,7 @@ export default [
 			returnTypeColor: {
 				backgroundColor: "#A0D468",
 			},
-			get func() {
-				delete this.func;
-				return (this.func = `const input = \`${this.funceval}\`;\n\nmodule.exports = {input }`);
-			},
+			func: "const input = `yellow`;\n\nmodule.exports = {input }",
 			funceval: "yellow",
 		},
 		selected: false,
@@ -90,6 +124,8 @@ export default [
 		dragging: false,
 	},
 	{
+		width: 158,
+		height: 65,
 		id: "nodular_1699757053462",
 		type: "Array",
 		position: {
@@ -98,7 +134,7 @@ export default [
 		},
 		data: {
 			label: "array",
-			func: 'function array() {\n\treturn [\n\t\t"yellow",\n\t\t"blue",\n\t\t"orange",\n\t\t"red"\n\t];\n}\nmodule.exports = {array }',
+			func: 'function array() {\n\treturn [\n\t\t"yellow",\n\t\t"blue",\n\t\t"orange",\n\t\t"red"\n\t];\n}\nmodule.exports = { array: array() }',
 			args: [],
 			defaultNode: true,
 			returnArgs: ["array"],
