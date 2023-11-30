@@ -4,9 +4,7 @@ import { getIncomers } from "reactflow";
 import * as esbuild from "esbuild-wasm";
 import { MarkerType } from "reactflow";
 
-esbuild.initialize({
-	wasmURL: "./node_modules/esbuild-wasm/esbuild.wasm",
-});
+
 
 async function bundle(entry, modules) {
 	try {

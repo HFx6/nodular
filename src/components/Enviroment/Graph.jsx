@@ -21,6 +21,12 @@ import { FaPlay } from "react-icons/fa";
 import { FaSave } from "react-icons/fa";
 import { FaFolderOpen } from "react-icons/fa";
 
+import * as esbuild from "esbuild-wasm";
+import { MarkerType } from "reactflow";
+
+
+
+
 // import Marker from './Marker';
 
 import "./style.css";
@@ -108,7 +114,18 @@ function Flow() {
 		}
 	};
 	useEffect(() => {
-		rfInstance?.fitView();
+		async function initializeEsbuild() {
+			await esbuild.initialize({
+				wasmURL: "./node_modules/esbuild-wasm/esbuild.wasm",
+			});
+		}
+		initializeEsbuild();
+	}, []);
+
+	useEffect(() => {
+		if (rfInstance) {
+			rfInstance.fitView();
+		}
 	}, [rfInstance]);
 	const onNodeContextMenu = useCallback(
 		(event, node) => {
