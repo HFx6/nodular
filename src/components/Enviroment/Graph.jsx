@@ -24,6 +24,8 @@ import { FaFolderOpen } from "react-icons/fa";
 import * as esbuild from "esbuild-wasm";
 import { MarkerType } from "reactflow";
 
+import wasm from "./esbuild.wasm?url";
+
 
 
 
@@ -116,7 +118,7 @@ function Flow() {
 	useEffect(() => {
 		async function initializeEsbuild() {
 			await esbuild.initialize({
-				wasmURL: "./node_modules/esbuild-wasm/esbuild.wasm",
+				wasmURL: wasm,
 			});
 		}
 		initializeEsbuild();
