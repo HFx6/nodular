@@ -3,6 +3,8 @@ import Editor from "@monaco-editor/react";
 import useStore from "../../utils/store";
 import { shallow } from "zustand/shallow";
 
+import { extractExports } from './parse.js'
+
 const selector = (state) => ({
 	selectedNodeId: state.selectedNodeId,
 	selectedNode: state.selectedNode,
@@ -20,7 +22,8 @@ export default function NodeEditor() {
 	}
 
 	function showValue() {
-		updateNodeData({ func: editorRef.current.getValue() });
+		console.log(extractExports(editorRef.current.getValue()));
+		updateNodeData({ func: editorRef.current.getValue(), returnArgs: extractExports(editorRef.current.getValue()) });
 	}
 
 	const closeHandle = () => {

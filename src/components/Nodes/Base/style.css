@@ -1,5 +1,6 @@
 .basenode-container {
-	width: 158px;
+	width: fit-content;
+	min-width: 158px;
 	flex-shrink: 0;
 	border-radius: 3px;
 	background: #181b20;
@@ -47,9 +48,9 @@
 	height: 20px;
 	display: flex;
 }
-.basenode-add-target > .icon-button{
-	color: #343D4A;
-	margin: auto
+.basenode-add-target > .icon-button {
+	color: #343d4a;
+	margin: auto;
 }
 .basenode-sources {
 	flex: 1;
@@ -63,7 +64,6 @@
 .custom-node__select {
 	position: relative;
 	margin-bottom: 10px;
-	
 }
 
 .target-select-label {
@@ -94,10 +94,17 @@
 	float: right;
 }
 
+.basenode-sources {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+
 .basenode-header.Function {
 	background: #803334;
 }
-.basenode-header.Bool {
+.basenode-header.Bool,
+.basenode-header.Canvas {
 	background: #33337f;
 }
 

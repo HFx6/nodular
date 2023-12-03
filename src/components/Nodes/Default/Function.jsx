@@ -19,6 +19,10 @@ export default function Function({ data, type, id }) {
 	const { updateNodeData } = useStore(selector, shallow);
 	const updateNodeInternals = useUpdateNodeInternals();
 
+	useEffect(() => {
+		updateNodeInternals(id);
+	}, [data.args]);
+
 	const targetHandles = useMemo(
 		() =>
 			data?.args?.map((x, i) => (
@@ -47,12 +51,14 @@ export default function Function({ data, type, id }) {
 	);
 	function addInput() {
 		updateNodeData(id, {
-			args: [...data.args, "input " + (data.args.length + 1)],
+			args: [...data.args, "new_input_" + (data.args.length + 1)],
 		});
 	}
 	return (
 		<Base label={data.label} type={type}>
-			<div className="basenode-targets function-node">{targetHandles}</div>
+			<div className="basenode-targets function-node">
+				{targetHandles}
+			</div>
 			<div className="basenode-footer">
 				<div
 					className="basenode-add-target nodrag"

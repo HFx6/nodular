@@ -4,8 +4,6 @@ import { getIncomers } from "reactflow";
 import * as esbuild from "esbuild-wasm";
 import { MarkerType } from "reactflow";
 
-
-
 async function bundle(entry, modules) {
 	try {
 		const result = await esbuild.build({
@@ -43,42 +41,90 @@ async function bundle(entry, modules) {
 	}
 }
 
+function idToNode(id, nodes) {
+	return nodes.find((obj) => obj.id === id);
+}
+
 async function evalGraph(startingNodeID) {
 	const startTime = Date.now();
 	const { nodes, edges, updateNode, setEdges } = useStore.getState();
 	const topologicalSortResult = topologicalSort(edges);
 	let rootExport = "";
+	// let rootExport = `import '${
+	// 	topologicalSortResult[topologicalSortResult.length - 1]
+	// }';\n`;
 	const rootExportIds = [];
 	const moduleObj = {};
+	// console.log(topologicalSortResult);
+	const importLocations = {};
+	const endNodes = [];
 
-	while (topologicalSortResult.length > 0) {
-		const currentNode = nodes.find(
-			(obj) => obj.id === topologicalSortResult[0]
-		);
-		if (!currentNode.data.returnArgs) {
-			rootExport += `import { ${currentNode.id} } from '${currentNode.id}';\n`;
-			rootExportIds.push(currentNode.id);
+	for (const edge of edges) {
+		const sourceNode = idToNode(edge.source, nodes);
+		const targetNode = idToNode(edge.target, nodes);
+		const sourceLabel = edge.sourceHandle;
+		const targetLabel = edge.targetHandle;
+
+		if (
+			targetNode.data.returnArgs.length == 0 &&
+			!endNodes.includes(targetNode.id)
+		) {
+			if (targetNode.type == "Bool") {
+				rootExport += `import { ${targetNode.id} } from '${targetNode.id}';\n`;
+				rootExportIds.push(targetNode.id);
+			} else {
+				rootExport += `import '${targetNode.id}';\n`;
+			}
+			endNodes.push(targetNode.id);
 		}
-		const incomers = getIncomers(currentNode, nodes, edges);
-		let imports = "";
+		// const incomers = getIncomers(targetNode, nodes, edges);
+		// let imports = "";
+		// let edgeargtoreturn = '';
+		// for (let i = 0; i < incomers.length; i++) {
 
-		for (let i = 0; i < incomers.length; i++) {
-			imports += `import { ${incomers[i].data.returnArgs} as ${currentNode.data.args[i]} } from '${incomers[i].id}';\n`;
+		if (importLocations[targetNode.id]) {
+			importLocations[targetNode.id].push(
+				`import { ${sourceLabel} as ${targetLabel} } from '${sourceNode.id}';\n`
+			);
+		} else {
+			importLocations[targetNode.id] = [
+				`import { ${sourceLabel} as ${targetLabel} } from '${sourceNode.id}';\n`,
+			];
 		}
+		// importLocations[targetLabel.id] = `import { ${incomers[i].data.returnArgs} as ${currentNode.data.args[i]} } from '${incomers[i].id}';\n`;
+		// }
 
-		moduleObj[currentNode.id] = imports + currentNode.data.func;
-		topologicalSortResult.shift();
+		moduleObj[sourceNode.id] = sourceNode.data.func;
+		moduleObj[targetNode.id] = targetNode.data.func;
+		// topologicalSortResult.shift();
 	}
-	rootExport += `module.exports = { ${rootExportIds.join(",")} }`;
-	moduleObj["rootExport"] = rootExport;
-	const bundledCode = await bundle("rootExport", moduleObj);
-	const moduleExports = new Function(bundledCode)();
 
-	const updateNodeIDs = Object.keys(moduleExports);
-	for (let i = 0; i < updateNodeIDs.length; i++) {
-		updateNode(updateNodeIDs[i], {
-			funceval: moduleExports[updateNodeIDs[i]],
-		});
+	for (const key in importLocations) {
+		moduleObj[key] = importLocations[key].join("") + moduleObj[key];
+	}
+	if (rootExportIds.length > 0)
+		rootExport += `module.exports = { ${rootExportIds.join(",")} }`;
+	// console.log(moduleObj);
+	moduleObj["rootExport"] = rootExport;
+
+	const bundledCode = await bundle(
+		rootExportIds.length
+			? "rootExport"
+			: topologicalSortResult[topologicalSortResult.length - 1],
+		moduleObj
+	);
+	const moduleExports = new Function(
+		`const canvas = document.getElementById("node-canvas");\n\n` +
+			bundledCode
+	)();
+
+	if (moduleExports) {
+		const updateNodeIDs = Object.keys(moduleExports);
+		for (let i = 0; i < updateNodeIDs.length; i++) {
+			updateNode(updateNodeIDs[i], {
+				funceval: moduleExports[updateNodeIDs[i]],
+			});
+		}
 	}
 
 	const endTime = Date.now();

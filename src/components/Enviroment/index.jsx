@@ -7,8 +7,6 @@ import styles from "./styles.module.css";
 import useStore from "../../utils/store";
 import { shallow } from "zustand/shallow";
 
-const showLastPanel = false;
-
 const selector = (state) => ({
 	selectedNodeId: state.selectedNodeId,
 });

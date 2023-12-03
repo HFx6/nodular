@@ -10,12 +10,12 @@ import "./style.css";
 export default function Bool({ data, type }) {
 	const targetHandles = useMemo(
 		() =>
-			data?.args?.map((x, i) => (
+			data.args?.map((x, i) => (
 				<Target
 					key={x}
 					lang={data.lang}
 					label={data.label}
-					x={String(data.funceval)}
+					x={x}
 					i={i}
 				/>
 			)),
@@ -23,11 +23,9 @@ export default function Bool({ data, type }) {
 	);
 	return (
 		<Base label={data.label} type={type}>
-			{/* <p>{String(data.funceval)}</p> */}
+			<p>{String(data.funceval)}</p>
 			<div className="basenode-footer">
-				<div className="basenode-targets">
-					{targetHandles}
-				</div>
+				<div className="basenode-targets">{targetHandles}</div>
 			</div>
 		</Base>
 	);
