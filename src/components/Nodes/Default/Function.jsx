@@ -21,7 +21,7 @@ export default function Function({ data, type, id }) {
 
 	useEffect(() => {
 		updateNodeInternals(id);
-	}, [data.args]);
+	}, [data.args, data.returnArgs]);
 
 	const targetHandles = useMemo(
 		() =>
