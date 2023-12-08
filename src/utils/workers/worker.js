@@ -1,9 +1,9 @@
 "use strict";
 
 //first line before voby initialization
-import { ViaClass } from "./via";
+import { ViaClass } from "../via";
 // fix import of react
-import { fetchRaw } from "./fetchHandle.js";
+import { fetchRaw } from "../fetchHandle.js";
 // import { AudioContextRaw } from "./audioHandle";
 
 const Via = self.Via;
@@ -12,6 +12,7 @@ const get = self.get;
 
 self.addEventListener("message", (e) => {
 	if (e.data.type === "start") {
+		
 		console.log("start");
 		Via.postMessage = (data) => {
 			try {
@@ -20,17 +21,17 @@ self.addEventListener("message", (e) => {
 				console.error(error);
 			}
 		};
-		const { code, offscreenCanvas } = e.data;
-    const canvas = offscreenCanvas;
-		Start(code, canvas);
+		const { code } = e.data;
+		Start(code);
 	} else {
 		Via.onMessage(e.data);
 	}
 });
 
-async function Start(code, canvas) {
+async function Start(code) {
 	const document = via.document;
-	const fn = new Function("document", "fetch", "canvas", code); // Create a function from the generated code
+	const fn = new Function("document", "fetch", code); // Create a function from the generated code
 	// postMessage({ type: "wokerOperation", data: { name: "my_val", value: 2 } });
-	fn(document, fetchRaw, canvas); // Execute the function
+	const exvalue = fn(document, fetchRaw); // Execute the function// const moduleExports = new Function(
+	console.log(exvalue);
 }

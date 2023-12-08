@@ -4,6 +4,12 @@ import { getIncomers } from "reactflow";
 import * as esbuild from "esbuild-wasm";
 import { MarkerType } from "reactflow";
 
+import MyWorker from "./workers/worker?worker&inline";
+
+import { ViaClass } from "./via";
+
+let worker = null;
+
 async function bundle(entry, modules) {
 	try {
 		const result = await esbuild.build({
@@ -93,7 +99,9 @@ async function evalGraph(startingNodeID) {
 		}
 		// importLocations[targetLabel.id] = `import { ${incomers[i].data.returnArgs} as ${currentNode.data.args[i]} } from '${incomers[i].id}';\n`;
 		// }
+		// if(sourceNode.type == 'Canvas'){
 
+		// }
 		moduleObj[sourceNode.id] = sourceNode.data.func;
 		moduleObj[targetNode.id] = targetNode.data.func;
 		// topologicalSortResult.shift();
@@ -113,19 +121,36 @@ async function evalGraph(startingNodeID) {
 			: topologicalSortResult[topologicalSortResult.length - 1],
 		moduleObj
 	);
-	const moduleExports = new Function(
-		`const canvas = document.getElementById("node-canvas");\n\n` +
-			bundledCode
-	)();
+	if (worker) worker.terminate();
+	worker = new MyWorker();
+	worker.onmessage = (e) => ViaReceiver.OnMessage(e.data);
+	ViaReceiver.postMessage = (data) => worker.postMessage(data);
 
-	if (moduleExports) {
-		const updateNodeIDs = Object.keys(moduleExports);
-		for (let i = 0; i < updateNodeIDs.length; i++) {
-			updateNode(updateNodeIDs[i], {
-				funceval: moduleExports[updateNodeIDs[i]],
-			});
+	worker.addEventListener("message", (event) => {
+		const msg = event.data;
+		switch (msg.type) {
+			case "wokerOperation":
+				Constants[msg.data.name] = msg.data.value;
+				console.log(Constants);
+				break;
 		}
-	}
+	});
+	worker.postMessage({ code: bundledCode, type: "start"}, [
+		
+	]);
+	// const moduleExports = new Function(
+	// 	`const canvas = document.getElementById("node-canvas");\n\n` +
+	// 		bundledCode
+	// )();
+
+	// if (moduleExports) {
+	// 	const updateNodeIDs = Object.keys(moduleExports);
+	// 	for (let i = 0; i < updateNodeIDs.length; i++) {
+	// 		updateNode(updateNodeIDs[i], {
+	// 			funceval: moduleExports[updateNodeIDs[i]],
+	// 		});
+	// 	}
+	// }
 
 	const endTime = Date.now();
 	const timeTaken = endTime - startTime;
