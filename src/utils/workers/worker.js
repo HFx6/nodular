@@ -22,7 +22,7 @@ self.addEventListener("message", (e) => {
 		};
 		const { code, canvasObj } = e.data;
 		Start(code, canvasObj);
-	} else {
+	}  else {
 		Via.onMessage(e.data);
 	}
 });

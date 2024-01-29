@@ -62,6 +62,7 @@ async function evalGraph(startingNodeID) {
 	const rootExportIds = [];
 	const moduleObj = {};
 	const canvasObj = {};
+
 	// console.log(topologicalSortResult);
 	const importLocations = {};
 	const endNodes = [];
@@ -89,8 +90,14 @@ async function evalGraph(startingNodeID) {
 		// let edgeargtoreturn = '';
 		// for (let i = 0; i < incomers.length; i++) {
 		if (sourceNode.type == "Canvas") {
-			console.log("sourceNode node", sourceNode);
-			console.log("targetNode node", targetNode);
+			let originalCanvas = document.getElementById(sourceNode.id);
+			let clonedCanvas = originalCanvas.cloneNode(true);
+
+			// Replace the original canvas with the cloned one in the DOM
+			originalCanvas.parentNode.replaceChild(
+				clonedCanvas,
+				originalCanvas
+			);
 			canvasObj[sourceNode.id] = document
 				.getElementById(sourceNode.id)
 				.transferControlToOffscreen();
@@ -106,6 +113,7 @@ async function evalGraph(startingNodeID) {
 			}
 			continue;
 		}
+
 		if (importLocations[targetNode.id]) {
 			importLocations[targetNode.id].push(
 				`import { ${sourceLabel} as ${targetLabel} } from '${sourceNode.id}';\n`
