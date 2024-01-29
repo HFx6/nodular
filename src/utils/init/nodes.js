@@ -203,7 +203,7 @@ export default [
 		data: {
 			label: "canvas",
 			returnArgs: ["canvas"],
-			func: "const _canvas = document.getElementById('nodular_1694151916161'); const canvas = canvas.transferControlToOffscreen();module.exports = {canvas};",
+			func: "const canvas = document.getElementById('nodular_1694151916161');\nconst canvas = _canvas.transferControlToOffscreen();\nmodule.exports = {canvas};",
 			funcnode: false,
 			canvasRef: null,
 			args: [],
@@ -609,7 +609,7 @@ export default [
 			funcnode: true,
 			returnArgs: [],
 			loading: false,
-			func: "\n\nfunction NesJs() {}\n\nNesJs.Nes = Nes;\nNesJs.Rom = Rom;\nNesJs.Audio = Audio;\nNesJs.Display = Display;\nNesJs.Joypad = Joypad;\n\nasync function LoadNES() {\n\tconst rom = await fetch('https://nodular.vercel.app/roms/smb.nes').then((response) => {\n\t\treturn response.arrayBuffer();\n\t})\n\n\t//Load the Rom\n\t//Set arrayBuffer to arraybuffer from rom\n\t// console.log(rom);\n\t// const arrayBuffer = await new Uint8Array(rom.match(/../g).map(h => parseInt(h, 16))).buffer;\n\t// console.log(arrayBuffer); //Set romBuffer to new Uint8Array(arrayBuffer)\n\t// const romBuffer = new Uint8Array(arrayBuffer);\n\tvar nes = new NesJs.Nes();\n\n\tnes.setRom(new NesJs.Rom(rom));\n\tnes.setDisplay(new NesJs.Display(canvas));\n\t// nes.setAudio(new NesJs.Audio());\n\n\t// window.onkeydown = function(e) {\n\t// \tnes.handleKeyDown(e);\n\t// };\n\t// window.onkeyup = function(e) {\n\t// \tnes.handleKeyUp(e);\n\t// };\n\n\tnes.bootup();\n\tnes.run();\n\n}\n\nLoadNES();",
+			func: "\n\nfunction NesJs() {}\n\nNesJs.Nes = Nes;\nNesJs.Rom = Rom;\nNesJs.Audio = Audio;\nNesJs.Display = Display;\nNesJs.Joypad = Joypad;\n\nasync function LoadNES() {\n\tconst rom = await fetch('https://nodular-19ysvpyr7-hfx6.vercel.app/roms/smb.nes').then((response) => {\n\t\treturn response.arrayBuffer();\n\t})\n\n\t//Load the Rom\n\t//Set arrayBuffer to arraybuffer from rom\n\t// console.log(rom);\n\t// const arrayBuffer = await new Uint8Array(rom.match(/../g).map(h => parseInt(h, 16))).buffer;\n\t// console.log(arrayBuffer); //Set romBuffer to new Uint8Array(arrayBuffer)\n\t// const romBuffer = new Uint8Array(arrayBuffer);\n\tvar nes = new NesJs.Nes();\n\n\tnes.setRom(new NesJs.Rom(rom));\n\tnes.setDisplay(new NesJs.Display(canvas));\n\t// nes.setAudio(new NesJs.Audio());\n\n\t// window.onkeydown = function(e) {\n\t// \tnes.handleKeyDown(e);\n\t// };\n\t// window.onkeyup = function(e) {\n\t// \tnes.handleKeyUp(e);\n\t// };\n\n\tnes.bootup();\n\tnes.run();\n\n}\n\nLoadNES();",
 			args: ["Nes", "Rom", "Audio", "Display", "Joypad", "canvas"],
 			funcedit: true,
 			argTypes: [],

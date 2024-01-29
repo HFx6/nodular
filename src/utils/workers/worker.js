@@ -12,7 +12,6 @@ const get = self.get;
 
 self.addEventListener("message", (e) => {
 	if (e.data.type === "start") {
-		
 		console.log("start");
 		Via.postMessage = (data) => {
 			try {
@@ -21,17 +20,17 @@ self.addEventListener("message", (e) => {
 				console.error(error);
 			}
 		};
-		const { code } = e.data;
-		Start(code);
+		const { code, canvasObj } = e.data;
+		Start(code, canvasObj);
 	} else {
 		Via.onMessage(e.data);
 	}
 });
 
-async function Start(code) {
+async function Start(code, canvasObj) {
 	const document = via.document;
-	const fn = new Function("document", "fetch", code); // Create a function from the generated code
+	const fn = new Function("document", "fetch", "canvasObj", code); // Create a function from the generated code
 	// postMessage({ type: "wokerOperation", data: { name: "my_val", value: 2 } });
-	const exvalue = fn(document, fetchRaw); // Execute the function// const moduleExports = new Function(
+	const exvalue = fn(document, fetchRaw, canvasObj); // Execute the function// const moduleExports = new Function(
 	console.log(exvalue);
 }

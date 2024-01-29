@@ -61,6 +61,7 @@ async function evalGraph(startingNodeID) {
 	// }';\n`;
 	const rootExportIds = [];
 	const moduleObj = {};
+	const canvasObj = {};
 	// console.log(topologicalSortResult);
 	const importLocations = {};
 	const endNodes = [];
@@ -87,7 +88,24 @@ async function evalGraph(startingNodeID) {
 		// let imports = "";
 		// let edgeargtoreturn = '';
 		// for (let i = 0; i < incomers.length; i++) {
+		if (sourceNode.type == "Canvas") {
+			console.log("sourceNode node", sourceNode);
+			console.log("targetNode node", targetNode);
+			canvasObj[sourceNode.id] = document
+				.getElementById(sourceNode.id)
+				.transferControlToOffscreen();
 
+			if (importLocations[targetNode.id]) {
+				importLocations[targetNode.id].push(
+					`const ${sourceLabel} = canvasObj["${sourceNode.id}"];\n`
+				);
+			} else {
+				importLocations[targetNode.id] = [
+					`const ${sourceLabel} = canvasObj["${sourceNode.id}"];\n`,
+				];
+			}
+			continue;
+		}
 		if (importLocations[targetNode.id]) {
 			importLocations[targetNode.id].push(
 				`import { ${sourceLabel} as ${targetLabel} } from '${sourceNode.id}';\n`
@@ -99,9 +117,7 @@ async function evalGraph(startingNodeID) {
 		}
 		// importLocations[targetLabel.id] = `import { ${incomers[i].data.returnArgs} as ${currentNode.data.args[i]} } from '${incomers[i].id}';\n`;
 		// }
-		// if(sourceNode.type == 'Canvas'){
 
-		// }
 		moduleObj[sourceNode.id] = sourceNode.data.func;
 		moduleObj[targetNode.id] = targetNode.data.func;
 		// topologicalSortResult.shift();
@@ -135,9 +151,10 @@ async function evalGraph(startingNodeID) {
 				break;
 		}
 	});
-	worker.postMessage({ code: bundledCode, type: "start"}, [
-		
-	]);
+	worker.postMessage(
+		{ code: bundledCode, canvasObj: canvasObj, type: "start" },
+		Object.values(canvasObj)
+	);
 	// const moduleExports = new Function(
 	// 	`const canvas = document.getElementById("node-canvas");\n\n` +
 	// 		bundledCode
