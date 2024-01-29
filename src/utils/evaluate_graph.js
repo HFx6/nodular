@@ -154,8 +154,12 @@ async function evalGraph(startingNodeID) {
 		const msg = event.data;
 		switch (msg.type) {
 			case "wokerOperation":
-				Constants[msg.data.name] = msg.data.value;
-				console.log(Constants);
+				// let constants = {};
+				// constants[msg.data.name] = msg.data.value;
+				console.log(msg.data);
+				for (const key in msg.data) {
+					updateNode(key, { funceval: msg.data[key] });
+				}
 				break;
 		}
 	});

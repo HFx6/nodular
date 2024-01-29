@@ -30,7 +30,14 @@ self.addEventListener("message", (e) => {
 async function Start(code, canvasObj) {
 	const document = via.document;
 	const fn = new Function("document", "fetch", "canvasObj", code); // Create a function from the generated code
-	// postMessage({ type: "wokerOperation", data: { name: "my_val", value: 2 } });
+	
 	const exvalue = fn(document, fetchRaw, canvasObj); // Execute the function// const moduleExports = new Function(
+	// loop through the exports and turn any functions into a boolean
+	for (const key in exvalue) {
+		if (typeof exvalue[key] === "function") {
+			exvalue[key] = true;
+		}
+	}
+	postMessage({ type: "wokerOperation", data: exvalue });
 	console.log(exvalue);
 }
