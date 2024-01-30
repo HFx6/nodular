@@ -22,21 +22,42 @@
 }
 
 .context-menu {
-  background: white;
-  border-style: solid;
-  box-shadow: 10px 19px 20px rgba(0, 0, 0, 10%);
-  position: absolute;
-  z-index: 10;
+	background: white;
+	border-style: solid;
+	box-shadow: 10px 19px 20px rgba(0, 0, 0, 10%);
+	position: absolute;
+	z-index: 10;
 }
 
 .context-menu button {
-  border: none;
-  display: block;
-  padding: 0.5em;
-  text-align: left;
-  width: 100%;
+	border: none;
+	display: block;
+	padding: 0.5em;
+	text-align: left;
+	width: 100%;
 }
 
 .context-menu button:hover {
-  background: white;
+	background: white;
+}
+
+.controlbar {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-content: center;
+	align-items: center;
+	gap: 30px;
+	background-color: #1c1c1c;
+	border-radius: 5px;
+}
+.controlbar > div {
+	padding: 10px;
+	cursor: pointer;
+}
+.controlbar > div:hover {
+	background-color: #292828;
+}
+.controlbar > div > svg {
+	display: block;
 }

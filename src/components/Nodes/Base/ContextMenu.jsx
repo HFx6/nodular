@@ -36,7 +36,7 @@ export default function ContextMenu({
 			<p style={{ margin: "0.5em" }}>
 				<small>node: {id}</small>
 			</p>
-			<button onClick={(e) => onPlay(e, id)}>play</button>
+			{/* <button onClick={(e) => onPlay(e, id)}>play</button> */}
 			<button onClick={deleteNode}>delete</button>
 		</div>
 	);

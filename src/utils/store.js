@@ -6,8 +6,8 @@ import initialEdges from "./init/edges";
 
 // this is our useStore hook that we can use in our components to get parts of the store and call actions
 const useStore = create((set, get) => ({
-	nodes: initialNodes,
-	edges: initialEdges,
+	nodes: [],
+	edges: [],
 	selectedNodeId: "",
 	selectedNode: {},
 	workers: {},

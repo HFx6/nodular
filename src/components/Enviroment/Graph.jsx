@@ -20,6 +20,10 @@ import * as esbuild from "esbuild-wasm";
 
 import esbuildasmsrc from "esbuild-wasm/esbuild.wasm?url";
 
+import Toolbar from "./Toolbar";
+
+import nodeDefaults from "../../utils/init/node_defaults";
+
 // import Marker from './Marker';
 
 import "./style.css";
@@ -51,6 +55,8 @@ import ContextMenu from "../Nodes/Base/ContextMenu";
 const nodeTypes = { Array, Bool, Function, Input, Canvas };
 
 const flowKey = "nodular_schema";
+
+const getId = () => `nodular_${+new Date()}`;
 
 function Flow() {
 	const {
@@ -146,6 +152,40 @@ function Flow() {
 
 	// Close the context menu if it's open whenever the window is clicked.
 	const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
+	const onDragOver = useCallback((event) => {
+		event.preventDefault();
+		event.dataTransfer.dropEffect = "move";
+	}, []);
+
+	const onDrop = useCallback(
+		(event) => {
+			event.preventDefault();
+
+			//   const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+			const type = event.dataTransfer.getData("application/reactflow");
+
+			// check if the dropped element is valid
+			if (typeof type === "undefined" || !type) {
+				return;
+			}
+
+			const position = rfInstance.project({
+				x: event.clientX,
+				y: event.clientY,
+			});
+
+			const newNode = {
+				id: getId(),
+				type,
+				position,
+				data: { ...nodeDefaults[type].data },
+			};
+
+			setNodes([...nodes, newNode]);
+			// setNodes((nds) => nds.concat(newNode));
+		},
+		[rfInstance, nodes]
+	);
 
 	return (
 		<>
@@ -154,10 +194,12 @@ function Flow() {
 				onInit={setRfInstance}
 				nodes={nodes}
 				edges={edges}
+				onDragOver={onDragOver}
 				onNodesChange={onNodesChange}
 				onEdgesChange={onEdgesChange}
 				onConnect={onConnect}
 				nodeTypes={nodeTypes}
+				onDrop={onDrop}
 				fitView
 				onNodeDoubleClick={onNodeDoubleClick}
 				multiSelectionKeyCode={"Control"}
@@ -166,6 +208,7 @@ function Flow() {
 				onPaneClick={onPaneClick}
 				onNodeContextMenu={onNodeContextMenu}
 			>
+				<Toolbar />
 				<Background
 					color="#1F1F1F"
 					style={{ backgroundColor: "#111111" }}
