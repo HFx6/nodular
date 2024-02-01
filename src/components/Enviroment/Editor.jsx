@@ -3,7 +3,9 @@ import Editor from "@monaco-editor/react";
 import useStore from "../../utils/store";
 import { shallow } from "zustand/shallow";
 
-import { extractExports } from './parse.js'
+import toast from "react-hot-toast";
+
+import { extractExports } from "./parse.js";
 
 const selector = (state) => ({
 	selectedNodeId: state.selectedNodeId,
@@ -16,14 +18,20 @@ export default function NodeEditor() {
 	const { selectedNodeId, selectedNode, setSelectedNode, updateNodeData } =
 		useStore(selector, shallow);
 	const editorRef = useRef(null);
+	const inputRef = useRef(null);
 
 	function handleEditorDidMount(editor, monaco) {
 		editorRef.current = editor;
 	}
 
-	function showValue() {
+	function saveContent() {
 		console.log(extractExports(editorRef.current.getValue()));
-		updateNodeData({ func: editorRef.current.getValue(), returnArgs: extractExports(editorRef.current.getValue()) });
+		updateNodeData({
+			label: inputRef.current.value,
+			func: editorRef.current.getValue(),
+			returnArgs: extractExports(editorRef.current.getValue()),
+		});
+		toast.success("Node saved");
 	}
 
 	const closeHandle = () => {
@@ -32,8 +40,10 @@ export default function NodeEditor() {
 
 	return (
 		<>
-			<button onClick={showValue}>Save</button>
+			<button onClick={saveContent}>Save</button>
 			<button onClick={closeHandle}>Close</button>
+			
+			<input type="text" defaultValue={selectedNode.data.label} ref={inputRef}/>
 			<Editor
 				height="100%"
 				defaultLanguage="javascript"
