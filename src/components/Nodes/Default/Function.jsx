@@ -3,6 +3,8 @@ import Base from "../Base/Base";
 
 import { Handle, useReactFlow, useUpdateNodeInternals } from "reactflow";
 
+import toast from "react-hot-toast";
+
 import Source from "../Base/Handles/Source";
 import Target from "../Base/Handles/Target";
 
@@ -12,11 +14,11 @@ import useStore from "../../../utils/store";
 import { shallow } from "zustand/shallow";
 
 const selector = (state) => ({
-	updateNodeData: (id, data) => state.updateNode(id, data),
+	addTarget: (id, arg) => state.addTarget(id, arg),
 });
 
 export default function Function({ data, type, id }) {
-	const { updateNodeData } = useStore(selector, shallow);
+	const { addTarget } = useStore(selector, shallow);
 	const updateNodeInternals = useUpdateNodeInternals();
 
 	useEffect(() => {
@@ -28,6 +30,7 @@ export default function Function({ data, type, id }) {
 			data?.args?.map((x, i) => (
 				<Target
 					key={x}
+					id={id}
 					lang={data.lang}
 					label={data.label}
 					x={x}
@@ -50,9 +53,13 @@ export default function Function({ data, type, id }) {
 		[data.returnArgs]
 	);
 	function addInput() {
-		updateNodeData(id, {
-			args: [...data.args, "new_input_" + (data.args.length + 1)],
-		});
+		const input = prompt("Enter input name");
+		const result = addTarget(id, input);
+		if (result?.error) {
+			toast.error(result.error);
+		} else {
+			toast.success(`${input} added`);
+		}
 	}
 	return (
 		<Base label={data.label} type={type}>

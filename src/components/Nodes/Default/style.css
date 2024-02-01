@@ -1,11 +1,32 @@
-.function-node > .custom-node__select{
-  background-color: #1d2229;
+.function-node > .custom-node__select {
+	background-color: #1d2229;
 	padding: 5px;
 	border-radius: 3px;
+	display: flex;
+	justify-content: space-between;
 }
 
-.function-node>.custom-node__select.node >.react-flow__handle-left.react-flow__handle-left {
+.function-node
+	> .custom-node__select.node
+	> .react-flow__handle-left.react-flow__handle-left {
 	top: 16px;
 	left: -17px;
 	transform: translate(0, -50%);
+}
+
+.custom-node__select.node:hover {
+	background-color: #30363e;
+}
+
+.edittarget{
+	visibility: hidden;
+	cursor: pointer;
+}
+
+.custom-node__select.node:hover:hover .edittarget {
+  visibility: initial;
+}
+
+.edittarget > svg:hover{
+	color: grey;
 }

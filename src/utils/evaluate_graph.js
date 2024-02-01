@@ -56,9 +56,8 @@ async function evalGraph(startingNodeID) {
 	const { nodes, edges, updateNode, setEdges } = useStore.getState();
 	const topologicalSortResult = topologicalSort(edges);
 	let rootExport = "";
-	// let rootExport = `import '${
-	// 	topologicalSortResult[topologicalSortResult.length - 1]
-	// }';\n`;
+	
+	
 	const rootExportIds = [];
 	const moduleObj = {};
 	const canvasObj = {};
@@ -85,10 +84,6 @@ async function evalGraph(startingNodeID) {
 			}
 			endNodes.push(targetNode.id);
 		}
-		// const incomers = getIncomers(targetNode, nodes, edges);
-		// let imports = "";
-		// let edgeargtoreturn = '';
-		// for (let i = 0; i < incomers.length; i++) {
 		if (sourceNode.type == "Canvas") {
 			let originalCanvas = document.getElementById(sourceNode.id);
 			let clonedCanvas = originalCanvas.cloneNode(true);
@@ -123,8 +118,6 @@ async function evalGraph(startingNodeID) {
 				`import { ${sourceLabel} as ${targetLabel} } from '${sourceNode.id}';\n`,
 			];
 		}
-		// importLocations[targetLabel.id] = `import { ${incomers[i].data.returnArgs} as ${currentNode.data.args[i]} } from '${incomers[i].id}';\n`;
-		// }
 
 		moduleObj[sourceNode.id] = sourceNode.data.func;
 		moduleObj[targetNode.id] = targetNode.data.func;
@@ -167,19 +160,6 @@ async function evalGraph(startingNodeID) {
 		{ code: bundledCode, canvasObj: canvasObj, type: "start" },
 		Object.values(canvasObj)
 	);
-	// const moduleExports = new Function(
-	// 	`const canvas = document.getElementById("node-canvas");\n\n` +
-	// 		bundledCode
-	// )();
-
-	// if (moduleExports) {
-	// 	const updateNodeIDs = Object.keys(moduleExports);
-	// 	for (let i = 0; i < updateNodeIDs.length; i++) {
-	// 		updateNode(updateNodeIDs[i], {
-	// 			funceval: moduleExports[updateNodeIDs[i]],
-	// 		});
-	// 	}
-	// }
 
 	const endTime = Date.now();
 	const timeTaken = endTime - startTime;

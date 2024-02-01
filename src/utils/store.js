@@ -36,6 +36,43 @@ const useStore = create((set, get) => ({
 			),
 		});
 	},
+	addTarget(id, arg) {
+		let nodeargs = get().nodes.find((node) => node.id === id).data.args;
+		if (nodeargs.includes(arg)) {
+			return { error: "Input already exists" };
+		}
+
+		set({
+			nodes: get().nodes.map((node) =>
+				node.id === id
+					? {
+							...node,
+							data: {
+								...node.data,
+								args: [...node.data.args, arg],
+							},
+					  }
+					: node
+			),
+		});
+	},
+	removeTarget(id, i) {
+		set({
+			nodes: get().nodes.map((node) =>
+				node.id === id
+					? {
+							...node,
+							data: {
+								...node.data,
+								args: node.data.args.filter(
+									(arg, index) => index !== i
+								),
+							},
+					  }
+					: node
+			),
+		});
+	},
 	setSelectedNode: (nodeId) => {
 		set({
 			selectedNodeId: nodeId,

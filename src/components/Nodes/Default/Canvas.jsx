@@ -9,7 +9,7 @@ import "./style.css";
 
 export default function Canvas({ data, id }) {
 	const canvasRef = useRef(null);
-	console.log(canvasRef);
+	// console.log(canvasRef);
 	const sourcehandles = useMemo(
 		() =>
 			data?.returnArgs?.map((x, i) => (

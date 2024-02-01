@@ -189,6 +189,9 @@ export class ViaClass {
 			case "wokerOperation":
 				this.onWorkerOperation(data);
 				break;
+			case "error":
+				this.onWorkerOperation(data);
+				break;
 			default:
 				throw new Error("invalid message type: " + data.type);
 		}
