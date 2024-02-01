@@ -56,8 +56,7 @@ async function evalGraph(startingNodeID) {
 	const { nodes, edges, updateNode, setEdges } = useStore.getState();
 	const topologicalSortResult = topologicalSort(edges);
 	let rootExport = "";
-	
-	
+
 	const rootExportIds = [];
 	const moduleObj = {};
 	const canvasObj = {};
