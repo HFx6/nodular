@@ -4,6 +4,8 @@ import { Handle, useReactFlow } from "reactflow";
 import { TbEdit } from "react-icons/tb";
 import { MdDelete } from "react-icons/md";
 
+import toast from "react-hot-toast";
+
 import useStore from "../../../../utils/store";
 import { shallow } from "zustand/shallow";
 
@@ -29,6 +31,7 @@ export default function Target({ lang, label, x, i, id }) {
 		});
 
 		removeTarget(id, i);
+		toast.success("Removed input");
 	}
 
 	useEffect(() => {

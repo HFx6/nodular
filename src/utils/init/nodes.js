@@ -1,204 +1,12 @@
-// export default [
-// 	{
-// 		width: 158,
-// 		height: 188,
-// 		id: "nodular_1699757014128",
-// 		type: "Function",
-// 		position: {
-// 			x: -117.89806123717328,
-// 			y: -19.872990030818073,
-// 		},
-// 		data: {
-// 			label: "isinarray",
-// 			lang: "node",
-// 			loading: false,
-// 			func: "function isinarray(i, a) {\n\tvar bool = a.includes(i);\n\treturn bool;\n}\n\nconst val = isinarray(input, array);\nconst newR = !isinarray(input, array);\nmodule.exports = { val, newR }",
-// 			args: ["input", "array"],
-// 			returnArgs: ["val", "newR"],
-// 			funcedit: true,
-// 			argTypes: [],
-// 			returnType: "",
-// 			argTypeColors: [],
-// 			hasfunc: true,
-// 			funceval: null,
-// 		},
-// 		selected: false,
-// 		positionAbsolute: {
-// 			x: -117.89806123717328,
-// 			y: -19.872990030818073,
-// 		},
-// 		dragging: false,
-// 	},
-// 	{
-// 		width: 158,
-// 		height: 75,
-// 		id: "nodular_1699757045106",
-// 		type: "Bool",
-// 		position: {
-// 			x: 328.46624890846675,
-// 			y: 92.35054683718982,
-// 		},
-// 		data: {
-// 			label: "bool",
-// 			func: "function yorno(value) {\n\treturn value;\n} const boolval = yorno(bool); module.exports = {nodular_1699757045106: boolval };",
-// 			funcedit: true,
-// 			funcnode: false,
-// 			hasfunc: true,
-// 			defaultNode: true,
-// 			argTypes: ["Bolean"],
-// 			returnArgs: [],
-// 			argTypeColors: [
-// 				{
-// 					backgroundColor: "#3380bd",
-// 				},
-// 			],
-// 			args: ["bool"],
-// 			funceval: null,
-// 		},
-// 		selected: false,
-// 		positionAbsolute: {
-// 			x: 328.46624890846675,
-// 			y: 92.35054683718982,
-// 		},
-// 		dragging: false,
-// 	},
-// 	{
-// 		width: 158,
-// 		height: 75,
-// 		id: "nodular_new892345uh",
-// 		type: "Bool",
-// 		position: {
-// 			x: 302.5176090689936,
-// 			y: -73.53540070801365,
-// 		},
-// 		data: {
-// 			label: "bool",
-// 			func: "function yorno(value) {\n\treturn value;\n} const boolval = yorno(bool); module.exports = {nodular_new892345uh: boolval };",
-// 			funcedit: true,
-// 			funcnode: false,
-// 			hasfunc: true,
-// 			defaultNode: true,
-// 			argTypes: ["Bolean"],
-// 			returnArgs: [],
-// 			argTypeColors: [
-// 				{
-// 					backgroundColor: "#3380bd",
-// 				},
-// 			],
-// 			args: ["bool"],
-// 			funceval: null,
-// 		},
-// 		selected: false,
-// 		positionAbsolute: {
-// 			x: 302.5176090689936,
-// 			y: -73.53540070801365,
-// 		},
-// 		dragging: false,
-// 	},
-// 	{
-// 		width: 158,
-// 		height: 93,
-// 		id: "nodular_1699757046394",
-// 		type: "Input",
-// 		position: {
-// 			x: -576.9514418160303,
-// 			y: -91.70646027754003,
-// 		},
-// 		data: {
-// 			label: "input",
-// 			defaultNode: true,
-// 			args: [],
-// 			returnArgs: ["input"],
-// 			funcedit: true,
-// 			hasfunc: false,
-// 			returnType: "String",
-// 			returnTypeColor: {
-// 				backgroundColor: "#A0D468",
-// 			},
-// 			func: "const input = `yellow`;\n\nmodule.exports = {input }",
-// 			funceval: "yellow",
-// 		},
-// 		selected: false,
-// 		positionAbsolute: {
-// 			x: -576.9514418160303,
-// 			y: -91.70646027754003,
-// 		},
-// 		dragging: false,
-// 	},
-// 	{
-// 		width: 158,
-// 		height: 65,
-// 		id: "nodular_1699757053462",
-// 		type: "Array",
-// 		position: {
-// 			x: -583.4939003165633,
-// 			y: 171.88858359761193,
-// 		},
-// 		data: {
-// 			label: "array",
-// 			func: 'function array() {\n\treturn [\n\t\t"yellow",\n\t\t"blue",\n\t\t"orange",\n\t\t"red"\n\t];\n}\nmodule.exports = { array: array() }',
-// 			args: [],
-// 			defaultNode: true,
-// 			returnArgs: ["array"],
-// 			funcedit: true,
-// 			hasfunc: true,
-// 			returnType: "String",
-// 			returnTypeColor: {
-// 				backgroundColor: "#A0D468",
-// 			},
-// 			funceval: [],
-// 		},
-// 		selected: false,
-// 		positionAbsolute: {
-// 			x: -583.4939003165633,
-// 			y: 171.88858359761193,
-// 		},
-// 		dragging: false,
-// 	},
-// ];
-
 export default [
 	{
-		width: 158,
-		height: 75,
-		id: "nodular_1699757045106",
-		type: "Bool",
-		position: {
-			x: 1349.3658865466373,
-			y: -655.8012771633202,
-		},
-		data: {
-			label: "bool",
-			returnArgs: [],
-			func: "function yorno(value) {\n\treturn value;\n} const boolval = yorno(bool); module.exports = {nodular_1699757045106: boolval };",
-			funcedit: true,
-			funcnode: false,
-			hasfunc: true,
-			defaultNode: true,
-			argTypes: ["Bolean"],
-			argTypeColors: [
-				{
-					backgroundColor: "#3380bd",
-				},
-			],
-			args: ["bool"],
-			funceval: null,
-		},
-		selected: false,
-		positionAbsolute: {
-			x: 1349.3658865466373,
-			y: -655.8012771633202,
-		},
-		dragging: false,
-	},
-	{
 		width: 326,
-		height: 190,
+		height: 224,
 		id: "nodular_1694151916161",
 		type: "Canvas",
 		position: {
-			x: 284.3039344704731,
-			y: -74.03049092202002,
+			x: 225.78306251555568,
+			y: -85.7346653130035,
 		},
 		data: {
 			label: "canvas",
@@ -216,15 +24,15 @@ export default [
 			funceval: "",
 		},
 		positionAbsolute: {
-			x: 284.3039344704731,
-			y: -74.03049092202002,
+			x: 225.78306251555568,
+			y: -85.7346653130035,
 		},
-		selected: true,
+		selected: false,
 		dragging: false,
 	},
 	{
 		width: 158,
-		height: 75,
+		height: 78,
 		id: "nodular_1694680825239",
 		type: "Function",
 		position: {
@@ -255,7 +63,7 @@ export default [
 	},
 	{
 		width: 158,
-		height: 239,
+		height: 242,
 		id: "nodular_1694680837546",
 		type: "Function",
 		position: {
@@ -286,7 +94,7 @@ export default [
 	},
 	{
 		width: 158,
-		height: 239,
+		height: 242,
 		id: "nodular_1694680838398",
 		type: "Function",
 		position: {
@@ -317,7 +125,7 @@ export default [
 	},
 	{
 		width: 158,
-		height: 75,
+		height: 78,
 		id: "nodular_1694680839013",
 		type: "Function",
 		position: {
@@ -347,8 +155,8 @@ export default [
 		dragging: false,
 	},
 	{
-		width: 188,
-		height: 116,
+		width: 158,
+		height: 147,
 		id: "nodular_1694680840273",
 		type: "Function",
 		position: {
@@ -379,7 +187,7 @@ export default [
 	},
 	{
 		width: 158,
-		height: 116,
+		height: 119,
 		id: "nodular_1694680841259",
 		type: "Function",
 		position: {
@@ -410,7 +218,7 @@ export default [
 	},
 	{
 		width: 158,
-		height: 116,
+		height: 119,
 		id: "nodular_1694680842023",
 		type: "Function",
 		position: {
@@ -441,7 +249,7 @@ export default [
 	},
 	{
 		width: 158,
-		height: 75,
+		height: 78,
 		id: "nodular_1694680842836",
 		type: "Function",
 		position: {
@@ -472,7 +280,7 @@ export default [
 	},
 	{
 		width: 158,
-		height: 239,
+		height: 242,
 		id: "nodular_1694680843696",
 		type: "Function",
 		position: {
@@ -502,8 +310,8 @@ export default [
 		dragging: false,
 	},
 	{
-		width: 203,
-		height: 116,
+		width: 158,
+		height: 147,
 		id: "nodular_1694680844481",
 		type: "Function",
 		position: {
@@ -534,7 +342,7 @@ export default [
 	},
 	{
 		width: 158,
-		height: 239,
+		height: 242,
 		id: "nodular_1694680845344",
 		type: "Function",
 		position: {
@@ -565,7 +373,7 @@ export default [
 	},
 	{
 		width: 158,
-		height: 116,
+		height: 119,
 		id: "nodular_1694680846661",
 		type: "Function",
 		position: {
@@ -596,7 +404,7 @@ export default [
 	},
 	{
 		width: 158,
-		height: 269,
+		height: 365,
 		id: "nodular_1694681138014",
 		type: "Function",
 		position: {
@@ -609,8 +417,16 @@ export default [
 			funcnode: true,
 			returnArgs: [],
 			loading: false,
-			func: "\n\nfunction NesJs() {}\n\nNesJs.Nes = Nes;\nNesJs.Rom = Rom;\nNesJs.Audio = Audio;\nNesJs.Display = Display;\nNesJs.Joypad = Joypad;\n\nasync function LoadNES() {\n\tconst rom = await fetch('https://raw.githubusercontent.com/HFx6/nodular/ui-update/src/utils/roms/zelda.nes').then((response) => {\n\t\treturn response.arrayBuffer();\n\t})\n\n\t//Load the Rom\n\t//Set arrayBuffer to arraybuffer from rom\n\t// console.log(rom);\n\t// const arrayBuffer = await new Uint8Array(rom.match(/../g).map(h => parseInt(h, 16))).buffer;\n\t// console.log(arrayBuffer); //Set romBuffer to new Uint8Array(arrayBuffer)\n\t// const romBuffer = new Uint8Array(arrayBuffer);\n\tvar nes = new NesJs.Nes();\n\n\tnes.setRom(new NesJs.Rom(rom));\n\tnes.setDisplay(new NesJs.Display(canvas));\n\t// nes.setAudio(new NesJs.Audio());\n\n\t// window.onkeydown = function(e) {\n\t// \tnes.handleKeyDown(e);\n\t// };\n\t// window.onkeyup = function(e) {\n\t// \tnes.handleKeyUp(e);\n\t// };\n\n\tnes.bootup();\n\tnes.run();\n\n}\n\nLoadNES();",
-			args: ["Nes", "Rom", "Audio", "Display", "Joypad", "canvas"],
+			func: "\n\nfunction NesJs() {}\n\nNesJs.Nes = Nes;\nNesJs.Rom = Rom;\nNesJs.Audio = Audio;\nNesJs.Display = Display;\nNesJs.Joypad = Joypad;\n\nasync function LoadNES() {\n\tconst rom = await fetch(romsrc).then((response) => {\n\t\treturn response.arrayBuffer();\n\t})\n\n\t//Load the Rom\n\t//Set arrayBuffer to arraybuffer from rom\n\t// console.log(rom);\n\t// const arrayBuffer = await new Uint8Array(rom.match(/../g).map(h => parseInt(h, 16))).buffer;\n\t// console.log(arrayBuffer); //Set romBuffer to new Uint8Array(arrayBuffer)\n\t// const romBuffer = new Uint8Array(arrayBuffer);\n\tvar nes = new NesJs.Nes();\n\n\tnes.setRom(new NesJs.Rom(rom));\n\tnes.setDisplay(new NesJs.Display(canvas));\n\t// nes.setAudio(new NesJs.Audio());\n\n\t// window.onkeydown = function(e) {\n\t// \tnes.handleKeyDown(e);\n\t// };\n\t// window.onkeyup = function(e) {\n\t// \tnes.handleKeyUp(e);\n\t// };\n\n\tnes.bootup();\n\tnes.run();\n\n}\n\nLoadNES();",
+			args: [
+				"Nes",
+				"Rom",
+				"Audio",
+				"Display",
+				"Joypad",
+				"canvas",
+				"romsrc",
+			],
 			funcedit: true,
 			argTypes: [],
 			returnType: "",
@@ -618,11 +434,41 @@ export default [
 			hasfunc: true,
 			funceval: null,
 		},
-		selected: false,
+		selected: true,
 		positionAbsolute: {
 			x: 1081.0303617465665,
 			y: -369.153711367157,
 		},
 		dragging: false,
+	},
+	{
+		width: 158,
+		height: 96,
+		id: "nodular_1706850152062",
+		type: "Input",
+		position: {
+			x: 622.1615324680545,
+			y: 221.32034545384184,
+		},
+		data: {
+			label: "input",
+			defaultNode: true,
+			args: [],
+			returnArgs: ["input"],
+			funcedit: true,
+			hasfunc: false,
+			returnType: "String",
+			returnTypeColor: {
+				backgroundColor: "#A0D468",
+			},
+			func: "const input = `https://raw.githubusercontent.com/HFx6/nodular/ui-update/src/utils/roms/zelda.nes`;\n\nmodule.exports = {input }",
+			funceval: "yellow",
+		},
+		selected: false,
+		dragging: false,
+		positionAbsolute: {
+			x: 622.1615324680545,
+			y: 221.32034545384184,
+		},
 	},
 ];

@@ -25,11 +25,15 @@ export default function NodeEditor() {
 	}
 
 	function saveContent() {
-		console.log(extractExports(editorRef.current.getValue()));
+		const returnArgs = extractExports(editorRef.current.getValue());
+
 		updateNodeData({
 			label: inputRef.current.value,
 			func: editorRef.current.getValue(),
-			returnArgs: extractExports(editorRef.current.getValue()),
+			returnArgs:
+				returnArgs.length == 0
+					? selectedNode.data.returnArgs
+					: returnArgs,
 		});
 		toast.success("Node saved");
 	}
@@ -42,8 +46,12 @@ export default function NodeEditor() {
 		<>
 			<button onClick={saveContent}>Save</button>
 			<button onClick={closeHandle}>Close</button>
-			
-			<input type="text" defaultValue={selectedNode.data.label} ref={inputRef}/>
+
+			<input
+				type="text"
+				defaultValue={selectedNode.data.label}
+				ref={inputRef}
+			/>
 			<Editor
 				height="100%"
 				defaultLanguage="javascript"

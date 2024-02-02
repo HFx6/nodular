@@ -1,5 +1,5 @@
 // export default [
-	
+
 // ];
 
 export default [
@@ -186,10 +186,17 @@ export default [
 		id: "reactflow__edge-nodular_1694680825239Utility-nodular_1694680845344Utility",
 	},
 	{
-		source: "nodular_1694680844481",
-		sourceHandle: "Register8bit",
-		target: "nodular_1699757045106",
-		targetHandle: "bool",
-		id: "reactflow__edge-nodular_1694680844481Register8bit-nodular_1699757045106bool",
+		source: "nodular_1694151916161",
+		sourceHandle: "canvas",
+		target: "nodular_1694681138014",
+		targetHandle: "canvas",
+		id: "reactflow__edge-nodular_1694151916161canvas-nodular_1694681138014canvas",
+	},
+	{
+		source: "nodular_1706850152062",
+		sourceHandle: "input",
+		target: "nodular_1694681138014",
+		targetHandle: "romsrc",
+		id: "reactflow__edge-nodular_1706850152062input-nodular_1694681138014romsrc",
 	},
 ];

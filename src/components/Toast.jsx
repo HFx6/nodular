@@ -12,7 +12,21 @@ const ToasterComponent = () => {
 			.forEach((t) => toast.dismiss(t.id)); // Dismiss – Use toast.remove(t.id) for no exit animation
 	}, [toasts]);
 
-	return <Toaster maxCount={1} position="bottom-right" reverseOrder={true} />;
+	return (
+		<Toaster
+			maxCount={1}
+			position="bottom-right"
+			reverseOrder={true}
+			toastOptions={{
+				className: "",
+				style: {
+					borderRadius: "10px",
+					background: "#333",
+					color: "#fff",
+				},
+			}}
+		/>
+	);
 };
 
 export default ToasterComponent;
