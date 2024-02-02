@@ -462,9 +462,9 @@ export default [
 			returnTypeColor: {
 				backgroundColor: "#A0D468",
 			},
-			func: "https://raw.githubusercontent.com/HFx6/nodular/ui-update/src/utils/roms/zelda.nes",
+			func: "https://corsproxy.io/?https://www.nesfiles.com/NES/Zelda/zelda.nes",
 			funceval:
-				"https://raw.githubusercontent.com/HFx6/nodular/ui-update/src/utils/roms/zelda.nes",
+				"https://corsproxy.io/?https://www.nesfiles.com/NES/Zelda/zelda.nes",
 		},
 		selected: true,
 		dragging: false,
