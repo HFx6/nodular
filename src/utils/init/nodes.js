@@ -462,7 +462,7 @@ export default [
 				backgroundColor: "#A0D468",
 			},
 			func: "const input = `https://raw.githubusercontent.com/HFx6/nodular/ui-update/src/utils/roms/zelda.nes`;\n\nmodule.exports = {input }",
-			funceval: "yellow",
+			funceval: "https://raw.githubusercontent.com/HFx6/nodular/ui-update/src/utils/roms/zelda.nes",
 		},
 		selected: false,
 		dragging: false,
