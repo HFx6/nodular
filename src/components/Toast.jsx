@@ -16,7 +16,7 @@ const ToasterComponent = () => {
 		<Toaster
 			maxCount={1}
 			position="bottom-right"
-			reverseOrder={true}
+			reverseOrder={false}
 			toastOptions={{
 				className: "",
 				style: {

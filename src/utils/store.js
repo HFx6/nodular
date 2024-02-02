@@ -27,7 +27,8 @@ const useStore = create((set, get) => ({
 			edges: addEdge(connection, get().edges),
 		});
 	},
-	updateNode(id, data) {
+	updateNode({id, data}) {
+		console.log("updateNode", id, data);
 		set({
 			nodes: get().nodes.map((node) =>
 				node.id === id

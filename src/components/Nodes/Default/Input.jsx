@@ -5,11 +5,30 @@ import { Handle, useReactFlow, useUpdateNodeInternals } from "reactflow";
 
 import Source from "../Base/Handles/Source";
 
-import Editor from "@monaco-editor/react";
+import toast from "react-hot-toast";
+
+import useStore from "../../../utils/store";
+import { shallow } from "zustand/shallow";
 
 import "./style.css";
 
-export default function Input({ data, type }) {
+const selector = (state) => ({
+	updateNodeData: (e) => state.updateNode(e),
+});
+
+const debounce = (callback, wait) => {
+	let timeoutId = null;
+	return (...args) => {
+		window.clearTimeout(timeoutId);
+		timeoutId = window.setTimeout(() => {
+			callback(...args);
+			console.log("debounce");
+		}, wait);
+	};
+};
+
+export default function Input({ data, type, id }) {
+	const { updateNodeData } = useStore(selector, shallow);
 	const sourcehandles = useMemo(
 		() =>
 			data?.returnArgs?.map((x, i) => (
@@ -23,23 +42,20 @@ export default function Input({ data, type }) {
 			)),
 		[data.returnArgs]
 	);
+
+	const updateInput = debounce((e) => {
+		updateNodeData({ id, data: { func: e.target.value } });
+		toast.success("Input updated", {
+			id: 'input-update',
+		});
+	}, 250);
+
 	return (
 		<Base label={data.label} type={type}>
-			<Editor
-				className="nodrag"
-				options={{
-					minimap: { enabled: false },
-					glyphMargin: false,
-					folding: false,
-					codeLens: false,
-					colorDecorators: false,
-					selectionHighlight: false,
-					lineDecorationsWidth: 10,
-					lineNumbersMinChars: 2,
-				}}
-				height="2rem"
-				theme="vs-dark"
-				defaultValue="Yellow"
+			<textarea
+				className="nodrag input-textarea"
+				defaultValue={data.func}
+				onChange={updateInput}
 			/>
 			<div className="basenode-footer">
 				<div className="basenode-sources">{sourcehandles}</div>

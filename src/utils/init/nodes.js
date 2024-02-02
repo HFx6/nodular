@@ -5,8 +5,8 @@ export default [
 		id: "nodular_1694151916161",
 		type: "Canvas",
 		position: {
-			x: 225.78306251555568,
-			y: -85.7346653130035,
+			x: 411.19408593271027,
+			y: -57.92301180043032,
 		},
 		data: {
 			label: "canvas",
@@ -24,8 +24,8 @@ export default [
 			funceval: "",
 		},
 		positionAbsolute: {
-			x: 225.78306251555568,
-			y: -85.7346653130035,
+			x: 411.19408593271027,
+			y: -57.92301180043032,
 		},
 		selected: false,
 		dragging: false,
@@ -41,7 +41,7 @@ export default [
 		},
 		data: {
 			label: "Utility.js",
-			lang: "node",
+			lang: "javascript",
 			funcnode: true,
 			returnArgs: ["Utility"],
 			loading: false,
@@ -72,7 +72,7 @@ export default [
 		},
 		data: {
 			label: "Nes.js",
-			lang: "node",
+			lang: "javascript",
 			funcnode: true,
 			returnArgs: ["Nes"],
 			loading: false,
@@ -103,7 +103,7 @@ export default [
 		},
 		data: {
 			label: "Rom.js",
-			lang: "node",
+			lang: "javascript",
 			funcnode: true,
 			returnArgs: ["Rom"],
 			loading: false,
@@ -134,7 +134,7 @@ export default [
 		},
 		data: {
 			label: "Audio.js",
-			lang: "node",
+			lang: "javascript",
 			funcnode: true,
 			returnArgs: ["Audio"],
 			loading: false,
@@ -165,7 +165,7 @@ export default [
 		},
 		data: {
 			label: "Mapper.js",
-			lang: "node",
+			lang: "javascript",
 			funcnode: true,
 			returnArgs: ["Mapper", "MapperFactory"],
 			loading: false,
@@ -196,7 +196,7 @@ export default [
 		},
 		data: {
 			label: "Joypad.js",
-			lang: "node",
+			lang: "javascript",
 			funcnode: true,
 			returnArgs: ["Joypad"],
 			loading: false,
@@ -227,7 +227,7 @@ export default [
 		},
 		data: {
 			label: "Apu.js",
-			lang: "node",
+			lang: "javascript",
 			funcnode: true,
 			returnArgs: ["Apu"],
 			loading: false,
@@ -258,7 +258,7 @@ export default [
 		},
 		data: {
 			label: "Display.js",
-			lang: "node",
+			lang: "javascript",
 			funcnode: true,
 			returnArgs: ["Display"],
 			loading: false,
@@ -289,7 +289,7 @@ export default [
 		},
 		data: {
 			label: "Cpu.js",
-			lang: "node",
+			lang: "javascript",
 			funcnode: true,
 			returnArgs: ["Cpu"],
 			loading: false,
@@ -320,7 +320,7 @@ export default [
 		},
 		data: {
 			label: "Register.js",
-			lang: "node",
+			lang: "javascript",
 			funcnode: true,
 			returnArgs: ["Register8bit", "Register16bit"],
 			loading: false,
@@ -351,7 +351,7 @@ export default [
 		},
 		data: {
 			label: "Ppu.js",
-			lang: "node",
+			lang: "javascript",
 			funcnode: true,
 			returnArgs: ["Ppu"],
 			loading: false,
@@ -382,7 +382,7 @@ export default [
 		},
 		data: {
 			label: "Memory.js",
-			lang: "node",
+			lang: "javascript",
 			funcnode: true,
 			returnArgs: ["Memory"],
 			loading: false,
@@ -413,7 +413,7 @@ export default [
 		},
 		data: {
 			label: "LoadNes.js",
-			lang: "node",
+			lang: "javascript",
 			funcnode: true,
 			returnArgs: [],
 			loading: false,
@@ -434,7 +434,7 @@ export default [
 			hasfunc: true,
 			funceval: null,
 		},
-		selected: true,
+		selected: false,
 		positionAbsolute: {
 			x: 1081.0303617465665,
 			y: -369.153711367157,
@@ -442,18 +442,19 @@ export default [
 		dragging: false,
 	},
 	{
-		width: 158,
-		height: 96,
+		width: 292,
+		height: 205,
 		id: "nodular_1706850152062",
 		type: "Input",
 		position: {
-			x: 622.1615324680545,
-			y: 221.32034545384184,
+			x: -151.9294902985659,
+			y: -52.160914086461176,
 		},
 		data: {
 			label: "input",
 			defaultNode: true,
 			args: [],
+			lang: "text",
 			returnArgs: ["input"],
 			funcedit: true,
 			hasfunc: false,
@@ -461,14 +462,15 @@ export default [
 			returnTypeColor: {
 				backgroundColor: "#A0D468",
 			},
-			func: "const input = `https://raw.githubusercontent.com/HFx6/nodular/ui-update/src/utils/roms/zelda.nes`;\n\nmodule.exports = {input }",
-			funceval: "https://raw.githubusercontent.com/HFx6/nodular/ui-update/src/utils/roms/zelda.nes",
+			func: "https://raw.githubusercontent.com/HFx6/nodular/ui-update/src/utils/roms/zelda.nes",
+			funceval:
+				"https://raw.githubusercontent.com/HFx6/nodular/ui-update/src/utils/roms/zelda.nes",
 		},
-		selected: false,
+		selected: true,
 		dragging: false,
 		positionAbsolute: {
-			x: 622.1615324680545,
-			y: 221.32034545384184,
+			x: -151.9294902985659,
+			y: -52.160914086461176,
 		},
 	},
 ];

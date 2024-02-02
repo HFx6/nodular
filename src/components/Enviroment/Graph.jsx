@@ -109,7 +109,7 @@ function Flow() {
 		const ignoreDoubleClick =
 			targetElement.closest(".ignore-double-click") !== null;
 
-		if (!ignoreDoubleClick) {
+		if (!ignoreDoubleClick && node.data.funcedit) {
 			setSelectedNode(node.id);
 		}
 	};

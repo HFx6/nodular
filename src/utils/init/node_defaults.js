@@ -64,7 +64,7 @@ export default {
 			returnTypeColor: {
 				backgroundColor: "#A0D468",
 			},
-			func: "const input = `yellow`;\n\nmodule.exports = {input }",
+			func: "https://raw.githubusercontent.com/HFx6/nodular/ui-update/src/utils/roms/zelda.nes",
 			funceval: "yellow",
 		},
 		selected: false,

@@ -11,7 +11,8 @@ const selector = (state) => ({
 	selectedNodeId: state.selectedNodeId,
 	selectedNode: state.selectedNode,
 	setSelectedNode: state.setSelectedNode,
-	updateNodeData: (e) => state.updateNode(state.selectedNodeId, e),
+	updateNodeData: (e) =>
+		state.updateNode({ id: state.selectedNodeId, data: e }),
 });
 
 export default function NodeEditor() {
@@ -26,7 +27,12 @@ export default function NodeEditor() {
 
 	function saveContent() {
 		const returnArgs = extractExports(editorRef.current.getValue());
-
+		if (selectedNode.type == "Input") {
+			updateNodeData({
+				label: inputRef.current.value,
+				func: editorRef.current.getValue(),
+			});
+		}
 		updateNodeData({
 			label: inputRef.current.value,
 			func: editorRef.current.getValue(),
@@ -50,17 +56,15 @@ export default function NodeEditor() {
 			<input
 				type="text"
 				defaultValue={selectedNode.data.label}
+				value={selectedNode.data.label}
 				ref={inputRef}
 			/>
 			<Editor
 				height="100%"
-				defaultLanguage="javascript"
+				language={selectedNode.data.lang}
 				theme="vs-dark"
-				defaultValue={
-					selectedNode.data?.defaultNode
-						? selectedNode.data.func
-						: selectedNode.data.func
-				}
+				defaultValue=""
+				value={selectedNode.data.func}
 				onMount={handleEditorDidMount}
 			/>
 		</>

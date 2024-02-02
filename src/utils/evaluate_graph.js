@@ -108,6 +108,25 @@ async function evalGraph(startingNodeID) {
 			continue;
 		}
 
+		if (sourceNode.type == "Input") {
+			if (importLocations[targetNode.id]) {
+				importLocations[targetNode.id].push(
+					`import { ${sourceLabel} as ${targetLabel} } from '${sourceNode.id}';\n`
+				);
+			} else {
+				importLocations[targetNode.id] = [
+					`import { ${sourceLabel} as ${targetLabel} } from '${sourceNode.id}';\n`,
+				];
+			}
+
+			moduleObj[sourceNode.id] =
+				"const input = `" +
+				sourceNode.data.func +
+				"`; module.exports = {input };";
+			moduleObj[targetNode.id] = targetNode.data.func;
+			continue;
+		}
+
 		if (importLocations[targetNode.id]) {
 			importLocations[targetNode.id].push(
 				`import { ${sourceLabel} as ${targetLabel} } from '${sourceNode.id}';\n`
