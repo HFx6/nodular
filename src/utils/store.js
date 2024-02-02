@@ -38,6 +38,9 @@ const useStore = create((set, get) => ({
 		});
 	},
 	addTarget(id, arg) {
+		if(arg === "" || arg === undefined || arg === null){
+			return { error: "input cannot be blank" };
+		}
 		let nodeargs = get().nodes.find((node) => node.id === id).data.args;
 		if (nodeargs.includes(arg)) {
 			return { error: "Input already exists" };
