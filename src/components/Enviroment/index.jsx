@@ -19,8 +19,9 @@ export default function Enviroment() {
 				<Panel
 					className={styles.Panel}
 					collapsible={true}
-					defaultSize={20}
+					defaultSize={selectedNodeId ? 20 : 100}
 					order={1}
+					id="NodularGraph"
 				>
 					<NodularGraph />
 				</Panel>
@@ -28,6 +29,7 @@ export default function Enviroment() {
 					<>
 						<ResizeHandle />
 						<Panel
+						id="Editor"
 							className={styles.Panel}
 							collapsible={true}
 							defaultSize={20}

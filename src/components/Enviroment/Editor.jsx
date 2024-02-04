@@ -5,7 +5,7 @@ import { shallow } from "zustand/shallow";
 
 import toast from "react-hot-toast";
 
-import { extractExports } from "./parse.js";
+import { extractExports, extractExportsRegex } from "./parse.js";
 
 const selector = (state) => ({
 	selectedNodeId: state.selectedNodeId,
@@ -26,7 +26,8 @@ export default function NodeEditor() {
 	}
 
 	function saveContent() {
-		const returnArgs = extractExports(editorRef.current.getValue());
+		const returnArgs = extractExportsRegex(editorRef.current.getValue());
+		// console.log(extractExportsRegex(editorRef.current.getValue()));
 		if (selectedNode.type == "Input") {
 			updateNodeData({
 				label: inputRef.current.value,
@@ -55,16 +56,17 @@ export default function NodeEditor() {
 
 			<input
 				type="text"
+				key={selectedNode.id}
 				defaultValue={selectedNode.data.label}
-				value={selectedNode.data.label}
 				ref={inputRef}
 			/>
 			<Editor
+				path={selectedNode.id}
+				key={"Editor"+selectedNode.id}
 				height="100%"
-				language={selectedNode.data.lang}
+				defaultLanguage={selectedNode.data.lang}
 				theme="vs-dark"
-				defaultValue=""
-				value={selectedNode.data.func}
+				defaultValue={selectedNode.data.func}
 				onMount={handleEditorDidMount}
 			/>
 		</>

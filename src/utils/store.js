@@ -28,7 +28,6 @@ const useStore = create((set, get) => ({
 		});
 	},
 	updateNode({id, data}) {
-		console.log("updateNode", id, data);
 		set({
 			nodes: get().nodes.map((node) =>
 				node.id === id
