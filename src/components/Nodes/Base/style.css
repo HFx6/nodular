@@ -101,8 +101,11 @@
 	min-height: 34px;
 }
 
-.basenode-header.Function {
+.basenode-header.node {
 	background: #803334;
+}
+.basenode-header.python {
+	background: #b2a625;
 }
 .basenode-header.Bool,
 .basenode-header.Canvas {
@@ -123,5 +126,3 @@
 .react-flow__connection-path {
 	stroke-width: 4px;
 }
-
-

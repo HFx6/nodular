@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import useStore from "../../utils/store";
 import { shallow } from "zustand/shallow";
@@ -14,6 +14,11 @@ const selector = (state) => ({
 	updateNodeData: (e) =>
 		state.updateNode({ id: state.selectedNodeId, data: e }),
 });
+
+const langLookup = {
+	node: "javascript",
+	python: "python",
+};
 
 export default function NodeEditor() {
 	const { selectedNodeId, selectedNode, setSelectedNode, updateNodeData } =
@@ -62,9 +67,9 @@ export default function NodeEditor() {
 			/>
 			<Editor
 				path={selectedNode.id}
-				key={"Editor"+selectedNode.id}
+				key={"Editor" + selectedNode.id}
 				height="100%"
-				defaultLanguage={selectedNode.data.lang}
+				defaultLanguage={langLookup[selectedNode.data.lang]}
 				theme="vs-dark"
 				defaultValue={selectedNode.data.func}
 				onMount={handleEditorDidMount}

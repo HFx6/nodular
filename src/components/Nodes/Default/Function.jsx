@@ -62,7 +62,7 @@ export default function Function({ data, type, id }) {
 		}
 	}
 	return (
-		<Base label={data.label} type={type}>
+		<Base label={data.label} type={type} lang={data.lang}>
 			<div className="basenode-targets function-node">
 				{targetHandles}
 			</div>
