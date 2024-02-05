@@ -1,3 +1,4 @@
+
 export default [
 	{
 		width: 326,
@@ -41,7 +42,7 @@ export default [
 		},
 		data: {
 			label: "Utility.js",
-			lang: "javascript",
+			lang: "node",
 			funcnode: true,
 			returnArgs: ["Utility"],
 			loading: false,
@@ -72,7 +73,7 @@ export default [
 		},
 		data: {
 			label: "Nes.js",
-			lang: "javascript",
+			lang: "node",
 			funcnode: true,
 			returnArgs: ["Nes"],
 			loading: false,
@@ -103,7 +104,7 @@ export default [
 		},
 		data: {
 			label: "Rom.js",
-			lang: "javascript",
+			lang: "node",
 			funcnode: true,
 			returnArgs: ["Rom"],
 			loading: false,
@@ -134,7 +135,7 @@ export default [
 		},
 		data: {
 			label: "Audio.js",
-			lang: "javascript",
+			lang: "node",
 			funcnode: true,
 			returnArgs: ["Audio"],
 			loading: false,
@@ -165,7 +166,7 @@ export default [
 		},
 		data: {
 			label: "Mapper.js",
-			lang: "javascript",
+			lang: "node",
 			funcnode: true,
 			returnArgs: ["Mapper", "MapperFactory"],
 			loading: false,
@@ -196,7 +197,7 @@ export default [
 		},
 		data: {
 			label: "Joypad.js",
-			lang: "javascript",
+			lang: "node",
 			funcnode: true,
 			returnArgs: ["Joypad"],
 			loading: false,
@@ -227,7 +228,7 @@ export default [
 		},
 		data: {
 			label: "Apu.js",
-			lang: "javascript",
+			lang: "node",
 			funcnode: true,
 			returnArgs: ["Apu"],
 			loading: false,
@@ -258,7 +259,7 @@ export default [
 		},
 		data: {
 			label: "Display.js",
-			lang: "javascript",
+			lang: "node",
 			funcnode: true,
 			returnArgs: ["Display"],
 			loading: false,
@@ -289,7 +290,7 @@ export default [
 		},
 		data: {
 			label: "Cpu.js",
-			lang: "javascript",
+			lang: "node",
 			funcnode: true,
 			returnArgs: ["Cpu"],
 			loading: false,
@@ -320,7 +321,7 @@ export default [
 		},
 		data: {
 			label: "Register.js",
-			lang: "javascript",
+			lang: "node",
 			funcnode: true,
 			returnArgs: ["Register8bit", "Register16bit"],
 			loading: false,
@@ -351,7 +352,7 @@ export default [
 		},
 		data: {
 			label: "Ppu.js",
-			lang: "javascript",
+			lang: "node",
 			funcnode: true,
 			returnArgs: ["Ppu"],
 			loading: false,
@@ -382,7 +383,7 @@ export default [
 		},
 		data: {
 			label: "Memory.js",
-			lang: "javascript",
+			lang: "node",
 			funcnode: true,
 			returnArgs: ["Memory"],
 			loading: false,
@@ -413,7 +414,7 @@ export default [
 		},
 		data: {
 			label: "LoadNes.js",
-			lang: "javascript",
+			lang: "node",
 			funcnode: true,
 			returnArgs: [],
 			loading: false,

@@ -1,7 +1,3 @@
-// export default [
-
-// ];
-
 export default [
 	{
 		source: "nodular_1694680825239",
