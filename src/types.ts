@@ -15,9 +15,9 @@ export interface GraphNode {
   x: number;
   y: number;
   w: number;
+  /** fixed height from a user resize; undefined = auto (content-driven) */
+  h?: number;
   code?: string;
-  edit?: boolean;
-  running?: boolean;
   min?: boolean;
   manual?: boolean;
   /** ui nodes only */
@@ -63,6 +63,8 @@ export interface View {
 export interface ArmState {
   id: string;
   port: string;
+  /** live cursor position (board coords) while the wire is being dragged */
+  drag?: { x: number; y: number } | null;
 }
 
 /** Mutable runtime state shared with the canvas surface, owned outside React. */

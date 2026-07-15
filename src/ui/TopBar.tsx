@@ -1,14 +1,17 @@
 import { C, MONO } from "../theme";
+import { Menu, type MenuActions } from "./Menu";
 
 interface TopBarProps {
   zoom: number;
   onAddNode: () => void;
+  menu: MenuActions;
 }
 
 /** Top bar — only things that do things. */
-export function TopBar({ zoom, onAddNode }: TopBarProps) {
+export function TopBar({ zoom, onAddNode, menu }: TopBarProps) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "7px 14px", borderBottom: `1px solid ${C.edge}`, background: C.pane }}>
+      <Menu {...menu} />
       <span style={{ fontFamily: MONO, fontSize: 13, fontWeight: 600 }}>nodular</span>
       <span style={{ fontFamily: MONO, fontSize: 11.5, color: C.dim }}>walkers.nodular</span>
       <button onClick={onAddNode}

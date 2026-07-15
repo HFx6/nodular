@@ -2,13 +2,11 @@
 // and the bezier path of each edge. No React, no side effects.
 
 import { HEAD, ROW } from "../theme";
-import { jsExports, pyDefs } from "../engine/inference";
+import { outsFor } from "../engine/inference";
 import type { Edge, ExportInfo, GraphNode, NodeMap } from "../types";
 
 export function outsOf(n: GraphNode): ExportInfo[] {
-  if (n.lang === "canvas" || n.lang === "ui") return [];
-  if (n.lang === "js") return jsExports(n.code ?? "");
-  return pyDefs(n.code ?? "");
+  return outsFor(n);
 }
 
 export function inputsOf(n: GraphNode, edges: Edge[]): string[] {

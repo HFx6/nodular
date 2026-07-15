@@ -3,7 +3,7 @@
 // the pattern ENGINE.md mandates for the real engine.
 
 import { useEffect, useMemo, useRef } from "react";
-import { pyResult } from "./inference";
+import { pyResult } from "./inference/index";
 import { outsOf } from "../graph/geometry";
 import type { Edge, LiveState, NodeMap, NodeResult } from "../types";
 

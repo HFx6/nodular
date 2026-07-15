@@ -1,19 +1,8 @@
-// Fake inference — real enough to feel. Scans node code for exports/defs and
-// evaluates the "last expression is the value" convention.
-//
-// This is the seed of the real per-language LanguageAdapter.inferInterface
-// (ENGINE.md): swap these regex scans for es-module-lexer / ast.parse per
-// language behind the same shape.
+// Python inference — fake regex scans, real enough to feel, until a Pyodide
+// kernel runs ast.parse behind the same InferFn shape.
 
-import type { ExportInfo, NodeResult } from "../types";
-
-export function jsExports(code: string): ExportInfo[] {
-  const out: ExportInfo[] = [];
-  let m: RegExpExecArray | null;
-  const re = /export\s+(?:async\s+)?function\s+([A-Za-z_$][\w$]*)|export\s+(?:const|let)\s+([A-Za-z_$][\w$]*)/g;
-  while ((m = re.exec(code))) out.push({ name: m[1] ?? m[2] ?? "", fn: !!m[1] });
-  return out;
-}
+import type { ExportInfo, NodeResult } from "../../types";
+import type { InferredInterface } from "./types";
 
 export function pyDefs(code: string): ExportInfo[] {
   const out: ExportInfo[] = [];
@@ -23,6 +12,11 @@ export function pyDefs(code: string): ExportInfo[] {
   return out;
 }
 
+export function inferPy(code: string): InferredInterface {
+  return { outputs: pyDefs(code), freeInputs: [] };
+}
+
+/** "Last expression is the value" convention, approximated. */
 export function pyResult(code: string): NodeResult {
   const lines = code.split("\n").map((l) => l.trim()).filter((l) => l && !l.startsWith("#") && !l.startsWith("import"));
   if (!lines.length) return { v: null, why: "empty" };

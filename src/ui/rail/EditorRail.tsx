@@ -1,4 +1,5 @@
 import { C, MONO } from "../../theme";
+import { CodeMirrorEditor } from "../../editor/CodeMirrorEditor";
 import type { Edge, GraphNode, NodeMap } from "../../types";
 
 interface EditorRailProps {
@@ -25,6 +26,17 @@ export function EditorRail({ open, onToggle, node: selNode, nodes, edges, sel, o
   }
   const inScope = edges.filter((e) => e.to[0] === sel);
   const isCode = selNode && selNode.lang !== "canvas" && selNode.lang !== "ui";
+  if (!selNode) {
+    return (
+      <div style={{ width: "min(296px, 38vw)", borderLeft: `1px solid ${C.edge}`, background: C.pane, display: "flex", flexDirection: "column", minHeight: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderBottom: `1px solid ${C.edge}` }}>
+          <span style={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600, color: C.faint }}>editor</span>
+          <span className="ctrl" style={{ marginLeft: "auto", fontSize: 12 }} onClick={() => onToggle(false)}>»</span>
+        </div>
+        <div style={{ padding: 12, fontSize: 11.5, color: C.faint, fontStyle: "italic" }}>select a node</div>
+      </div>
+    );
+  }
   return (
     <div style={{ width: "min(296px, 38vw)", borderLeft: `1px solid ${C.edge}`, background: C.pane, display: "flex", flexDirection: "column", minHeight: 0 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderBottom: `1px solid ${C.edge}` }}>
@@ -34,10 +46,8 @@ export function EditorRail({ open, onToggle, node: selNode, nodes, edges, sel, o
       </div>
       {isCode ? (
         <>
-          <textarea value={selNode!.code} spellCheck={false} readOnly={!selNode!.edit}
-            onChange={(e) => onCodeChange(selNode!.id, e.target.value)}
-            style={{ flex: 1, resize: "none", border: "none", background: "transparent", padding: "10px 12px",
-              fontFamily: MONO, fontSize: 12, lineHeight: 1.7, color: selNode!.edit ? C.ink : C.dim }} />
+          <CodeMirrorEditor key={selNode!.id} code={selNode!.code ?? ""} lang={selNode!.lang} variant="rail"
+            onChange={(code) => onCodeChange(selNode!.id, code)} />
           <div style={{ borderTop: `1px dashed ${C.edge}`, padding: "7px 12px", fontSize: 10.5, color: C.dim, lineHeight: 1.6 }}>
             {selNode!.id === "count" && <>the last expression is this node's value — set n to 200 and watch the screen.</>}
             {selNode!.id === "parts" && <>delete the draw export and the screen loses its renderer; retype it and it's back.</>}

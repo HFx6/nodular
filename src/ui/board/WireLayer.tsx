@@ -1,24 +1,33 @@
 import { C, MONO } from "../../theme";
-import { wireGeometry } from "../../graph/geometry";
-import type { Edge, NodeMap } from "../../types";
+import { portPos, wireGeometry } from "../../graph/geometry";
+import type { ArmState, Edge, NodeMap } from "../../types";
 
 interface WireLayerProps {
   nodes: NodeMap;
   edges: Edge[];
   hot: string | null;
   onHot: (id: string | null) => void;
+  /** armed source being dragged; renders a pending wire to the cursor */
+  arm?: ArmState | null;
 }
 
 /** SVG layer drawing all wires, with hover samples, broken-edge badges, and
  *  cross-language markers. Stream edges animate only while emitting. */
-export function WireLayer({ nodes, edges, hot, onHot }: WireLayerProps) {
+export function WireLayer({ nodes, edges, hot, onHot, arm }: WireLayerProps) {
+  const src = arm?.drag && nodes[arm.id] ? portPos(nodes[arm.id]!, arm.port, "out", edges) : null;
+  const pendingD = src && arm?.drag
+    ? `M ${src.x} ${src.y} C ${src.x + Math.max(38, Math.abs(arm.drag.x - src.x) * 0.42)} ${src.y}, ${arm.drag.x - 38} ${arm.drag.y}, ${arm.drag.x} ${arm.drag.y}`
+    : null;
   return (
     <svg width="1" height="1" style={{ position: "absolute", left: 0, top: 0, overflow: "visible", pointerEvents: "none" }}>
+      {pendingD && (
+        <path d={pendingD} fill="none" stroke={C.sel} strokeWidth={1.4} strokeDasharray="4 4" strokeLinecap="round" />
+      )}
       {edges.map((e) => {
         const g = wireGeometry(e, nodes, edges); if (!g) return null;
         return (
           <g key={e.id} style={{ pointerEvents: "auto" }}>
-            <path d={g.d} stroke="transparent" strokeWidth="11" fill="none" style={{ cursor: "pointer" }}
+            <path d={g.d} stroke="transparent" strokeWidth="18" fill="none" style={{ cursor: "pointer" }}
               onMouseEnter={() => onHot(e.id)} onMouseLeave={() => onHot(null)} onClick={(ev) => ev.stopPropagation()} />
             <path d={g.d} fill="none"
               stroke={g.broken ? C.bad : hot === e.id ? C.wireHot : C.wire}
