@@ -20,7 +20,7 @@
 
 11. more canvas controls for things like width/height/aspect ratio? the nes is a bit squshed but i think it has the aspect ratio or pixel/pixel stated in the code as the riginal evrsion used it
 
-12. we need a better way to store examples in the code rather than groupped in folders as a tsx maybe it should be json files?
+12. we need a better way to store examples in the code rather than groupped in folders as a tsx maybe it should be json files? - and a proper loader instead of just importing into the app.tsx
 
 12. dragging if clicking on or letting go on a button in the node causes it to open
 
