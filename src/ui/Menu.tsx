@@ -8,6 +8,7 @@ export interface MenuActions {
   onReset: () => void;
   onLoadWalkers: () => void;
   onLoadArt: () => void;
+  onLoadNanoid: () => void;
   onExport: () => void;
   onImport: (file: File) => void;
   onZoomReset: () => void;
@@ -75,6 +76,7 @@ export function Menu(actions: MenuActions) {
           <Section title="examples" />
           <Item label="walkers" onPick={pick(actions.onLoadWalkers)} />
           <Item label="art browser" onPick={pick(actions.onLoadArt)} />
+          <Item label="npm import (nanoid)" onPick={pick(actions.onLoadNanoid)} />
           <Section title="view" />
           <Item label="zoom 100%" onPick={pick(actions.onZoomReset)} />
           <Item label="toggle editor rail" onPick={pick(actions.onToggleRail)} />

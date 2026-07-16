@@ -3,8 +3,14 @@
 // Python kernels, js-module, streams, and workers arrive as new registrations,
 // not core changes.
 
-import type { GraphNode, NodeResult } from "../../types";
+import type { GraphNode, NodeResult, ValueMode } from "../../types";
 import type { InferredInterface } from "../inference/types";
+
+/** Brand for multi-port values: a value carrying this key is a ports record,
+ *  and portValue reads EVERY port — including "→" — off it by name. The
+ *  general mechanism for built-ins with more than one output (state's value +
+ *  set). A value-shape check like the Module unwrap, not a kind branch. */
+export const PORTS: unique symbol = Symbol("nodular.ports");
 
 /** Value ports are memoized and re-delivered each eval; stream ports are
  *  ephemeral, coalesced to latest per animation frame. v0 implements value
@@ -38,8 +44,9 @@ export interface LanguageAdapter {
   /** Declared surface of the code: outputs drive live export handles. */
   inferInterface(code: string): InferredInterface;
   /** Compile into a runnable (may throw on syntax errors → error result),
-   *  or declare the node static. */
-  instantiate(code: string, inputNames: string[]): Executable | StaticResult;
+   *  or declare the node static. `mode` is the node's editor-value setting,
+   *  passed through opaquely — the core never interprets it. */
+  instantiate(code: string, inputNames: string[], mode?: ValueMode): Executable | StaticResult;
 }
 
 /** Built-in node kinds (table, image, later canvas/tick/pointer) implement the

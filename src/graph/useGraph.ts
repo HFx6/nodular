@@ -4,6 +4,7 @@
 
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
+import { runNode } from "../engine/core/engine";
 import { useGraphStore } from "./store";
 
 /** Actions a node card can invoke. Stable identities so nodes memoize cleanly. */
@@ -30,7 +31,7 @@ export function useGraph(notify: (m: string) => void) {
       onDelete: (id) => st().deleteNodes([id]),
       onToggleMin: (id) => st().toggleMin(id),
       onToggleMode: (id) => st().toggleManual(id),
-      onRunOnce: (id) => notify(`ran ${st().nodes[id]?.name}`),
+      onRunOnce: (id) => { runNode(id); notify(`ran ${st().nodes[id]?.name}`); },
       onArmOut: (id, port) => {
         st().armOut(id, port);
         notify(`connecting ${port === "→" ? id : port} — click a node's left edge`);

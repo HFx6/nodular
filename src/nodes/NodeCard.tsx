@@ -1,4 +1,4 @@
-import { memo, type PointerEvent as ReactPointerEvent } from "react";
+import { memo, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { C, HEAD, MONO, ROW } from "../theme";
 import { inputsOf, outsOf } from "../graph/geometry";
 import { useNodeResult } from "../engine/core/resultsStore";
@@ -9,6 +9,10 @@ import { CanvasNodeBody } from "./CanvasNodeBody";
 import { SourceNodeBody } from "./SourceNodeBody";
 import { TableNodeBody } from "./TableNodeBody";
 import { ImageNodeBody } from "./ImageNodeBody";
+import { ImportNodeBody } from "./ImportNodeBody";
+import { TextNodeBody } from "./TextNodeBody";
+import { StateNodeBody } from "./StateNodeBody";
+import { NodeSettings } from "./NodeSettings";
 
 interface NodeCardProps {
   node: GraphNode;
@@ -27,9 +31,10 @@ interface NodeCardProps {
  *  arrives through a per-id store subscription, not props. */
 function NodeCardImpl({ node: n, edges, selected: seld, arm, actions, onHeaderPointerDown, onResizeStart, registerRef }: NodeCardProps) {
   const res = useNodeResult(n.id);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const isCode = n.lang !== "canvas" && n.lang !== "ui";
   const ins = inputsOf(n, edges);
-  const outs = isCode ? outsOf(n) : [];
+  const outs = outsOf(n);
   return (
     <div ref={(el) => registerRef(n.id, el)}
       onPointerDown={(e) => { if (e.button === 0) e.stopPropagation(); }}
@@ -50,9 +55,11 @@ function NodeCardImpl({ node: n, edges, selected: seld, arm, actions, onHeaderPo
         <span style={{ marginLeft: "auto" }} />
         {isCode && (
           <span style={{ display: "flex", alignItems: "center", gap: 4, flex: "none" }}>
+            <span className="ctrl" title="node settings" style={{ fontSize: 11 }}
+              onClick={(e) => { e.stopPropagation(); setSettingsOpen((o) => !o); }}>⚙</span>
             <span className="ctrl" style={{ fontSize: 10, width: 52, textAlign: "right", whiteSpace: "nowrap" }}
               onClick={(e) => { e.stopPropagation(); actions.onToggleMode(n.id); }}>{n.manual ? "manual" : "auto"} ▾</span>
-            <span className="ctrl" style={{ fontSize: 11, visibility: n.manual ? "visible" : "hidden" }}
+            <span className="ctrl" title="run now" style={{ fontSize: 11 }}
               onClick={(e) => { e.stopPropagation(); actions.onRunOnce(n.id); }}>▷</span>
           </span>
         )}
@@ -63,6 +70,8 @@ function NodeCardImpl({ node: n, edges, selected: seld, arm, actions, onHeaderPo
             style={{ fontSize: 13, color: res?.v != null || n.lang === "ui" ? C.ink : C.faint }}>→</span>
         )}
       </div>
+
+      {settingsOpen && <NodeSettings node={n} onClose={() => setSettingsOpen(false)} />}
 
       {/* inputs on the left edge */}
       {!n.min && ins.map((name, i) => (
@@ -93,7 +102,13 @@ function NodeCardImpl({ node: n, edges, selected: seld, arm, actions, onHeaderPo
             ? <TableNodeBody node={n} />
             : n.kind === "image"
               ? <ImageNodeBody node={n} />
-              : <SourceNodeBody node={n} />)
+              : n.kind === "import"
+                ? <ImportNodeBody node={n} />
+                : n.kind === "text"
+                  ? <TextNodeBody node={n} />
+                  : n.kind === "state"
+                    ? <StateNodeBody node={n} />
+                    : <SourceNodeBody node={n} />)
           : <CodeNodeBody node={n} result={res} actions={actions} />)}
 
       {/* resize grip */}

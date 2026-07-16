@@ -2,14 +2,15 @@
 
 import type { Edge } from "../../types";
 
-/** Seeds plus everything reachable along from→to edges. */
-export function downstreamClosure(seeds: Iterable<string>, edges: Edge[]): Set<string> {
+/** Seeds plus everything reachable along from→to edges. `stop` nodes are
+ *  neither entered nor expanded through (manual nodes barrier the flush). */
+export function downstreamClosure(seeds: Iterable<string>, edges: Edge[], stop?: (id: string) => boolean): Set<string> {
   const out = new Set<string>(seeds);
   const queue = [...out];
   while (queue.length) {
     const id = queue.pop()!;
     for (const e of edges) {
-      if (e.from[0] === id && !out.has(e.to[0])) {
+      if (e.from[0] === id && !out.has(e.to[0]) && !stop?.(e.to[0])) {
         out.add(e.to[0]);
         queue.push(e.to[0]);
       }

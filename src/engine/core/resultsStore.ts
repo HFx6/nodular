@@ -6,16 +6,23 @@
 import { createStore } from "zustand/vanilla";
 import { useStore } from "zustand";
 import type { NodeResult } from "../../types";
+import { PORTS } from "./types";
 
 interface ResultsState {
   results: Record<string, NodeResult>;
   /** resolved inputs for built-in bodies (table rows, image url) */
   nodeInputs: Record<string, Record<string, unknown>>;
+  /** raw "→" values by id, for value faces (render output modes). The engine
+   *  already retains every raw value in its states map — this adds a
+   *  reference, not memory. Mutation of a published value won't re-render
+   *  (ref equality), same as engine memoization. */
+  values: Record<string, unknown>;
 }
 
 export const resultsStore = createStore<ResultsState>()(() => ({
   results: {},
   nodeInputs: {},
+  values: {},
 }));
 
 export function publishResult(id: string, res: NodeResult): void {
@@ -28,13 +35,22 @@ export function publishInputs(id: string, inputs: Record<string, unknown>): void
   resultsStore.setState((s) => ({ nodeInputs: { ...s.nodeInputs, [id]: inputs } }));
 }
 
+export function publishValue(id: string, v: unknown): void {
+  // ports records cross as their "→" value (consistent with preview)
+  if (v != null && (v as Record<symbol, unknown>)[PORTS]) v = (v as Record<string, unknown>)["→"];
+  if (Object.is(resultsStore.getState().values[id], v)) return;
+  resultsStore.setState((s) => ({ values: { ...s.values, [id]: v } }));
+}
+
 export function removeNodeResults(id: string): void {
   resultsStore.setState((s) => {
     const results = { ...s.results };
     const nodeInputs = { ...s.nodeInputs };
+    const values = { ...s.values };
     delete results[id];
     delete nodeInputs[id];
-    return { results, nodeInputs };
+    delete values[id];
+    return { results, nodeInputs, values };
   });
 }
 
@@ -46,8 +62,16 @@ export function useNodeInputs(id: string): Record<string, unknown> | undefined {
   return useStore(resultsStore, (s) => s.nodeInputs[id]);
 }
 
+export function useNodeValue(id: string): unknown {
+  return useStore(resultsStore, (s) => s.values[id]);
+}
+
 /** Display preview of a raw value: capped JSON + a kind badge. */
 export function preview(v: unknown): NodeResult {
+  // ports records preview as their "→" value (a state node shows its value, not the record)
+  if (v != null && (v as Record<symbol, unknown>)[PORTS]) {
+    return preview((v as Record<string, unknown>)["→"]);
+  }
   if (v === undefined) return { v: null, why: "no result" };
   if (v === null) return { v: "null", k: "null" };
   switch (typeof v) {

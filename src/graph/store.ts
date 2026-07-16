@@ -7,9 +7,10 @@
 
 import { create } from "zustand";
 import { temporal } from "zundo";
-import type { ArmState, Edge, NodeMap, PortRef } from "../types";
+import type { ArmState, Edge, NodeMap, PortRef, RenderMode, ValueMode } from "../types";
 import { GRID } from "../theme";
 import { newId } from "./ids";
+import { spawnNode, type SpawnKind } from "./spawn";
 import { INITIAL_EDGES, INITIAL_NODES } from "./initialGraph";
 
 export interface GraphDoc {
@@ -33,11 +34,14 @@ export interface GraphStore extends GraphDoc {
   updateCode: (id: string, code: string) => void;
   moveNode: (id: string, x: number, y: number) => void;
   moveNodes: (entries: Array<{ id: string; x: number; y: number }>) => void;
-  addNode: (at: { x: number; y: number }) => string;
+  addNode: (at: { x: number; y: number }, kind?: SpawnKind) => string;
   resizeNode: (id: string, w: number, h?: number) => void;
   deleteNodes: (ids: string[]) => void;
   toggleMin: (id: string) => void;
   toggleManual: (id: string) => void;
+  toggleUseDefault: (id: string) => void;
+  setValueMode: (id: string, m: ValueMode | undefined) => void;
+  setRenderMode: (id: string, m: RenderMode | undefined) => void;
   connect: (from: PortRef, to: PortRef) => void;
   setDoc: (doc: GraphDoc) => void;
 
@@ -92,14 +96,12 @@ export const useGraphStore = create<GraphStore>()(
           return changed ? { nodes } : s;
         }),
 
-      addNode: (at) => {
+      addNode: (at, kind) => {
         const id = newId("n");
         const x = Math.round(at.x / GRID) * GRID;
         const y = Math.round(at.y / GRID) * GRID;
-        set((s) => ({
-          nodes: { ...s.nodes, [id]: { id, lang: "js" as const, name: id, x, y, w: 204, code: `1 + 1` } },
-          sel: [id],
-        }));
+        const node = spawnNode(id, { x, y }, kind ?? "eval");
+        set((s) => ({ nodes: { ...s.nodes, [id]: node }, sel: [id] }));
         return id;
       },
 
@@ -130,6 +132,19 @@ export const useGraphStore = create<GraphStore>()(
 
       toggleManual: (id) =>
         set((s) => (s.nodes[id] ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, manual: !s.nodes[id]!.manual } } } : s)),
+
+      toggleUseDefault: (id) =>
+        set((s) => (s.nodes[id] ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, useDefault: !s.nodes[id]!.useDefault } } } : s)),
+
+      setValueMode: (id, m) =>
+        set((s) => (s.nodes[id] && s.nodes[id].valueMode !== m
+          ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, valueMode: m } } }
+          : s)),
+
+      setRenderMode: (id, m) =>
+        set((s) => (s.nodes[id] && s.nodes[id].renderMode !== m
+          ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, renderMode: m } } }
+          : s)),
 
       connect: (from, to) =>
         set((s) => ({

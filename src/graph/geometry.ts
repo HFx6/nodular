@@ -6,6 +6,8 @@ import { outsFor } from "../engine/inference";
 import type { Edge, ExportInfo, GraphNode, NodeMap } from "../types";
 
 export function outsOf(n: GraphNode): ExportInfo[] {
+  // built-ins declare fixed named outputs in the doc (state's "set"); code nodes infer them
+  if (n.lang === "ui" || n.lang === "canvas") return (n.outs ?? []).map((name) => ({ name, fn: true }));
   return outsFor(n);
 }
 

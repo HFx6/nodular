@@ -14,6 +14,9 @@ const byCode = new Map<string, ExportInfo[]>();
 const lastGood = new Map<string, ExportInfo[]>();
 
 export function outsFor(n: GraphNode): ExportInfo[] {
+  // any explicit editor-value mode rules out exports (expr/body/text can't
+  // export) — before the cache, which keys on lang+code only
+  if (n.valueMode && n.valueMode !== "auto") return [];
   const adapter = adapterFor(n.lang);
   if (!adapter) return [];
   const code = n.code ?? "";

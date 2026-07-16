@@ -20,6 +20,29 @@ export const imageDef: NodeDefinition = {
   create: () => ({ update: () => undefined }),
 };
 
+/** import: a package name or URL in n.code; the React body loads it (via esm.sh
+ *  for bare names, or the URL directly) and emits the module — or module.default
+ *  when GraphNode.useDefault — on "→". Pure source, no inputs. */
+export const importDef: NodeDefinition = {
+  iface: () => ({ ins: [] }),
+  create: () => ({ update: () => undefined }),
+};
+
+/** text: the editor value IS the value (natto's text pane). The React body
+ *  emits n.code as a string on "→" whenever it changes. Pure source. */
+export const textDef: NodeDefinition = {
+  iface: () => ({ ins: [] }),
+  create: () => ({ update: () => undefined }),
+};
+
+/** state: holds a value; "→" carries the current value, the named `set` port
+ *  carries a stable setter (natto's state pane). The React body owns both via
+ *  a ports-record emit; update returns undefined so the held value survives. */
+export const stateDef: NodeDefinition = {
+  iface: () => ({ ins: [] }),
+  create: () => ({ update: () => undefined }),
+};
+
 /** canvas: `render` in — a ƒ(ctx, frame) the surface calls in its own rAF
  *  loop (frame = { t, dt, width, height, cursor }). Pure sink; the body owns
  *  the loop and the pointer, so any render function works against it. */

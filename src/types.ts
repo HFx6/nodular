@@ -6,7 +6,13 @@
 export type Lang = "js" | "py" | "ui" | "canvas";
 
 /** UI built-in sub-kinds (sources, and fixed-input built-ins). */
-export type UiKind = "tick" | "pointer" | "table" | "image";
+export type UiKind = "tick" | "pointer" | "table" | "image" | "import" | "text" | "state";
+
+/** js nodes: how the editor value compiles. undefined = auto (infer from syntax). */
+export type ValueMode = "auto" | "expr" | "body" | "text";
+
+/** Code nodes: how the node's value renders in the body. undefined = default result strip. */
+export type RenderMode = "default" | "table" | "text" | "html";
 
 export interface GraphNode {
   id: string;
@@ -24,8 +30,16 @@ export interface GraphNode {
   kind?: UiKind;
   /** pointer nodes only: the surface they read from */
   target?: string;
+  /** import nodes only: emit module.default rather than the whole namespace */
+  useDefault?: boolean;
   /** fixed input port names (canvas and fixed-input built-ins like table/image) */
   ins?: string[];
+  /** fixed output port names for built-ins with named outputs (state's "set") */
+  outs?: string[];
+  /** js nodes: editor value compile mode (undefined = auto) */
+  valueMode?: ValueMode;
+  /** code nodes: body render mode (undefined = default result strip) */
+  renderMode?: RenderMode;
 }
 
 export type NodeMap = Record<string, GraphNode>;

@@ -14,6 +14,8 @@ import { useGraph } from "./graph/useGraph";
 import { clearHistory, useGraphStore } from "./graph/store";
 import { INITIAL_EDGES, INITIAL_NODES } from "./graph/initialGraph";
 import { ART_EDGES, ART_NODES } from "./graph/artBrowserGraph";
+import { NANOID_EDGES, NANOID_NODES } from "./graph/nanoidGraph";
+import { SPAWN_KINDS, type SpawnKind } from "./graph/spawn";
 import { clearSaved } from "./persist/autosave";
 import { exportFile, importFile } from "./persist/file";
 import type { MenuActions } from "./ui/Menu";
@@ -52,6 +54,11 @@ export default function App() {
       clearHistory();
       say("loaded art browser — click a row");
     },
+    onLoadNanoid: () => {
+      useGraphStore.getState().setDoc({ nodes: NANOID_NODES, edges: NANOID_EDGES });
+      clearHistory();
+      say("loaded npm import — a random nanoid");
+    },
     onExport: () => exportFile(),
     onImport: (f) => void importFile(f).then((ok) => say(ok ? `imported ${f.name}` : `couldn't read ${f.name}`)),
     onZoomReset: () => setView({ x: 0, y: 0, k: 1 }),
@@ -59,19 +66,21 @@ export default function App() {
   };
 
   // new nodes spawn at the viewport centre, in board coordinates
-  const addNode = () => {
+  const centre = () => {
     const r = boardRef.current?.getBoundingClientRect();
-    const at = r
+    return r
       ? { x: (r.width / 2 - view.x) / view.k - 102, y: (r.height / 2 - view.y) / view.k - 60 }
       : { x: 90, y: 90 };
-    useGraphStore.getState().addNode(at);
-    say("new node — start typing");
+  };
+  const onAdd = (kind: SpawnKind) => {
+    useGraphStore.getState().addNode(centre(), kind);
+    say(SPAWN_KINDS.find((s) => s.kind === kind)?.toast ?? "new node");
   };
 
   return (
     <div style={{ fontFamily: SANS, width: "100%", height: "100dvh", minHeight: 480, display: "flex", flexDirection: "column", background: C.bg, color: C.ink, userSelect: "none", overflow: "hidden" }}>
       <GlobalStyles />
-      <TopBar zoom={view.k} onAddNode={addNode} menu={menu} />
+      <TopBar zoom={view.k} onAdd={onAdd} menu={menu} />
       <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
         <Board boardRef={boardRef} nodes={nodes} edges={edges} sel={sel} arm={arm} note={note}
           view={view} setView={setView} actions={actions} notify={say} />

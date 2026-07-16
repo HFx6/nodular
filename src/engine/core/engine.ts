@@ -8,8 +8,9 @@ import { useGraphStore } from "../../graph/store";
 import type { Edge, GraphNode, NodeMap, NodeResult } from "../../types";
 import { resolve } from "./registry";
 import type { NodeContext, NodeInstance } from "./types";
+import { PORTS } from "./types";
 import { downstreamClosure, kahnTopo } from "./graph";
-import { preview, publishInputs, publishResult, removeNodeResults } from "./resultsStore";
+import { preview, publishInputs, publishResult, publishValue, removeNodeResults } from "./resultsStore";
 
 interface NodeState {
   epoch: number;
@@ -21,6 +22,8 @@ interface NodeState {
 
 const states = new Map<string, NodeState>();
 const dirty = new Set<string>();
+/** Nodes explicitly run via ▷ — evaluated this flush even when `manual`. */
+const forced = new Set<string>();
 let scheduled = false;
 let flushing = false;
 let started = false;
@@ -48,13 +51,26 @@ export function markDirty(ids: Iterable<string>): void {
   if (dirty.size) schedule();
 }
 
+/** ▷: force one evaluation of a node (and its downstream) now, bypassing the
+ *  manual barrier. Re-eval gathers current upstream values, so a paused node
+ *  catches up on everything it slept through with one press. */
+export function runNode(id: string): void {
+  forced.add(id);
+  markDirty([id]);
+}
+
 /** ctx.emit for built-in bodies (table row click): commit the node's "→"
- *  value and dirty downstream only — emit never re-runs the emitter. */
-export function emitValue(id: string, value: unknown): void {
+ *  value and dirty downstream only — emit never re-runs the emitter. With
+ *  `port`, only edges leaving that port dirty: state's set(v) re-flows value
+ *  consumers without re-running the caller wired to `set`. */
+export function emitValue(id: string, value: unknown, port?: string): void {
   state(id).value = value;
   publishResult(id, preview(value));
+  publishValue(id, value);
   const { edges } = useGraphStore.getState();
-  markDirty(edges.filter((e) => e.from[0] === id).map((e) => e.to[0]));
+  markDirty(edges
+    .filter((e) => e.from[0] === id && (port === undefined || e.from[1] === port))
+    .map((e) => e.to[0]));
 }
 
 async function flush(): Promise<void> {
@@ -62,9 +78,13 @@ async function flush(): Promise<void> {
   flushing = true;
   try {
     while (dirty.size) {
-      const { edges } = useGraphStore.getState();
-      const work = downstreamClosure(dirty, edges);
+      const { nodes, edges } = useGraphStore.getState();
+      // manual = autorun off: a manual node (and everything only reachable
+      // through it) evaluates solely via runNode's forced set.
+      const paused = (id: string) => !!nodes[id]?.manual && !forced.has(id);
+      const work = downstreamClosure([...dirty].filter((id) => !paused(id)), edges, paused);
       dirty.clear();
+      forced.clear();
       const { order, cyclic } = kahnTopo(work, edges);
       for (const id of cyclic) {
         publishResult(id, { v: null, k: "error", why: "cycle — node is part of a dependency loop" });
@@ -78,13 +98,27 @@ async function flush(): Promise<void> {
   }
 }
 
-/** Upstream committed values by input-port name. Only "→" edges carry values
- *  in v0; named-export edges (js-module, py defs) deliver undefined. */
+/** Resolve the value an upstream port carries. "→" is the default port: for a
+ *  module namespace (Symbol.toStringTag === "Module") it unwraps `default`;
+ *  otherwise it is the node's whole value. A named port reads that export off the
+ *  value. Generic on value shape — the core never learns what a "module" is, so
+ *  js-module exports and (later) Python defs flow through the same path. */
+function portValue(value: unknown, port: string): unknown {
+  if (value == null) return undefined;
+  if ((value as Record<symbol, unknown>)[PORTS]) return (value as Record<string, unknown>)[port];
+  const isNs = (value as Record<symbol, unknown>)[Symbol.toStringTag] === "Module";
+  if (port === "→") return isNs ? (value as Record<string, unknown>).default : value;
+  return (value as Record<string, unknown>)[port];
+}
+
+/** Upstream committed values by input-port name: "→" edges carry the node's
+ *  value (default export unwrapped for module namespaces); named-export edges
+ *  read the matching export. */
 function gatherInputs(id: string, edges: Edge[]): Record<string, unknown> {
   const inputs: Record<string, unknown> = {};
   for (const e of edges) {
     if (e.to[0] !== id) continue;
-    inputs[e.to[1]] = e.from[1] === "→" ? states.get(e.from[0])?.value : undefined;
+    inputs[e.to[1]] = portValue(states.get(e.from[0])?.value, e.from[1]);
   }
   return inputs;
 }
@@ -134,6 +168,7 @@ async function evalNode(id: string): Promise<void> {
       if (v !== undefined) {
         st.value = v;
         publishResult(id, preview(v));
+        publishValue(id, v);
       }
     } catch (err) {
       publishResult(id, errorResult(err));
@@ -143,7 +178,7 @@ async function evalNode(id: string): Promise<void> {
 
   let exe;
   try {
-    exe = r.adapter.instantiate(n.code ?? "", inputNamesFor(id, edges));
+    exe = r.adapter.instantiate(n.code ?? "", inputNamesFor(id, edges), n.valueMode);
   } catch (err) {
     publishResult(id, errorResult(err));
     return;
@@ -158,6 +193,7 @@ async function evalNode(id: string): Promise<void> {
     if (st.epoch !== epoch) return; // superseded mid-await
     st.value = v;
     publishResult(id, preview(v));
+    publishValue(id, v);
   } catch (err) {
     if (st.epoch !== epoch || isAbort(err)) return;
     publishResult(id, errorResult(err));
@@ -196,7 +232,7 @@ function onDocChange(s: { nodes: NodeMap; edges: Edge[] }, p: { nodes: NodeMap; 
   if (s.nodes !== p.nodes) {
     for (const id in s.nodes) {
       const prev: GraphNode | undefined = p.nodes[id];
-      if (!prev || prev.code !== s.nodes[id]!.code) next.add(id);
+      if (!prev || prev.code !== s.nodes[id]!.code || prev.valueMode !== s.nodes[id]!.valueMode) next.add(id);
     }
     for (const id in p.nodes) {
       if (!s.nodes[id]) dropNode(id, p.edges, next);

@@ -6,7 +6,9 @@ Baseline (July 2026, engine v0 shipped): language-agnostic core in `app/src/engi
 
 ---
 
-## 1. js-module adapter - blob-URL ES modules
+## 1. js-module adapter - blob-URL ES modules ✅ DONE (July 2026)
+
+**Landed**: module code compiles to a blob-URL ES module and is `import()`ed (`adapters/js.ts moduleExecutable`); wired inputs are injected as top-level bindings via a `globalThis.__nodularInputs` handshake (edges are the imports); bare npm specifiers are rewritten to `https://esm.sh/…` in place (reusing es-module-lexer ranges). Named-export value delivery lives in a generic `portValue(value, port)` in `core/engine.ts` (the only core change), which also unwraps `export default` for "→" via `Symbol.toStringTag === "Module"`. `isModule` now counts only static imports (`d === -1`), so `await import(...)` stays on the expr path. Also shipped the **import built-in** (`UiKind "import"`, `importDef`, `ImportNodeBody`, `GraphNode.useDefault`, `addNode(at, "import")`, "+ import" TopBar button). Original spec below for reference.
 
 **What**: real instantiation for JS code containing `import`/`export`. Today the js adapter's module branch returns a `StaticResult` ("module - exports carry the value") and named-export edges deliver `undefined` (v0 deviation #3 in ENGINE.md Status). This is the biggest capability gap: it's the difference between "expressions run" and "real modules run".
 
@@ -71,7 +73,7 @@ Baseline (July 2026, engine v0 shipped): language-agnostic core in `app/src/engi
 - **Parallel topo layers**: `kahnTopo` (`core/graph.ts`) already computes layer-compatible order; flush groups by layer and `Promise.all`s. Blocked on nothing; matters once fetches/kernels make evals slow.
 - **`derives` map**: declared-derivation cycle detection (ENGINE.md Execution model last bullet) so dual-direction built-ins (slider driven from upstream) are legal. Add to `NodeDefinition.iface` when the first such built-in lands.
 - **esbuild-wasm `transform()`** in a worker for TS/JSX per node (ENGINE.md stack: transform-only, never `build()`). Slots into the js adapter's compile path behind a debounced pass.
-- **Debounce knob** for expensive nodes: fetch nodes currently re-run per keystroke burst (epoch abort keeps it sane; natto behaves the same). A per-node debounce or the `manual` run mode (header toggle already exists in the UI, `GraphNode.manual`) wired into the engine's dirty-accept logic.
+- **Debounce knob** for expensive nodes: fetch nodes currently re-run per keystroke burst (epoch abort keeps it sane; natto behaves the same). A per-node debounce could still help. ~~The `manual` run mode wired into the engine~~ **done (July 2026)**: `manual` is a propagation barrier (natto's `autorun: false`), ▷ calls `runNode(id)` which forces one eval — the fix for "can't regenerate the nanoid node".
 - **`setup(host)` for built-ins**: pay down v0 deviation #1 - engine-owned DOM mounting instead of React bodies reading `nodeInputs`. Do it when the first worker-owned surface (OffscreenCanvas) forces the question; not before.
 
 ---
@@ -79,6 +81,8 @@ Baseline (July 2026, engine v0 shipped): language-agnostic core in `app/src/engi
 ## Product track (independent of engine order - interleave freely)
 
 ## 6. Value faces - bodies render values
+
+**Partially landed (July 2026, natto-parity pass)**: raw values now cross to React (`values` slice in `core/resultsStore.ts`, `publishValue`/`useNodeValue`), and code nodes have a **render output** setting (`GraphNode.renderMode`: default/table/text/html, natto's `renderOutput`) rendered by `nodes/ValueFace.tsx` below the editor — the ⚙ popover (`nodes/NodeSettings.tsx`) sets it, alongside **editor value mode** (`GraphNode.valueMode`: auto/expr/body/text, natto's `expressionType`). Remaining: the `auto` face (dispatch on observed type, inspector trees), face mode `value | hidden`, DOM/React/graphviz/custom render modes.
 
 **What**: ENGINE.md "Legibility mechanisms": *"Bodies show what the node is right now"* - arrays/objects as inspector trees, images as images, strings as text; code moves to a peek + the side rail. The conditional result strip built in v0 (`nodes/CodeNodeBody.tsx`) is the seed; `face mode: auto | value | hidden` is the spec'd header setting.
 
@@ -91,6 +95,8 @@ Baseline (July 2026, engine v0 shipped): language-agnostic core in `app/src/engi
 **What**: `.olabel` handles (`nodes/NodeCard.tsx`, `ui/GlobalStyles.tsx`): max-width ~110px + ellipsis + full name in `title`; beyond ~6 exports, first 5 + a "· n more ▾" toggle. Wires to hidden handles anchor to the collapse row (small `portPos` clamp in `graph/geometry.ts` - outputs are name→index positioned). Keep the stacked column; do NOT match handles to code line positions (they'd jump while typing). ~40 lines. Scoped in issues.md; becomes meaningful once js-module (item 1) makes multi-export nodes real.
 
 ## 8. More built-ins: slider, button, text input
+
+**Partially landed (July 2026, natto-parity pass)**: **text** (editor value is the value) and **state** (value on "→", stable setter on `set` — functional updates supported, per-port emit in the core prevents the set-echo loop; the ports-record `PORTS` shape in `core/types.ts` is the generic multi-output mechanism) shipped, plus the config-driven add-node palette (`graph/spawn.ts` + TopBar split button). Natto's `StateControl` (number slider / boolean / select / text widgets on the state pane) is prior art for the controls below.
 
 **What**: PROJECT.md node families table - controls. Each is a few lines on the now-existing contract (`NodeDefinition` + a small React body + `emitValue`; the table built-in is the template, `builtins/index.ts` + `nodes/TableNodeBody.tsx`).
 
