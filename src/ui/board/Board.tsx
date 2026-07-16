@@ -4,7 +4,7 @@ import { NodeCard } from "../../nodes/NodeCard";
 import type { NodeActions } from "../../graph/useGraph";
 import { useGraphStore } from "../../graph/store";
 import { importFile } from "../../persist/file";
-import type { ArmState, Edge, LiveState, NodeMap, NodeResult, View } from "../../types";
+import type { ArmState, Edge, NodeMap, View } from "../../types";
 import { WireLayer } from "./WireLayer";
 
 interface BoardProps {
@@ -14,8 +14,6 @@ interface BoardProps {
   sel: string[];
   arm: ArmState | null;
   note: string | null;
-  results: Record<string, NodeResult>;
-  live: RefObject<LiveState>;
   view: View;
   setView: Dispatch<SetStateAction<View>>;
   actions: NodeActions;
@@ -36,7 +34,7 @@ const MIN_W = 120, MIN_H = 80;
  *  Pointer state machine: background left-drag marquee-selects, middle-drag
  *  pans (anywhere), wheel zooms (trackpad scroll pans, pinch zooms), header
  *  drag moves the selection, armed output + drag draws a pending wire. */
-export function Board({ boardRef, nodes, edges, sel, arm, note, results, live, view, setView, actions, notify }: BoardProps) {
+export function Board({ boardRef, nodes, edges, sel, arm, note, view, setView, actions, notify }: BoardProps) {
   const [hot, setHot] = useState<string | null>(null);
   const [marquee, setMarquee] = useState<Marquee | null>(null);
   const drag = useRef<DragState | null>(null);
@@ -215,8 +213,7 @@ export function Board({ boardRef, nodes, edges, sel, arm, note, results, live, v
       <div style={{ position: "absolute", left: 0, top: 0, transform: `translate(${view.x}px, ${view.y}px) scale(${view.k})`, transformOrigin: "0 0" }}>
         <WireLayer nodes={nodes} edges={edges} hot={hot} onHot={setHot} arm={arm} />
         {Object.values(nodes).map((n) => (
-          <NodeCard key={n.id} node={n} edges={edges} selected={sel.includes(n.id)} arm={arm}
-            result={results[n.id]} live={live} actions={actions}
+          <NodeCard key={n.id} node={n} edges={edges} selected={sel.includes(n.id)} arm={arm} actions={actions}
             onHeaderPointerDown={nodeDown} onResizeStart={resizeStart} registerRef={registerRef} />
         ))}
         {marquee && (

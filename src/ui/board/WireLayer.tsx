@@ -1,6 +1,16 @@
 import { C, MONO } from "../../theme";
 import { portPos, wireGeometry } from "../../graph/geometry";
+import { resultsStore } from "../../engine/core/resultsStore";
 import type { ArmState, Edge, NodeMap } from "../../types";
+
+/** Live runtime sample for a value-port edge: the source's current result,
+ *  read at render time (hover already re-renders). Falls back to the doc's
+ *  static sample text when the engine has nothing yet. */
+function liveSample(e: Edge): string | null {
+  if (e.from[1] !== "→") return null;
+  const r = resultsStore.getState().results[e.from[0]];
+  return r?.v != null ? (r.k ? `${r.v} · ${r.k}` : r.v) : null;
+}
 
 interface WireLayerProps {
   nodes: NodeMap;
@@ -41,7 +51,7 @@ export function WireLayer({ nodes, edges, hot, onHot, arm }: WireLayerProps) {
                   <span style={{ fontFamily: MONO, fontSize: 10, padding: "2px 7px", borderRadius: 3, whiteSpace: "nowrap",
                     background: g.broken ? C.badSoft : C.ink, color: g.broken ? C.bad : "#f2f1ec",
                     border: g.broken ? `1px solid ${C.bad}` : "none" }}>
-                    {g.broken ? `missing export "${e.from[1]}"` : e.sample}
+                    {g.broken ? `missing export "${e.from[1]}"` : liveSample(e) ?? e.sample}
                   </span>
                 </div>
               </foreignObject>

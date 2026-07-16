@@ -1,26 +1,64 @@
-// Initial demo graph (grid-aligned):
-//   tick ─┐
-//   count ┼→ particles ─draw→ screen
-//   noise ┤       ↑
-//   pointer ──────┘ (attractor)
+// Initial demo graph (grid-aligned) — walkers, built from real nodes:
+//   count ──┐
+//   field ──┼→ walkers ─→ screen
+// count and field are plain js-expr values (a number, a function) flowing over
+// wires; walkers' last expression is a draw ƒ(ctx, frame) with closure state;
+// screen is the generic canvas sink calling it every animation frame.
 
 import type { Edge, NodeMap } from "../types";
 
+const WALKERS_CODE = `const ws = []
+
+const draw = (ctx, { width: w, height: h, cursor }) => {
+  const n = count ?? 40
+  while (ws.length < n)
+    ws.push({ x: Math.random() * w, y: Math.random() * h, trail: [] })
+  ws.length = Math.min(ws.length, n)
+
+  ctx.fillStyle = "#242331"
+  ctx.fillRect(0, 0, w, h)
+  ctx.strokeStyle = "rgba(217,215,235,.55)"
+  ctx.lineWidth = 1
+
+  for (const p of ws) {
+    let dx = (Math.random() - 0.5) * 4
+    let dy = (Math.random() - 0.5) * 4
+    if (field) {
+      const a = field(p.x / 48, p.y / 48) * Math.PI * 2
+      dx += Math.cos(a) * 1.1
+      dy += Math.sin(a) * 1.1
+    }
+    if (cursor) {
+      dx += (cursor.x - p.x) * 0.012
+      dy += (cursor.y - p.y) * 0.012
+    }
+    p.x = Math.max(0, Math.min(w, p.x + dx))
+    p.y = Math.max(0, Math.min(h, p.y + dy))
+    p.trail.push([p.x, p.y])
+    if (p.trail.length > 14) p.trail.shift()
+    ctx.beginPath()
+    p.trail.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)))
+    ctx.stroke()
+  }
+
+  if (cursor) {
+    ctx.fillStyle = "#d9a13f"
+    ctx.fillRect(cursor.x - 2, cursor.y - 2, 4, 4)
+  }
+}
+
+draw`;
+
 export const INITIAL_NODES: NodeMap = {
-  tick: { id: "tick", lang: "ui", name: "tick", x: 54, y: 54, w: 168, kind: "tick" },
-  count: { id: "count", lang: "py", name: "count", x: 54, y: 180, w: 168, code: `n = 40\nn` },
-  noise: { id: "noise", lang: "py", name: "noise", x: 54, y: 342, w: 222,
-    code: `import math\n\ndef field(x, y):\n    a = math.sin(x*3)\n    return a * math.cos(y*3)` },
-  parts: { id: "parts", lang: "js", name: "particles", x: 342, y: 180, w: 240,
-    code: `export function draw(ctx) {\n  each(count, w =>\n    w.step(field, cursor))\n  paint(ctx)\n}` },
-  ptr: { id: "ptr", lang: "ui", name: "pointer", x: 342, y: 450, w: 186, kind: "pointer", target: "screen" },
-  cvs: { id: "cvs", lang: "canvas", name: "screen", x: 666, y: 180, w: 288, ins: ["render"] },
+  count: { id: "count", lang: "js", name: "count", x: 54, y: 54, w: 168, code: `40` },
+  field: { id: "field", lang: "js", name: "field", x: 54, y: 216, w: 240,
+    code: `(x, y) =>\n  Math.sin(x * 3) * Math.cos(y * 3)` },
+  walkers: { id: "walkers", lang: "js", name: "walkers", x: 342, y: 54, w: 360, h: 396, code: WALKERS_CODE },
+  cvs: { id: "cvs", lang: "canvas", name: "screen", x: 756, y: 54, w: 288, ins: ["render"] },
 };
 
 export const INITIAL_EDGES: Edge[] = [
-  { id: "e1", from: ["tick", "→"], to: ["parts", "tick"], sample: "t=48213 · 60/s", stream: true },
-  { id: "e2", from: ["count", "→"], to: ["parts", "count"], sample: "40 · num" },
-  { id: "e3", from: ["noise", "field"], to: ["parts", "field"], xlang: "py→js", sample: "ƒ field(x, y) → num" },
-  { id: "e4", from: ["ptr", "→"], to: ["parts", "cursor"], sample: "{x: 214, y: 96}", stream: true },
-  { id: "e5", from: ["parts", "draw"], to: ["cvs", "render"], sample: "ƒ draw(ctx)" },
+  { id: "e1", from: ["count", "→"], to: ["walkers", "count"], sample: "…first value pending" },
+  { id: "e2", from: ["field", "→"], to: ["walkers", "field"], sample: "…first value pending" },
+  { id: "e3", from: ["walkers", "→"], to: ["cvs", "render"], sample: "…first value pending" },
 ];

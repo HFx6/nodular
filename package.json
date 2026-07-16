@@ -17,6 +17,7 @@
     "@codemirror/state": "^6.7.1",
     "@codemirror/view": "^6.43.6",
     "@lezer/highlight": "^1.2.3",
+    "acorn": "^8.17.0",
     "es-module-lexer": "^2.3.1",
     "idb-keyval": "^6.3.0",
     "react": "^19.2.7",

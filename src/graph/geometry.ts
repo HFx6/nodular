@@ -10,7 +10,8 @@ export function outsOf(n: GraphNode): ExportInfo[] {
 }
 
 export function inputsOf(n: GraphNode, edges: Edge[]): string[] {
-  if (n.lang === "canvas") return n.ins ?? [];
+  if (n.ins) return n.ins;
+  if (n.lang === "canvas") return [];
   const seen: string[] = [];
   edges.forEach((e) => { if (e.to[0] === n.id && !seen.includes(e.to[1])) seen.push(e.to[1]); });
   return seen;

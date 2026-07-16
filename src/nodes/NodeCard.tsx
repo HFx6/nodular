@@ -1,19 +1,20 @@
-import { memo, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
+import { memo, type PointerEvent as ReactPointerEvent } from "react";
 import { C, HEAD, MONO, ROW } from "../theme";
 import { inputsOf, outsOf } from "../graph/geometry";
-import type { ArmState, Edge, GraphNode, LiveState, NodeResult } from "../types";
+import { useNodeResult } from "../engine/core/resultsStore";
+import type { ArmState, Edge, GraphNode } from "../types";
 import type { NodeActions } from "../graph/useGraph";
 import { CodeNodeBody } from "./CodeNodeBody";
 import { CanvasNodeBody } from "./CanvasNodeBody";
 import { SourceNodeBody } from "./SourceNodeBody";
+import { TableNodeBody } from "./TableNodeBody";
+import { ImageNodeBody } from "./ImageNodeBody";
 
 interface NodeCardProps {
   node: GraphNode;
   edges: Edge[];
   selected: boolean;
   arm: ArmState | null;
-  result: NodeResult | undefined;
-  live: RefObject<LiveState>;
   actions: NodeActions;
   onHeaderPointerDown: (e: ReactPointerEvent, id: string) => void;
   onResizeStart: (e: ReactPointerEvent, id: string) => void;
@@ -22,8 +23,10 @@ interface NodeCardProps {
 
 /** The common node shell: header (controls + value port), input handles on the
  *  left edge, and a family-specific body. Memoized — engine ticks and board
- *  pan/zoom must not re-render node chrome (ENGINE.md). */
-function NodeCardImpl({ node: n, edges, selected: seld, arm, result: res, live, actions, onHeaderPointerDown, onResizeStart, registerRef }: NodeCardProps) {
+ *  pan/zoom must not re-render node chrome (ENGINE.md); the engine's result
+ *  arrives through a per-id store subscription, not props. */
+function NodeCardImpl({ node: n, edges, selected: seld, arm, actions, onHeaderPointerDown, onResizeStart, registerRef }: NodeCardProps) {
+  const res = useNodeResult(n.id);
   const isCode = n.lang !== "canvas" && n.lang !== "ui";
   const ins = inputsOf(n, edges);
   const outs = isCode ? outsOf(n) : [];
@@ -84,9 +87,13 @@ function NodeCardImpl({ node: n, edges, selected: seld, arm, result: res, live, 
 
       {/* family body */}
       {!n.min && (n.lang === "canvas"
-        ? <CanvasNodeBody live={live} />
+        ? <CanvasNodeBody node={n} />
         : n.lang === "ui"
-          ? <SourceNodeBody node={n} live={live} />
+          ? (n.kind === "table"
+            ? <TableNodeBody node={n} />
+            : n.kind === "image"
+              ? <ImageNodeBody node={n} />
+              : <SourceNodeBody node={n} />)
           : <CodeNodeBody node={n} result={res} actions={actions} />)}
 
       {/* resize grip */}

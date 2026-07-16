@@ -5,8 +5,8 @@
 
 export type Lang = "js" | "py" | "ui" | "canvas";
 
-/** UI built-in sub-kinds (source built-ins). */
-export type UiKind = "tick" | "pointer";
+/** UI built-in sub-kinds (sources, and fixed-input built-ins). */
+export type UiKind = "tick" | "pointer" | "table" | "image";
 
 export interface GraphNode {
   id: string;
@@ -24,7 +24,7 @@ export interface GraphNode {
   kind?: UiKind;
   /** pointer nodes only: the surface they read from */
   target?: string;
-  /** canvas nodes only: fixed input port names */
+  /** fixed input port names (canvas and fixed-input built-ins like table/image) */
   ins?: string[];
 }
 
@@ -65,12 +65,4 @@ export interface ArmState {
   port: string;
   /** live cursor position (board coords) while the wire is being dragged */
   drag?: { x: number; y: number } | null;
-}
-
-/** Mutable runtime state shared with the canvas surface, owned outside React. */
-export interface LiveState {
-  count: number;
-  rendered: boolean;
-  cursor: { x: number; y: number } | null;
-  t: number;
 }
