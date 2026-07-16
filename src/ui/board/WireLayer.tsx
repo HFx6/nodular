@@ -1,5 +1,6 @@
 import { C, MONO } from "../../theme";
 import { portPos, wireGeometry } from "../../graph/geometry";
+import { routeWire } from "../../graph/routing";
 import { resultsStore } from "../../engine/core/resultsStore";
 import type { ArmState, Edge, NodeMap } from "../../types";
 
@@ -24,6 +25,11 @@ interface WireLayerProps {
 /** SVG layer drawing all wires, with hover samples, broken-edge badges, and
  *  cross-language markers. Stream edges animate only while emitting. */
 export function WireLayer({ nodes, edges, hot, onHot, arm }: WireLayerProps) {
+  const wires = edges.map((e) => {
+    const g = wireGeometry(e, nodes, edges);
+    return g ? { e, a: g.a, b: g.b, broken: g.broken, d: routeWire(g.a, g.b) } : null;
+  });
+
   const src = arm?.drag && nodes[arm.id] ? portPos(nodes[arm.id]!, arm.port, "out", edges) : null;
   const pendingD = src && arm?.drag
     ? `M ${src.x} ${src.y} C ${src.x + Math.max(38, Math.abs(arm.drag.x - src.x) * 0.42)} ${src.y}, ${arm.drag.x - 38} ${arm.drag.y}, ${arm.drag.x} ${arm.drag.y}`
@@ -33,8 +39,9 @@ export function WireLayer({ nodes, edges, hot, onHot, arm }: WireLayerProps) {
       {pendingD && (
         <path d={pendingD} fill="none" stroke={C.sel} strokeWidth={1.4} strokeDasharray="4 4" strokeLinecap="round" />
       )}
-      {edges.map((e) => {
-        const g = wireGeometry(e, nodes, edges); if (!g) return null;
+      {wires.map((g) => {
+        if (!g) return null;
+        const e = g.e;
         return (
           <g key={e.id} style={{ pointerEvents: "auto" }}>
             <path d={g.d} stroke="transparent" strokeWidth="18" fill="none" style={{ cursor: "pointer" }}

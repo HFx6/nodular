@@ -12,9 +12,13 @@ import type { View } from "./types";
 import { useToast } from "./hooks/useToast";
 import { useGraph } from "./graph/useGraph";
 import { clearHistory, useGraphStore } from "./graph/store";
+import { nodeRect } from "./graph/geometry";
+import { sizeStore } from "./graph/sizeStore";
+import type { GraphDoc } from "./graph/store";
 import { INITIAL_EDGES, INITIAL_NODES } from "./graph/initialGraph";
 import { ART_EDGES, ART_NODES } from "./graph/artBrowserGraph";
 import { NANOID_EDGES, NANOID_NODES } from "./graph/nanoidGraph";
+import { NES_EDGES, NES_NODES } from "./graph/nesGraph";
 import { SPAWN_KINDS, type SpawnKind } from "./graph/spawn";
 import { clearSaved } from "./persist/autosave";
 import { exportFile, importFile } from "./persist/file";
@@ -42,23 +46,41 @@ export default function App() {
     prevPrimary.current = primary;
   }, [primary]);
 
-  const loadDemo = () => {
-    useGraphStore.getState().setDoc({ nodes: INITIAL_NODES, edges: INITIAL_EDGES });
-    clearHistory();
+  // frame all nodes in the viewport (used after auto-layout)
+  const fitView = () => {
+    const r = boardRef.current?.getBoundingClientRect();
+    const st = useGraphStore.getState();
+    const ns = Object.values(st.nodes);
+    if (!r || !ns.length) return;
+    const sizes = sizeStore.getState().sizes;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const n of ns) {
+      const rc = nodeRect(n, sizes, st.edges);
+      minX = Math.min(minX, rc.x); minY = Math.min(minY, rc.y);
+      maxX = Math.max(maxX, rc.x + rc.w); maxY = Math.max(maxY, rc.y + rc.h);
+    }
+    const pad = 60;
+    const k = Math.min(1.6, Math.max(0.45, Math.min(r.width / (maxX - minX + pad * 2), r.height / (maxY - minY + pad * 2))));
+    setView({ k, x: r.width / 2 - ((minX + maxX) / 2) * k, y: r.height / 2 - ((minY + maxY) / 2) * k });
   };
+
+  // load a doc, auto-arrange it (estimated heights — nodes aren't measured yet),
+  // then make the tidied layout the clean history baseline and frame it
+  const loadDoc = (doc: GraphDoc) => {
+    const st = useGraphStore.getState();
+    st.setDoc(doc);
+    st.tidy();
+    clearHistory();
+    fitView();
+  };
+  const tidy = () => { useGraphStore.getState().tidy(); fitView(); say("tidied layout"); };
   const menu: MenuActions = {
-    onReset: () => { loadDemo(); void clearSaved(); say("canvas reset"); },
-    onLoadWalkers: () => { loadDemo(); say("loaded walkers"); },
-    onLoadArt: () => {
-      useGraphStore.getState().setDoc({ nodes: ART_NODES, edges: ART_EDGES });
-      clearHistory();
-      say("loaded art browser — click a row");
-    },
-    onLoadNanoid: () => {
-      useGraphStore.getState().setDoc({ nodes: NANOID_NODES, edges: NANOID_EDGES });
-      clearHistory();
-      say("loaded npm import — a random nanoid");
-    },
+    onReset: () => { loadDoc({ nodes: INITIAL_NODES, edges: INITIAL_EDGES }); void clearSaved(); say("canvas reset"); },
+    onLoadWalkers: () => { loadDoc({ nodes: INITIAL_NODES, edges: INITIAL_EDGES }); say("loaded walkers"); },
+    onLoadArt: () => { loadDoc({ nodes: ART_NODES, edges: ART_EDGES }); say("loaded art browser — click a row"); },
+    onLoadNanoid: () => { loadDoc({ nodes: NANOID_NODES, edges: NANOID_EDGES }); say("loaded npm import — a random nanoid"); },
+    onLoadNes: () => { loadDoc({ nodes: NES_NODES, edges: NES_EDGES }); say("loaded NES — click canvas, arrows + z/x + enter/space"); },
+    onTidy: tidy,
     onExport: () => exportFile(),
     onImport: (f) => void importFile(f).then((ok) => say(ok ? `imported ${f.name}` : `couldn't read ${f.name}`)),
     onZoomReset: () => setView({ x: 0, y: 0, k: 1 }),

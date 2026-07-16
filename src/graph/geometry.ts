@@ -4,6 +4,14 @@
 import { HEAD, ROW } from "../theme";
 import { outsFor } from "../engine/inference";
 import type { Edge, ExportInfo, GraphNode, NodeMap } from "../types";
+import type { SizeMap } from "./sizeStore";
+
+export interface Rect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
 
 export function outsOf(n: GraphNode): ExportInfo[] {
   // built-ins declare fixed named outputs in the doc (state's "set"); code nodes infer them
@@ -17,6 +25,22 @@ export function inputsOf(n: GraphNode, edges: Edge[]): string[] {
   const seen: string[] = [];
   edges.forEach((e) => { if (e.to[0] === n.id && !seen.includes(e.to[1])) seen.push(e.to[1]); });
   return seen;
+}
+
+/** Best-effort node height when the DOM hasn't measured it yet (first paint,
+ *  auto-layout run before render). Measured › doc `h` › this estimate. */
+export function estimateHeight(n: GraphNode, edges: Edge[]): number {
+  if (n.min) return HEAD;
+  const ports = Math.max(inputsOf(n, edges).length, outsOf(n).length);
+  const portBlock = HEAD + 16 + ports * ROW;
+  if (n.lang === "js" || n.lang === "py") return Math.max(portBlock, n.h ?? 140);
+  if (n.lang === "canvas") return Math.max(portBlock, n.h ?? 180);
+  return Math.max(portBlock, 60);
+}
+
+/** The node's board-space rectangle: doc width, height from measured › doc › estimate. */
+export function nodeRect(n: GraphNode, sizes: SizeMap, edges: Edge[]): Rect {
+  return { x: n.x, y: n.y, w: n.w, h: sizes[n.id]?.h ?? n.h ?? estimateHeight(n, edges) };
 }
 
 export interface PortPoint {
@@ -39,6 +63,14 @@ export function portPos(n: GraphNode, port: string, side: "in" | "out", edges: E
   return { x: n.x, y: n.y + HEAD + 14 + Math.max(i, 0) * ROW };
 }
 
+/** The plain horizontal-tangent cubic bezier: control points pushed sideways by
+ *  a min-38 / 42%-of-span offset. Used for clear routes and as the router's
+ *  fallback. */
+export function directBezier(a: { x: number; y: number }, b: { x: number; y: number }): string {
+  const dx = Math.max(38, Math.abs(b.x - a.x) * 0.42);
+  return `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}`;
+}
+
 export interface WireGeometry {
   a: PortPoint;
   b: PortPoint;
@@ -53,6 +85,5 @@ export function wireGeometry(e: Edge, nodes: NodeMap, edges: Edge[]): WireGeomet
   const b = portPos(d, e.to[1], "in", edges);
   let broken = !!a.missing;
   if (e.from[1] !== "→" && (s.lang === "js" || s.lang === "py") && !outsOf(s).some((o) => o.name === e.from[1])) broken = true;
-  const dx = Math.max(38, Math.abs(b.x - a.x) * 0.42);
-  return { a, b, broken, d: `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}` };
+  return { a, b, broken, d: directBezier(a, b) };
 }

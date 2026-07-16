@@ -11,6 +11,8 @@ import type { ArmState, Edge, NodeMap, PortRef, RenderMode, ValueMode } from "..
 import { GRID } from "../theme";
 import { newId } from "./ids";
 import { spawnNode, type SpawnKind } from "./spawn";
+import { layeredLayout } from "./layout";
+import { sizeStore } from "./sizeStore";
 import { INITIAL_EDGES, INITIAL_NODES } from "./initialGraph";
 
 export interface GraphDoc {
@@ -34,6 +36,8 @@ export interface GraphStore extends GraphDoc {
   updateCode: (id: string, code: string) => void;
   moveNode: (id: string, x: number, y: number) => void;
   moveNodes: (entries: Array<{ id: string; x: number; y: number }>) => void;
+  /** re-place all nodes with the layered auto-layout (one undo entry) */
+  tidy: () => void;
   addNode: (at: { x: number; y: number }, kind?: SpawnKind) => string;
   resizeNode: (id: string, w: number, h?: number) => void;
   deleteNodes: (ids: string[]) => void;
@@ -92,6 +96,18 @@ export const useGraphStore = create<GraphStore>()(
           for (const { id, x, y } of entries) {
             const n = nodes[id];
             if (n && (n.x !== x || n.y !== y)) { nodes[id] = { ...n, x, y }; changed = true; }
+          }
+          return changed ? { nodes } : s;
+        }),
+
+      tidy: () =>
+        set((s) => {
+          const pos = layeredLayout(s.nodes, s.edges, sizeStore.getState().sizes);
+          let changed = false;
+          const nodes = { ...s.nodes };
+          for (const id in pos) {
+            const n = nodes[id];
+            if (n && (n.x !== pos[id]!.x || n.y !== pos[id]!.y)) { nodes[id] = { ...n, x: pos[id]!.x, y: pos[id]!.y }; changed = true; }
           }
           return changed ? { nodes } : s;
         }),

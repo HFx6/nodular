@@ -36,6 +36,9 @@ export function useBoardKeys() {
       } else if (mod && e.key.toLowerCase() === "y") {
         e.preventDefault();
         redo();
+      } else if (e.shiftKey && e.key.toLowerCase() === "l") {
+        e.preventDefault();
+        st.tidy();
       } else if (e.key === "Delete" || e.key === "Backspace") {
         if (st.sel.length) { e.preventDefault(); st.deleteNodes(st.sel); }
       } else if (e.key === "Escape") {

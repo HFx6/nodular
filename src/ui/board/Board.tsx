@@ -3,6 +3,7 @@ import { C, GRID, MONO } from "../../theme";
 import { NodeCard } from "../../nodes/NodeCard";
 import type { NodeActions } from "../../graph/useGraph";
 import { useGraphStore } from "../../graph/store";
+import { dropSize, publishSize } from "../../graph/sizeStore";
 import { importFile } from "../../persist/file";
 import type { ArmState, Edge, NodeMap, View } from "../../types";
 import { WireLayer } from "./WireLayer";
@@ -43,9 +44,35 @@ export function Board({ boardRef, nodes, edges, sel, arm, note, view, setView, a
   const suppressClick = useRef(false);
   const cardRefs = useRef(new Map<string, HTMLDivElement>());
 
+  // Publish each card's rendered size (layout px — unaffected by the view's CSS
+  // scale) to sizeStore, so routing and auto-layout have true node boxes. One
+  // shared observer; content edits / min-toggles re-fire it automatically.
+  const ro = useRef<ResizeObserver | null>(null);
+  useEffect(() => {
+    const obs = new ResizeObserver((entries) => {
+      for (const en of entries) {
+        const el = en.target as HTMLElement;
+        const id = el.dataset.nodeId;
+        if (id) publishSize(id, el.offsetWidth, el.offsetHeight);
+      }
+    });
+    ro.current = obs;
+    // cards whose ref fired before this effect ran (initial mount) aren't yet observed
+    for (const el of cardRefs.current.values()) obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   const registerRef = useCallback((id: string, el: HTMLDivElement | null) => {
-    if (el) cardRefs.current.set(id, el);
-    else cardRefs.current.delete(id);
+    if (el) {
+      el.dataset.nodeId = id;
+      cardRefs.current.set(id, el);
+      ro.current?.observe(el);
+    } else {
+      const prev = cardRefs.current.get(id);
+      if (prev) ro.current?.unobserve(prev);
+      cardRefs.current.delete(id);
+      dropSize(id);
+    }
   }, []);
 
   // board navigation: mouse wheel and pinch zoom at the cursor, trackpad
