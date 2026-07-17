@@ -9,8 +9,12 @@ export const C = {
   pane: "#ffffff", edge: "#d6d6d2", headBg: "#f6f6f4",
   ink: "#33322e", dim: "#8f8e88", faint: "#b9b8b2",
   wire: "#bdbcb6", wireHot: "#6d6c66",
+  /** port labels: darker than wires so they read over a passing wire (#4) */
+  portLabel: "#5f5e58",
   sel: "#4c7fae", selSoft: "rgba(76,127,174,.14)",
   bad: "#bb5147", badSoft: "#f7e9e7",
   kw: "#3d6a96", str: "#4e7d64", num: "#8a5a9e", run: "#57a37a",
+  // extended syntax tags (#8) — same muted paper band as kw/str/num
+  cmt: "#a3a29a", fn: "#8a6d3b", prop: "#59788e", typ: "#3d7a76",
   dark: "#242331", darkInk: "#c9c8d6",
 } as const;

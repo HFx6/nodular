@@ -7,7 +7,7 @@
 import { useEffect, useRef } from "react";
 import { EditorState, Compartment } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
-import { editorExtensions } from "./extensions";
+import { editorExtensions, foldLargeTopLevel } from "./extensions";
 
 interface CodeMirrorEditorProps {
   code: string;
@@ -50,6 +50,8 @@ export function CodeMirrorEditor({ code, lang, variant, readOnly = false, height
       }),
     });
     applyHeight(v, heightRef.current);
+    // the in-node pane opens with big top-level blocks collapsed (#6)
+    if (variant === "pane") foldLargeTopLevel(v);
     view.current = v;
     return () => { v.destroy(); view.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- code/readOnly sync in their own effects

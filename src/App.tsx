@@ -16,9 +16,6 @@ import { nodeRect } from "./graph/geometry";
 import { sizeStore } from "./graph/sizeStore";
 import type { GraphDoc } from "./graph/store";
 import { INITIAL_EDGES, INITIAL_NODES } from "./graph/initialGraph";
-import { ART_EDGES, ART_NODES } from "./graph/artBrowserGraph";
-import { NANOID_EDGES, NANOID_NODES } from "./graph/nanoidGraph";
-import { NES_EDGES, NES_NODES } from "./graph/nesGraph";
 import { SPAWN_KINDS, type SpawnKind } from "./graph/spawn";
 import { clearSaved } from "./persist/autosave";
 import { exportFile, importFile } from "./persist/file";
@@ -35,8 +32,35 @@ export default function App() {
   useBoardKeys();
 
   const [rail, setRail] = useState(false);
+  // rail width is user-resizable and remembered across sessions (#17)
+  const [railW, setRailW] = useState(() => {
+    const w = Number(localStorage.getItem("nodular.railW"));
+    return Number.isFinite(w) && w >= 240 ? w : 296;
+  });
+  useEffect(() => { localStorage.setItem("nodular.railW", String(railW)); }, [railW]);
   const [view, setView] = useState<View>({ x: 0, y: 0, k: 1 });
+  // palette kind waiting for a placement click on the canvas (#18)
+  const [placing, setPlacing] = useState<SpawnKind | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
+
+  // eased view changes for fitView / zoom reset (#16) — a ~250ms rAF tween,
+  // skipped entirely under prefers-reduced-motion
+  const viewNow = useRef(view);
+  useEffect(() => { viewNow.current = view; }, [view]);
+  const viewAnim = useRef(0);
+  const tweenView = (target: View) => {
+    cancelAnimationFrame(viewAnim.current);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setView(target); return; }
+    const from = viewNow.current;
+    const t0 = performance.now();
+    const step = (now: number) => {
+      const t = Math.min(1, (now - t0) / 250);
+      const e = 1 - Math.pow(1 - t, 3); // easeOutCubic
+      setView({ x: from.x + (target.x - from.x) * e, y: from.y + (target.y - from.y) * e, k: from.k + (target.k - from.k) * e });
+      if (t < 1) viewAnim.current = requestAnimationFrame(step);
+    };
+    viewAnim.current = requestAnimationFrame(step);
+  };
 
   // deselect closes the editor rail — nothing selected means nothing to edit.
   // Only on the transition, so the rail can still be opened manually.
@@ -61,7 +85,7 @@ export default function App() {
     }
     const pad = 60;
     const k = Math.min(1.6, Math.max(0.45, Math.min(r.width / (maxX - minX + pad * 2), r.height / (maxY - minY + pad * 2))));
-    setView({ k, x: r.width / 2 - ((minX + maxX) / 2) * k, y: r.height / 2 - ((minY + maxY) / 2) * k });
+    tweenView({ k, x: r.width / 2 - ((minX + maxX) / 2) * k, y: r.height / 2 - ((minY + maxY) / 2) * k });
   };
 
   // load a doc, auto-arrange it (estimated heights — nodes aren't measured yet),
@@ -76,27 +100,27 @@ export default function App() {
   const tidy = () => { useGraphStore.getState().tidy(); fitView(); say("tidied layout"); };
   const menu: MenuActions = {
     onReset: () => { loadDoc({ nodes: INITIAL_NODES, edges: INITIAL_EDGES }); void clearSaved(); say("canvas reset"); },
-    onLoadWalkers: () => { loadDoc({ nodes: INITIAL_NODES, edges: INITIAL_EDGES }); say("loaded walkers"); },
-    onLoadArt: () => { loadDoc({ nodes: ART_NODES, edges: ART_EDGES }); say("loaded art browser — click a row"); },
-    onLoadNanoid: () => { loadDoc({ nodes: NANOID_NODES, edges: NANOID_EDGES }); say("loaded npm import — a random nanoid"); },
-    onLoadNes: () => { loadDoc({ nodes: NES_NODES, edges: NES_EDGES }); say("loaded NES — click canvas, arrows + z/x + enter/space"); },
+    onLoadExample: (ex) => void ex.load()
+      .then((doc) => { loadDoc(doc); say(ex.toast); })
+      .catch(() => say(`couldn't load ${ex.name}`)),
     onTidy: tidy,
     onExport: () => exportFile(),
     onImport: (f) => void importFile(f).then((ok) => say(ok ? `imported ${f.name}` : `couldn't read ${f.name}`)),
-    onZoomReset: () => setView({ x: 0, y: 0, k: 1 }),
+    onZoomReset: () => tweenView({ x: 0, y: 0, k: 1 }),
     onToggleRail: () => setRail((r) => !r),
   };
 
-  // new nodes spawn at the viewport centre, in board coordinates
-  const centre = () => {
-    const r = boardRef.current?.getBoundingClientRect();
-    return r
-      ? { x: (r.width / 2 - view.x) / view.k - 102, y: (r.height / 2 - view.y) / view.k - 60 }
-      : { x: 90, y: 90 };
-  };
+  // picking a palette kind arms placement mode; the node is created where the
+  // user clicks the canvas (esc / right-click cancels) (#18)
   const onAdd = (kind: SpawnKind) => {
-    useGraphStore.getState().addNode(centre(), kind);
-    say(SPAWN_KINDS.find((s) => s.kind === kind)?.toast ?? "new node");
+    setPlacing(kind);
+    say("click the canvas to place — esc cancels");
+  };
+  const onPlace = (p: { x: number; y: number }) => {
+    if (!placing) return;
+    useGraphStore.getState().addNode(p, placing);
+    setPlacing(null);
+    say(SPAWN_KINDS.find((s) => s.kind === placing)?.toast ?? "new node");
   };
 
   return (
@@ -105,9 +129,11 @@ export default function App() {
       <TopBar zoom={view.k} onAdd={onAdd} menu={menu} />
       <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
         <Board boardRef={boardRef} nodes={nodes} edges={edges} sel={sel} arm={arm} note={note}
-          view={view} setView={setView} actions={actions} notify={say} />
+          view={view} setView={setView} actions={actions} notify={say}
+          placing={placing} onPlace={onPlace} onCancelPlace={() => setPlacing(null)}
+          onOpenRail={(id) => { actions.onSelect(id); setRail(true); }} />
         <EditorRail open={rail} onToggle={setRail} node={nodes[primary]} nodes={nodes} edges={edges} sel={primary}
-          onCodeChange={actions.onCodeChange} />
+          width={railW} onWidthChange={setRailW} onCodeChange={actions.onCodeChange} />
       </div>
     </div>
   );

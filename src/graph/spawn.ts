@@ -1,6 +1,13 @@
 // The add-node palette: every node type the top bar can spawn, with its
 // default doc shape. Config-driven so the TopBar dropdown and addNode never
 // enumerate kinds themselves (natto's pane-type menu).
+//
+// Node types vs render modes (the "should table be a node type?" question):
+// dedicated UI kinds exist only where the node has interaction semantics —
+// table picks a row and emits it, text/state are sources, import loads a
+// module. Pure *views* of a computed value are NOT node types: any eval node
+// renders as table/text/html via its renderMode (⚙ → render output). New ways
+// to display data should extend RenderMode, not this palette.
 
 import type { GraphNode } from "../types";
 
@@ -11,7 +18,7 @@ export const SPAWN_KINDS: Array<{ kind: SpawnKind; label: string; toast: string 
   { kind: "import", label: "import node", toast: "import node — type a package name or url" },
   { kind: "text", label: "text node", toast: "text node — its value is the text" },
   { kind: "state", label: "state node", toast: "state node — value out, set() out" },
-  { kind: "table", label: "table node", toast: "table node — wire rows in, click to pick" },
+  { kind: "table", label: "table node (row picker)", toast: "table node — wire rows in, click a row to emit it" },
   { kind: "image", label: "image node", toast: "image node — wire a url in" },
   { kind: "canvas", label: "canvas node", toast: "canvas node — wire a render function in" },
 ];

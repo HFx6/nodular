@@ -3,12 +3,13 @@
 // (ENGINE.md budgets many simultaneous CodeMirror instances per board).
 
 import { EditorState, type Extension } from "@codemirror/state";
-import { highlightActiveLine, highlightActiveLineGutter, keymap, lineNumbers } from "@codemirror/view";
+import { type EditorView, highlightActiveLine, highlightActiveLineGutter, keymap, lineNumbers } from "@codemirror/view";
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
-import { bracketMatching, indentOnInput, syntaxHighlighting } from "@codemirror/language";
+import { bracketMatching, codeFolding, ensureSyntaxTree, foldEffect, foldable, indentOnInput, syntaxHighlighting } from "@codemirror/language";
 import { javascript } from "@codemirror/lang-javascript";
 import { python } from "@codemirror/lang-python";
 import { paperHighlight, paperThemePane, paperThemeRail } from "./cmTheme";
+import { jsLinter } from "./lint";
 
 const langs: Record<string, Extension> = {
   js: javascript(),
@@ -39,9 +40,26 @@ export function editorExtensions(lang: string, variant: "pane" | "rail"): Extens
   let ext = cache.get(key);
   if (!ext) {
     ext = variant === "pane"
-      ? [langs[lang] ?? [], base, paperThemePane]
-      : [langs[lang] ?? [], base, railExtras, paperThemeRail];
+      ? [langs[lang] ?? [], base, codeFolding(), paperThemePane]
+      : [langs[lang] ?? [], base, railExtras, lang === "js" ? jsLinter : [], paperThemeRail];
     cache.set(key, ext);
   }
   return ext;
+}
+
+/** Collapse top-level blocks (functions, classes) spanning `minLines`+ lines,
+ *  so a big module reads as a summary in the in-node pane; click a `…` to
+ *  expand. Short snippets are left untouched. */
+export function foldLargeTopLevel(view: EditorView, minLines = 8): void {
+  const { state } = view;
+  const tree = ensureSyntaxTree(state, state.doc.length, 80);
+  if (!tree) return;
+  const effects = [];
+  for (let ch = tree.topNode.firstChild; ch; ch = ch.nextSibling) {
+    const start = state.doc.lineAt(ch.from);
+    if (state.doc.lineAt(ch.to).number - start.number + 1 < minLines) continue;
+    const range = foldable(state, start.from, start.to);
+    if (range) effects.push(foldEffect.of(range));
+  }
+  if (effects.length) view.dispatch({ effects });
 }

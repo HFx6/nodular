@@ -32,6 +32,9 @@ export interface GraphNode {
   target?: string;
   /** import nodes only: emit module.default rather than the whole namespace */
   useDefault?: boolean;
+  /** canvas nodes only: surface aspect ratio (width/height); undefined = 3:2.
+   *  NES is 256×240 ≈ 1.067 — without this its output renders stretched. */
+  aspect?: number;
   /** fixed input port names (canvas and fixed-input built-ins like table/image) */
   ins?: string[];
   /** fixed output port names for built-ins with named outputs (state's "set") */

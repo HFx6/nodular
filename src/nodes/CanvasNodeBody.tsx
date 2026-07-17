@@ -70,7 +70,7 @@ export function CanvasNodeBody({ node: n }: { node: GraphNode }) {
   return (
     <div style={{ position: "relative", borderRadius: "0 0 4px 4px", overflow: "hidden" }} onPointerDown={stop}>
       <canvas ref={ref} onPointerMove={onMove} onPointerLeave={() => (cursor.current = null)}
-        style={{ display: "block", width: "100%", height: "auto", aspectRatio: "3 / 2", cursor: "crosshair", background: C.dark }} />
+        style={{ display: "block", width: "100%", height: "auto", aspectRatio: String(n.aspect ?? 1.5), cursor: "crosshair", background: C.dark }} />
       {(!fn || err) && (
         <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", padding: 8,
           fontFamily: MONO, fontSize: 10.5, color: err ? C.bad : "#5b5877", pointerEvents: "none", textAlign: "center" }}>

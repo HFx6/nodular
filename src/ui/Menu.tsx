@@ -3,13 +3,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { C, MONO } from "../theme";
+import { EXAMPLES, type Example } from "../examples";
 
 export interface MenuActions {
   onReset: () => void;
-  onLoadWalkers: () => void;
-  onLoadArt: () => void;
-  onLoadNanoid: () => void;
-  onLoadNes: () => void;
+  onLoadExample: (ex: Example) => void;
   onTidy: () => void;
   onExport: () => void;
   onImport: (file: File) => void;
@@ -69,17 +67,16 @@ export function Menu(actions: MenuActions) {
     <div ref={root} style={{ position: "relative" }}>
       <span className="ctrl" style={{ fontSize: 13, letterSpacing: "1px" }} onClick={() => setOpen((o) => !o)}>≡</span>
       {open && (
-        <div style={{ position: "absolute", top: "calc(100% + 9px)", left: -8, minWidth: 190, zIndex: 20,
+        <div className="popover" style={{ position: "absolute", top: "calc(100% + 9px)", left: -8, minWidth: 190, zIndex: 20,
           background: C.pane, border: `1px solid ${C.edge}`, borderRadius: 4, boxShadow: "0 4px 14px rgba(40,40,36,.12)", paddingBottom: 6 }}>
           <Section title="file" />
           <Item label="reset canvas" onPick={pick(actions.onReset)} />
           <Item label="export .nodular" onPick={pick(actions.onExport)} />
           <Item label="import…" onPick={() => fileInput.current?.click()} />
           <Section title="examples" />
-          <Item label="walkers" onPick={pick(actions.onLoadWalkers)} />
-          <Item label="art browser" onPick={pick(actions.onLoadArt)} />
-          <Item label="npm import (nanoid)" onPick={pick(actions.onLoadNanoid)} />
-          <Item label="NES emulator" onPick={pick(actions.onLoadNes)} />
+          {EXAMPLES.map((ex) => (
+            <Item key={ex.id} label={ex.name} onPick={pick(() => actions.onLoadExample(ex))} />
+          ))}
           <Section title="arrange" />
           <Item label="auto-arrange  ⇧L" onPick={pick(actions.onTidy)} />
           <Section title="view" />

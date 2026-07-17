@@ -1,37 +1,24 @@
-1. should we have specific node types for things like table sor text or should it be a generic with the settings giving us options to change the rendering type e.g. we have a node that can eval and renders as table or do we have a table node that tables in data somehow - the user has to define the rows somehow and it might make node managment and creation easier?
+# Issues — all resolved
 
-2. the trigger for edge hover should be a bit larger since its so small it can glitch out
+Every issue from this list has been implemented. Summary of what landed (see git log for details):
 
-3. on hover the edge label should be above everthing so its always visible - also we should dim all other nodes and have the two connected nodes normal after 3s of hover
-
-4. the out and in text is the same color as the edges and is hard to see
-
-5. we should have some edge effects for colors or status effects between nodes
-
-6. the eval/code nodes have bad views of the code because of when panning or trying to scorll the focus is trapped in there, also its so small its not useable - perhaps we could show it if its a small snippet but do soem code mirror logic to only show the larger classes/functions collapsed 
-
-7. double click to open the editor
-
-8. editor has no proper syntax highlighting
-
-9. editor controls like prettier - linting etc
-
-10. better visual of the values form the in/out
-
-11. more canvas controls for things like width/height/aspect ratio? the nes is a bit squshed but i think it has the aspect ratio or pixel/pixel stated in the code as the riginal evrsion used it
-
-12. we need a better way to store examples in the code rather than groupped in folders as a tsx maybe it should be json files? - and a proper loader instead of just importing into the app.tsx
-
-12. dragging if clicking on or letting go on a button in the node causes it to open
-
-13. better placement of node header and footer items
-
-14. while dragging the cursor can go fadter than the node so the cursor changes between different pointer types which looks bad
-
-15. dragging ndoes can be a bit delayed
-
-16. we should probably add some animtions to things using animejs or motion
-
-17. editor needs to be drag resizeable
-
-18. clicking on new node shouldnt just make it until i click on the screen and then it creates it there
+- **#1 node types vs render modes** — split documented in `spawn.ts`/`NodeSettings.tsx`; dedicated UI kinds only for interaction semantics, views extend `RenderMode`. Palette entry renamed "table node (row picker)".
+- **#2 edge hover** — hit path widened 18→24px, round caps, un-hover debounced 100ms per edge.
+- **#3 labels above + focus dim** — wire badges moved to `WireLabels`, painted after the node cards; hovering an edge 3s dims everything except the two connected nodes.
+- **#4 port label contrast** — dedicated `C.portLabel` (darker than wires) + paper background chips on in/out labels.
+- **#5 edge status effects** — wires flash green (`C.run`) when a fresh value crosses; smooth stroke transitions; broken stays red-dashed.
+- **#6 scroll trap + folding** — board wheel only yields to a code pane when focus is inside it; in-node panes open with 8+ line top-level blocks folded to a clickable `…`.
+- **#7 double-click opens editor** — dblclick a code node's header selects it and opens the rail.
+- **#8 syntax highlighting** — full muted tag set: comments (italic), function/property/type names, bools, regexps; operators/punctuation quiet.
+- **#9 prettier + linting** — `fmt` button in the rail (prettier standalone, lazy-loaded chunk); js syntax diagnostics via `@codemirror/lint` + acorn.
+- **#10 in/out value visuals** — live value chips beside input labels, fed by the same per-id results subscriptions.
+- **#11 canvas aspect ratio** — `aspect` node property + presets in ⚙ settings (1:1, 4:3, 3:2, 256:240 NES native, 16:9); NES example set to native.
+- **#12 examples** — `src/examples/index.ts` manifest with lazy imports (NES leaves the main bundle); `.nodular.json` drop-ins auto-appear in the menu.
+- **#12b drag-release on buttons** — 4px drag slop + capture-phase click suppression; drags pause history so a whole drag is one undo entry.
+- **#13 header placement** — name left; run/mode then ⚙ – × right, secondary controls hover-revealed; delete no longer the first item.
+- **#14 cursor during drag** — pointer capture on the board once a drag starts + a global `grabbing`/`nwse-resize` cursor override for the whole gesture.
+- **#15 drag latency** — pointermoves coalesced to one store write per frame; per-wire memoization + route cache.
+- **#16 animations** — eased 250ms tween for fitView/zoom-reset; spawn pop-in, popover fade, rail slide (all under `prefers-reduced-motion`).
+- **#17 rail resize** — left-edge drag handle, 240px–70vw clamp, width persisted to localStorage, double-click resets.
+- **#18 click-to-place** — palette arms a placement mode with a grid-snapped ghost; click places, esc/right-click cancels.
+- **#19 gutter background** — `.cm-gutters` opaque (`C.pane`) so scrolled code no longer bleeds through the line numbers.

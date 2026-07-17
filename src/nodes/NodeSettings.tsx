@@ -10,6 +10,10 @@ const VALUE_MODES: Array<{ m: ValueMode; label: string; hint: string }> = [
   { m: "text", label: "text", hint: "editor value is treated as text" },
 ];
 
+// Render modes are how *any* code node displays its value — the generic
+// answer to "show this as a table". The dedicated table/text UI node types
+// are different beasts: they have interaction semantics (pick a row, edit
+// text), not just a view. New display formats belong here (see spawn.ts).
 const RENDER_MODES: Array<{ m: RenderMode; label: string; hint: string }> = [
   { m: "default", label: "default", hint: "result strip preview" },
   { m: "table", label: "table", hint: "render array as table" },
@@ -17,9 +21,19 @@ const RENDER_MODES: Array<{ m: RenderMode; label: string; hint: string }> = [
   { m: "html", label: "HTML", hint: "set string as innerHTML" },
 ];
 
+/** Canvas surface aspect ratios (#11): width/height presets. `undefined`
+ *  keeps the historical 3:2 default. NES native is 256×240. */
+const ASPECTS: Array<{ a: number | undefined; label: string; hint: string }> = [
+  { a: undefined, label: "3:2", hint: "default surface" },
+  { a: 1, label: "1:1", hint: "square" },
+  { a: 4 / 3, label: "4:3", hint: "classic display" },
+  { a: 256 / 240, label: "256:240", hint: "NES native" },
+  { a: 16 / 9, label: "16:9", hint: "widescreen" },
+];
+
 /** Per-node settings popover (natto's "eval pane settings"): editor value
- *  mode and render output. Opens under the header's ⚙; closes on pick-outside
- *  or Escape. future: DOM/React/graphviz/custom render, babel plugins. */
+ *  mode and render output for code nodes; surface aspect for canvas nodes.
+ *  Opens under the header's ⚙; closes on pick-outside or Escape. */
 export function NodeSettings({ node: n, onClose }: { node: GraphNode; onClose: () => void }) {
   const root = useRef<HTMLDivElement>(null);
 
@@ -37,19 +51,31 @@ export function NodeSettings({ node: n, onClose }: { node: GraphNode; onClose: (
   const renderMode = n.renderMode ?? "default";
 
   return (
-    <div ref={root} onPointerDown={(e) => e.stopPropagation()}
+    <div ref={root} className="popover" onPointerDown={(e) => e.stopPropagation()}
       style={{ position: "absolute", top: 30, right: 6, width: 196, zIndex: 30, fontFamily: MONO,
         background: C.pane, border: `1px solid ${C.edge}`, borderRadius: 4, boxShadow: "0 4px 14px rgba(40,40,36,.12)", padding: "4px 0 6px" }}>
-      <Section title="editor value" />
-      {VALUE_MODES.map(({ m, label, hint }) => (
-        <Row key={m} label={label} hint={hint} on={valueMode === m}
-          onPick={() => useGraphStore.getState().setValueMode(n.id, m === "auto" ? undefined : m)} />
-      ))}
-      <Section title="render output" />
-      {RENDER_MODES.map(({ m, label, hint }) => (
-        <Row key={m} label={label} hint={hint} on={renderMode === m}
-          onPick={() => useGraphStore.getState().setRenderMode(n.id, m === "default" ? undefined : m)} />
-      ))}
+      {n.lang === "canvas" ? (
+        <>
+          <Section title="aspect ratio" />
+          {ASPECTS.map(({ a, label, hint }) => (
+            <Row key={label} label={label} hint={hint} on={(n.aspect ?? undefined) === a}
+              onPick={() => useGraphStore.getState().setAspect(n.id, a)} />
+          ))}
+        </>
+      ) : (
+        <>
+          <Section title="editor value" />
+          {VALUE_MODES.map(({ m, label, hint }) => (
+            <Row key={m} label={label} hint={hint} on={valueMode === m}
+              onPick={() => useGraphStore.getState().setValueMode(n.id, m === "auto" ? undefined : m)} />
+          ))}
+          <Section title="render output" />
+          {RENDER_MODES.map(({ m, label, hint }) => (
+            <Row key={m} label={label} hint={hint} on={renderMode === m}
+              onPick={() => useGraphStore.getState().setRenderMode(n.id, m === "default" ? undefined : m)} />
+          ))}
+        </>
+      )}
     </div>
   );
 }

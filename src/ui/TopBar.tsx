@@ -32,7 +32,7 @@ function AddButton({ onAdd }: { onAdd: (kind: SpawnKind) => void }) {
       <button onClick={() => onAdd("eval")} style={{ ...half, borderRadius: "4px 0 0 4px", padding: "3px 10px" }}>+ eval</button>
       <button onClick={() => setOpen((o) => !o)} style={{ ...half, borderRadius: "0 4px 4px 0", borderLeft: "none", padding: "3px 6px" }}>▾</button>
       {open && (
-        <div style={{ position: "absolute", top: "calc(100% + 7px)", right: 0, minWidth: 150, zIndex: 20,
+        <div className="popover" style={{ position: "absolute", top: "calc(100% + 7px)", right: 0, minWidth: 150, zIndex: 20,
           background: C.pane, border: `1px solid ${C.edge}`, borderRadius: 4, boxShadow: "0 4px 14px rgba(40,40,36,.12)", padding: "5px 0" }}>
           {SPAWN_KINDS.map(({ kind, label }) => (
             <div key={kind} onClick={() => { setOpen(false); onAdd(kind); }}
