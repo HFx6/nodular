@@ -38,6 +38,20 @@ export function estimateHeight(n: GraphNode, edges: Edge[]): number {
   return Math.max(portBlock, 60);
 }
 
+/** Narrowest width where the header still fits every control plus the full
+ *  title — the resize clamp, so a title is never truncated. Mirrors the
+ *  NodeCard header: padding 18, × – (~8 each), title (12.5px mono bold
+ *  ≈7.6px/char) + lang tag, sliders/mode/run for code nodes, the → port, and
+ *  8px gaps between items. */
+export function minNodeWidth(n: GraphNode): number {
+  const isCode = n.lang !== "canvas" && n.lang !== "ui";
+  const title = Math.ceil(n.name.length * 7.6);
+  // padding + × – + title + → + gaps(4 items→3 gaps... measured generously)
+  if (!isCode) return 76 + title + (n.lang === "canvas" ? 12 : 0);
+  // + lang tag (17), sliders (12), mode chip ("manual ▾" ≈ 46), run (12), 3 more gaps
+  return 187 + title;
+}
+
 /** The node's board-space rectangle: doc width, height from measured › doc › estimate. */
 export function nodeRect(n: GraphNode, sizes: SizeMap, edges: Edge[]): Rect {
   return { x: n.x, y: n.y, w: n.w, h: sizes[n.id]?.h ?? n.h ?? estimateHeight(n, edges) };

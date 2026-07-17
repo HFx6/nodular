@@ -24,6 +24,16 @@ export const paperHighlight = HighlightStyle.define([
   { tag: [tags.operator, tags.punctuation], color: C.dim },
 ]);
 
+// visible, muted scrollbar so a capped/filled editor clearly signals it scrolls
+// (Windows hides native overlay scrollbars by default, which read as "no scroll")
+const scrollbar = {
+  ".cm-scroller::-webkit-scrollbar": { width: "10px", height: "10px" },
+  ".cm-scroller::-webkit-scrollbar-thumb": { background: C.dim, borderRadius: "5px",
+    border: "2px solid transparent", backgroundClip: "padding-box" },
+  ".cm-scroller::-webkit-scrollbar-thumb:hover": { background: C.portLabel },
+  ".cm-scroller::-webkit-scrollbar-corner": { background: "transparent" },
+} as const;
+
 const shared = {
   "&": { backgroundColor: "transparent", color: C.ink },
   "&.cm-focused": { outline: "none" },
@@ -31,15 +41,19 @@ const shared = {
   ".cm-content": { fontFamily: MONO, caretColor: C.ink, padding: "0", userSelect: "text", WebkitUserSelect: "text" },
   ".cm-line": { padding: "0" },
   ".cm-cursor": { borderLeftColor: C.ink },
+  // clearly visible (selSoft at 14% reads as "nothing selected" → copy feels broken)
   "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, ::selection":
-    { backgroundColor: C.selSoft },
+    { backgroundColor: "rgba(76,127,174,.30)" },
 } as const;
 
-/** In-pane peek editor: 11.5px/17px, grows with content, never scrolls. */
+/** In-pane peek editor: 11.5px/17px, grows with content then scrolls once
+ *  capped (CodeMirrorEditor sets max-height / a fixed height); overflow lives
+ *  here as a persistent rule so it can't be clobbered by construction timing. */
 export const paperThemePane = EditorView.theme({
   ...shared,
+  ...scrollbar,
   ".cm-content": { ...shared[".cm-content"], fontSize: "11.5px", lineHeight: "17px" },
-  ".cm-scroller": { fontFamily: MONO, lineHeight: "17px", overflow: "hidden" },
+  ".cm-scroller": { fontFamily: MONO, lineHeight: "17px", overflow: "auto" },
   ".cm-foldPlaceholder": { background: C.headBg, border: `1px solid ${C.edge}`, color: C.dim,
     borderRadius: "3px", padding: "0 5px", margin: "0 2px", cursor: "pointer" },
 });
@@ -48,6 +62,7 @@ export const paperThemePane = EditorView.theme({
  *  active-line chrome styled to the paper look. */
 export const paperThemeRail = EditorView.theme({
   ...shared,
+  ...scrollbar,
   ".cm-content": { ...shared[".cm-content"], fontSize: "12px", lineHeight: "1.7", padding: "10px 8px" },
   ".cm-scroller": { fontFamily: MONO, lineHeight: "1.7", overflow: "auto" },
   "&": { ...shared["&"], height: "100%" },

@@ -3,6 +3,11 @@ export const SANS = "ui-sans-serif, system-ui, sans-serif";
 export const HEAD = 30;
 export const ROW = 20;
 export const GRID = 18;
+/** Zoom clamp. MIN = MAX / 4 on purpose: the dot grid's coarse LOD layer is
+ *  4×GRID, so at full zoom-out the grid renders at exactly the same on-screen
+ *  size as the fine grid at full zoom-in (#3). */
+export const ZOOM_MAX = 1.6;
+export const ZOOM_MIN = ZOOM_MAX / 4;
 
 export const C = {
   bg: "#e9e9e6", dot: "#d7d7d3",

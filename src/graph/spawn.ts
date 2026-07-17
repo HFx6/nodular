@@ -25,7 +25,7 @@ export const SPAWN_KINDS: Array<{ kind: SpawnKind; label: string; toast: string 
 
 /** Default doc node for a palette kind, at board coords (grid-snap is the store's job). */
 export function spawnNode(id: string, at: { x: number; y: number }, kind: SpawnKind): GraphNode {
-  const base = { id, x: at.x, y: at.y, w: 204 };
+  const base = { id, x: at.x, y: at.y, w: 234 };
   switch (kind) {
     case "import":
       return { ...base, lang: "ui", kind, name: "import", ins: [], useDefault: true };

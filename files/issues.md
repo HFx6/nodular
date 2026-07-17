@@ -1,24 +1,46 @@
-# Issues — all resolved
+# issues - UX / polish queue
 
-Every issue from this list has been implemented. Summary of what landed (see git log for details):
+Scoped against the code (July 2026). Each item says where it lands and roughly how. These are all small; batch them as a node-chrome/board polish pass (NEXT #4).
 
-- **#1 node types vs render modes** — split documented in `spawn.ts`/`NodeSettings.tsx`; dedicated UI kinds only for interaction semantics, views extend `RenderMode`. Palette entry renamed "table node (row picker)".
-- **#2 edge hover** — hit path widened 18→24px, round caps, un-hover debounced 100ms per edge.
-- **#3 labels above + focus dim** — wire badges moved to `WireLabels`, painted after the node cards; hovering an edge 3s dims everything except the two connected nodes.
-- **#4 port label contrast** — dedicated `C.portLabel` (darker than wires) + paper background chips on in/out labels.
-- **#5 edge status effects** — wires flash green (`C.run`) when a fresh value crosses; smooth stroke transitions; broken stays red-dashed.
-- **#6 scroll trap + folding** — board wheel only yields to a code pane when focus is inside it; in-node panes open with 8+ line top-level blocks folded to a clickable `…`.
-- **#7 double-click opens editor** — dblclick a code node's header selects it and opens the rail.
-- **#8 syntax highlighting** — full muted tag set: comments (italic), function/property/type names, bools, regexps; operators/punctuation quiet.
-- **#9 prettier + linting** — `fmt` button in the rail (prettier standalone, lazy-loaded chunk); js syntax diagnostics via `@codemirror/lint` + acorn.
-- **#10 in/out value visuals** — live value chips beside input labels, fed by the same per-id results subscriptions.
-- **#11 canvas aspect ratio** — `aspect` node property + presets in ⚙ settings (1:1, 4:3, 3:2, 256:240 NES native, 16:9); NES example set to native.
-- **#12 examples** — `src/examples/index.ts` manifest with lazy imports (NES leaves the main bundle); `.nodular.json` drop-ins auto-appear in the menu.
-- **#12b drag-release on buttons** — 4px drag slop + capture-phase click suppression; drags pause history so a whole drag is one undo entry.
-- **#13 header placement** — name left; run/mode then ⚙ – × right, secondary controls hover-revealed; delete no longer the first item.
-- **#14 cursor during drag** — pointer capture on the board once a drag starts + a global `grabbing`/`nwse-resize` cursor override for the whole gesture.
-- **#15 drag latency** — pointermoves coalesced to one store write per frame; per-wire memoization + route cache.
-- **#16 animations** — eased 250ms tween for fitView/zoom-reset; spawn pop-in, popover fade, rail slide (all under `prefers-reduced-motion`).
-- **#17 rail resize** — left-edge drag handle, 240px–70vw clamp, width persisted to localStorage, double-click resets.
-- **#18 click-to-place** — palette arms a placement mode with a grid-snapped ghost; click places, esc/right-click cancels.
-- **#19 gutter background** — `.cm-gutters` opaque (`C.pane`) so scrolled code no longer bleeds through the line numbers.
+## 1. Demos should auto-align on open
+
+Loading an example keeps its hand-authored layout; it should land tidied and centered instead.
+
+- **Where**: `App.tsx` `onLoadExample` → `loadDoc` (calls `store.setDoc`); the aligner already exists — `tidy()` in `graph/store.ts` wraps `layeredLayout` (shift+L today).
+- **How**: after `setDoc`, run `tidy()` and reset/fit the view. Catch: `layeredLayout` reads measured heights from `sizeStore`, which only fill in after first render — so either call `tidy()` in a double `requestAnimationFrame` after the doc lands (accurate), or accept the `estimateHeight` fallback the layout already has (instant, close enough for the demos). Then fit the view to the layout bounds.
+- Applies to example loads only — file open / autosave restore must keep the user's saved positions.
+
+## 2. Code node body: redesign as a natto-style split pane
+
+The current body (`nodes/CodeNodeBody.tsx`) is editor + a thin 27px result strip bolted underneath, with hand-tuned pixel math (`editorH`: header 30 / strip 27 / padding 16, 45% split when a face is set). It reads as an afterthought. Natto's pane anatomy is the model: **the body is a vertical split — code editor on top, a full value area below, draggable divider between them.** The value area is a first-class region, not a footer.
+
+- **How**:
+  - Restructure `CodeNodeBody` as a flex column: editor region + divider + value region; the divider drags to set the split (store per node, e.g. `GraphNode.split` 0..1, default ~0.5), replacing all computed pixel heights. Either region collapses to a slim bar when dragged to an extreme (natto lets you hide the code entirely — a value-only pane).
+  - The value region IS `ValueFace` (`nodes/ValueFace.tsx`) — always present, rendering per `renderMode` (default preview / table / text / html, later the `auto` face from NEXT #2). Errors render there too (red, full message with room to wrap) instead of an ellipsized one-liner. The separate `showStrip` / `face` branches collapse into one region.
+  - Editor polish in the same pass: wheel over the editor scrolls the code, never zooms the board; CM theme (font size, no gutters, selection colors) aligned with `theme.ts`.
+- **Payoff**: values become visible by default at a useful size (the legibility pillar), and issue #6 gets real estate to render into instead of a 27px strip.
+
+## 3. Dot grid looks bad zoomed out
+
+`ui/board/Board.tsx` background: a single `radial-gradient` dot layer scaled by `view.k` — zoomed out the dots alias into noise.
+
+- **How**: level-of-detail crossfade with two background layers. Fine dots (every GRID) fade out as `view.k` drops below ~0.7; a coarse layer (every 4×GRID, slightly darker `C.dot`) fades in, so the grid "remakes" itself at the larger period. Both are computed rgba colors keyed off `view.k` — no extra DOM, just a second entry in `backgroundImage`/`backgroundSize`/`backgroundPosition`. Clamp so at k=1 it looks exactly like today.
+
+## 4. Play and settings icons look bad
+
+`nodes/NodeCard.tsx` header uses text glyphs `▷` (run) and `⚙` (settings) — inconsistent weight/baseline across fonts.
+
+- **How**: replace with 12px inline SVGs (stroke `C.dim`, hover `C.ink`), same style as the existing resize-grip SVG at the bottom of `NodeCard.tsx`. Two tiny components; the `.ctrl` class keeps hit area and hover behavior.
+
+## 5. Minimize / delete buttons are in the wrong place
+
+`nodes/NodeCard.tsx` header order is: title · mode · ▷ · ⚙ · **–** · **×** · →. The destructive/window controls sit mid-group, before the value port.
+
+- **How**: decide the header grammar first, then move them. Proposal: left = identity (title, lang), middle-right = per-node actions (mode, ▷, ⚙), far right stays the → value port (it's a port, not a button — it must stay on the edge for wire anchoring), and – / × move to the far LEFT of the control group with extra separation, or become hover-revealed. Pure JSX reorder in one file; no geometry impact (→ anchor position unchanged).
+
+## 6. Node footers say "obj {}" — show something useful
+
+The result strip (`nodes/CodeNodeBody.tsx` `showStrip`) prints `res.v`, the capped preview string from `preview()` in `engine/core/resultsStore.ts`, which collapses objects to near-nothing.
+
+- **How, near term**: make `preview()` produce a real one-liner — arrays as `[n] first, second, …`, objects as `{ key: v, key2: v2, … } · n keys`, strings quoted + truncated, numbers/booleans as-is. ~20 lines in `resultsStore.ts`, instantly better everywhere the strip renders.
+- **Real fix**: the `auto` value face (NEXT #2) — the footer becomes a type-dispatched face (inspector tree for objects/arrays, image for images, text for strings) and the strip remains only as the error/kind line.

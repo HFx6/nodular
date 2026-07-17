@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type Dispatch, type PointerEvent as ReactPointerEvent, type RefObject, type SetStateAction } from "react";
-import { C, GRID, MONO } from "../../theme";
+import { C, GRID, MONO, ZOOM_MAX, ZOOM_MIN } from "../../theme";
 import { NodeCard } from "../../nodes/NodeCard";
 import type { NodeActions } from "../../graph/useGraph";
 import { pauseHistory, resumeHistory, useGraphStore } from "../../graph/store";
+import { minNodeWidth } from "../../graph/geometry";
 import { dropSize, publishSize } from "../../graph/sizeStore";
 import { spawnNode, type SpawnKind } from "../../graph/spawn";
 import { importFile } from "../../persist/file";
@@ -104,18 +105,17 @@ export function Board({ boardRef, nodes, edges, sel, arm, note, view, setView, a
     if (!el) return;
     const zoomAt = (e: WheelEvent, factor: number) => {
       setView((v) => {
-        const k = Math.min(1.6, Math.max(0.45, v.k * factor));
+        const k = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, v.k * factor));
         const r = el.getBoundingClientRect();
         const mx = e.clientX - r.left, my = e.clientY - r.top;
         return { k, x: mx - ((mx - v.x) / v.k) * k, y: my - ((my - v.y) / v.k) * k };
       });
     };
     const onWheel = (e: WheelEvent) => {
-      // a resized node's editor scrolls natively — but only when it's actually
-      // being edited (focus inside it); hovering an unfocused editor must not
-      // trap the board's pan/zoom wheel (#6)
+      // wheel over a code editor scrolls the code, never zooms the board (#2 of
+      // the polish pass — supersedes the old focus-only rule)
       const t = e.target instanceof HTMLElement ? e.target.closest(".cm-scroller") : null;
-      if (t && t.scrollHeight > t.clientHeight && t.contains(document.activeElement)) return;
+      if (t) return;
       e.preventDefault();
       if (e.ctrlKey) { zoomAt(e, 1 - e.deltaY * 0.01); return; }              // pinch
       const mouseWheel = e.deltaMode !== 0 || (e.deltaX === 0 && Math.abs(e.deltaY) >= 60);
@@ -253,7 +253,10 @@ export function Board({ boardRef, nodes, edges, sel, arm, note, view, setView, a
     }
     if (d.kind === "resize") {
       const p = toBoard(e);
-      const w = Math.max(MIN_W, Math.round((d.w + p.x - d.ox) / GRID) * GRID);
+      const n = nodes[d.id];
+      // never narrower than the header needs — the title must not truncate
+      const minW = Math.max(MIN_W, n ? minNodeWidth(n) : 0);
+      const w = Math.max(minW, Math.round((d.w + p.x - d.ox) / GRID) * GRID);
       const h = Math.max(MIN_H, Math.round((d.h + p.y - d.oy) / GRID) * GRID);
       useGraphStore.getState().resizeNode(d.id, w, d.widthOnly ? undefined : h);
       return;
@@ -299,6 +302,26 @@ export function Board({ boardRef, nodes, edges, sel, arm, note, view, setView, a
 
   const onBackground = (e: { target: EventTarget | null }) => e.target === boardRef.current || e.target === boardRef.current?.firstChild;
 
+  // dot grid with level-of-detail (#3): zooming out from k=1 immediately starts
+  // fading the fine layer (every GRID) out and a coarse layer (every 4×GRID,
+  // same color — never darker than the normal grid) in, completing by k≈0.65 —
+  // the grid re-forms at a legible period instead of aliasing into noise.
+  // ZOOM_MIN = ZOOM_MAX/4, so the coarse grid at full zoom-out is exactly the
+  // on-screen size of the fine grid at full zoom-in. At k≥1 only the fine
+  // layer shows, exactly today's look. Both are just extra entries in the
+  // background shorthand — no extra DOM.
+  const fineA = Math.min(1, Math.max(0, (view.k - 0.65) / 0.35));
+  const fineTile = GRID * view.k, coarseTile = fineTile * 4;
+  // both layers are C.dot #d7d7d3 → rgb(215,215,211), crossfaded by alpha
+  const gridLayers = {
+    backgroundImage: `radial-gradient(rgba(215,215,211,${1 - fineA}) 1px, transparent 1px),
+       radial-gradient(rgba(215,215,211,${fineA}) 1px, transparent 1px)`,
+    backgroundSize: `${coarseTile}px ${coarseTile}px, ${fineTile}px ${fineTile}px`,
+    // the gradient dot sits at tile centre; offset half a tile so dots land
+    // exactly on grid multiples, where nodes snap
+    backgroundPosition: `${view.x - coarseTile / 2}px ${view.y - coarseTile / 2}px, ${view.x - fineTile / 2}px ${view.y - fineTile / 2}px`,
+  };
+
   const focusEdge = focus ? edges.find((e) => e.id === focus) ?? null : null;
   // placement ghost: the palette kind's default doc shape at the snapped cursor (#18)
   const ghostNode = placing && ghost ? spawnNode("__ghost", ghost, placing) : null;
@@ -343,11 +366,7 @@ export function Board({ boardRef, nodes, edges, sel, arm, note, view, setView, a
         void importFile(f).then((ok) => notify(ok ? `imported ${f.name}` : `couldn't read ${f.name}`));
       }}
       style={{ position: "relative", flex: 1, overflow: "hidden", cursor: placing ? "copy" : arm ? "crosshair" : "default",
-        backgroundImage: `radial-gradient(${C.dot} 1px, transparent 1px)`,
-        backgroundSize: `${GRID * view.k}px ${GRID * view.k}px`,
-        // the gradient dot sits at tile centre; offset half a tile so dots land
-        // exactly on grid multiples, where nodes snap
-        backgroundPosition: `${view.x - (GRID * view.k) / 2}px ${view.y - (GRID * view.k) / 2}px` }}>
+        ...gridLayers }}>
 
       <div style={{ position: "absolute", left: 0, top: 0, transform: `translate(${view.x}px, ${view.y}px) scale(${view.k})`, transformOrigin: "0 0" }}>
         <WireLayer nodes={nodes} edges={edges} hot={hot} focus={focus} onHot={onHot} onHotEnd={onHotEnd} arm={arm} />
@@ -376,9 +395,7 @@ export function Board({ boardRef, nodes, edges, sel, arm, note, view, setView, a
         )}
       </div>
 
-      <div style={{ position: "absolute", left: 14, bottom: 10, fontSize: 10.5, color: C.faint, pointerEvents: "none", fontFamily: MONO }}>
-        edit count, hover the screen · drag to select, middle-drag to pan, scroll to zoom
-      </div>
+      
       {note && (
         <div style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", fontFamily: MONO, fontSize: 11, background: C.ink, color: "#f2f1ec", padding: "5px 12px", borderRadius: 4, zIndex: 5 }}>{note}</div>
       )}

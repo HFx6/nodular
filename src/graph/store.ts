@@ -46,8 +46,8 @@ export interface GraphStore extends GraphDoc {
   toggleUseDefault: (id: string) => void;
   setValueMode: (id: string, m: ValueMode | undefined) => void;
   setRenderMode: (id: string, m: RenderMode | undefined) => void;
-  /** canvas nodes: surface aspect ratio (undefined = default 3:2) */
-  setAspect: (id: string, aspect: number | undefined) => void;
+  /** code nodes: editor/value split fraction (0 = value-only, 1 = editor-only) */
+  setSplit: (id: string, split: number) => void;
   connect: (from: PortRef, to: PortRef) => void;
   setDoc: (doc: GraphDoc) => void;
 
@@ -164,9 +164,9 @@ export const useGraphStore = create<GraphStore>()(
           ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, renderMode: m } } }
           : s)),
 
-      setAspect: (id, aspect) =>
-        set((s) => (s.nodes[id] && s.nodes[id].aspect !== aspect
-          ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, aspect } } }
+      setSplit: (id, split) =>
+        set((s) => (s.nodes[id] && s.nodes[id].split !== split
+          ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, split } } }
           : s)),
 
       connect: (from, to) =>

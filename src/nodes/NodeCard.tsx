@@ -1,4 +1,4 @@
-import { memo, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { memo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { C, HEAD, MONO, ROW } from "../theme";
 import { inputsOf, outsOf } from "../graph/geometry";
 import { useNodeResult } from "../engine/core/resultsStore";
@@ -13,6 +13,25 @@ import { ImportNodeBody } from "./ImportNodeBody";
 import { TextNodeBody } from "./TextNodeBody";
 import { StateNodeBody } from "./StateNodeBody";
 import { NodeSettings } from "./NodeSettings";
+
+/** 12px header icons (#4): thin strokes in currentColor, so the .ctrl class's
+ *  dim→ink hover swap applies — same style as the resize grip below. */
+function RunIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" style={{ display: "block" }}>
+      <path d="M 4 2.4 L 9.4 6 L 4 9.6 Z" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function SlidersIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" style={{ display: "block" }}>
+      <path d="M 3 1.5 V 10.5 M 6 1.5 V 10.5 M 9 1.5 V 10.5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" fill="none" />
+      <path d="M 1.6 4 H 4.4 M 4.6 7.6 H 7.4 M 7.6 3.2 H 10.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
 
 interface NodeCardProps {
   node: GraphNode;
@@ -36,8 +55,13 @@ interface NodeCardProps {
 function NodeCardImpl({ node: n, edges, selected: seld, arm, actions, dimmed, onHeaderPointerDown, onHeaderDoubleClick, onResizeStart, registerRef }: NodeCardProps) {
   const res = useNodeResult(n.id);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  // reliable double-click to open the rail: pointer capture during a node drag
+  // retargets mouse events to the board, so the native dblclick often never
+  // composes — detect a second press within 400ms ourselves, on the whole
+  // header (background + title; controls excluded) (#7)
+  const lastHeadDown = useRef(0);
   const isCode = n.lang !== "canvas" && n.lang !== "ui";
-  const hasSettings = isCode || n.lang === "canvas";
+  const hasSettings = isCode;
   const ins = inputsOf(n, edges);
   const outs = outsOf(n);
   return (
@@ -48,45 +72,54 @@ function NodeCardImpl({ node: n, edges, selected: seld, arm, actions, dimmed, on
         opacity: dimmed ? 0.25 : 1,
         border: `1px solid ${seld ? C.sel : C.edge}`, boxShadow: seld ? `0 0 0 3px ${C.selSoft}` : "0 1px 3px rgba(40,40,36,.07)" }}>
 
-      {/* header. left: title (drag handle; double-click opens the editor).
-          right: a fixed control group — mode · run · ⚙ · – · × — then the → value
-          port pinned to the edge. All controls always visible, evenly spaced. */}
-      <div onPointerDown={(e) => { if (e.button !== 0) return; e.stopPropagation(); onHeaderPointerDown(e, n.id); }}
+      {/* header grammar (#5, mockup): × · – · title · settings · mode · run,
+          left-clustered, then the → value port alone at the far right — it's a
+          port, not a button, so it must stay on the edge for wire anchoring. */}
+      <div onPointerDown={(e) => {
+        if (e.button !== 0) return;
+        e.stopPropagation();
+        // second press on the header (not on a control) opens the editor; the
+        // press that opens it must not also start a node drag
+        const t = e.target instanceof HTMLElement ? e.target : null;
+        if (isCode && (!t || !t.closest(".ctrl, .hctl"))) {
+          if (e.timeStamp - lastHeadDown.current < 400) { lastHeadDown.current = 0; onHeaderDoubleClick(n.id); return; }
+          lastHeadDown.current = e.timeStamp;
+        }
+        onHeaderPointerDown(e, n.id);
+      }}
         style={{ display: "flex", alignItems: "center", gap: 8, height: HEAD, padding: "0 8px 0 10px", background: C.headBg,
           borderBottom: n.min ? "none" : `1px solid ${C.edge}`, borderRadius: n.min ? 4 : "4px 4px 0 0", cursor: "grab" }}>
-        <span onDoubleClick={() => { if (isCode) onHeaderDoubleClick(n.id); }}
-          title={isCode ? "double-click to open the editor" : undefined}
-          style={{ display: "flex", alignItems: "baseline", gap: 5, minWidth: 0, marginRight: "auto" }}>
-          <span style={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{n.name}</span>
+        <span className="ctrl" title="delete node" style={{ fontSize: 12 }}
+          onClick={(e) => { e.stopPropagation(); actions.onDelete(n.id); }}>×</span>
+        <span className="ctrl" title="minimize" style={{ fontSize: 13 }}
+          onClick={(e) => { e.stopPropagation(); actions.onToggleMin(n.id); }}>–</span>
+        {/* the title never shrinks or ellipsizes — minNodeWidth clamps resizes
+            so the header always has room for every item at full length */}
+        <span title={isCode ? "double-click to open the editor" : undefined}
+          style={{ display: "flex", alignItems: "baseline", gap: 5, flex: "none" }}>
+          <span style={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap" }}>{n.name}</span>
           {isCode && <span style={{ fontFamily: MONO, fontSize: 9.5, color: C.faint }}>{n.lang}</span>}
         </span>
-        <span style={{ display: "flex", alignItems: "center", gap: 7, flex: "none" }}>
-          {isCode && (
-            <span title={n.manual ? "manual — click to run automatically" : "auto — click for manual"}
-              onClick={(e) => { e.stopPropagation(); actions.onToggleMode(n.id); }}
-              style={{ fontFamily: MONO, fontSize: 9, color: C.dim, cursor: "pointer", padding: "1px 5px",
-                border: `1px solid ${C.edge}`, borderRadius: 3, lineHeight: 1.4, whiteSpace: "nowrap" }}>
-              {n.manual ? "manual" : "auto"} ▾
-            </span>
-          )}
-          {isCode && (
-            <span className="ctrl" title="run now" style={{ fontSize: 11 }}
-              onClick={(e) => { e.stopPropagation(); actions.onRunOnce(n.id); }}>▷</span>
-          )}
-          {hasSettings && (
-            <span className="ctrl" title="node settings" style={{ fontSize: 11 }}
-              onClick={(e) => { e.stopPropagation(); setSettingsOpen((o) => !o); }}>⚙</span>
-          )}
-          <span className="ctrl" title="minimize" style={{ fontSize: 13 }}
-            onClick={(e) => { e.stopPropagation(); actions.onToggleMin(n.id); }}>–</span>
-          <span className="ctrl" title="delete node" style={{ fontSize: 12 }}
-            onClick={(e) => { e.stopPropagation(); actions.onDelete(n.id); }}>×</span>
-        </span>
+        {hasSettings && (
+          <span className="ctrl" title="node settings"
+            onClick={(e) => { e.stopPropagation(); setSettingsOpen((o) => !o); }}><SlidersIcon /></span>
+        )}
+        {isCode && (
+          <span className="hctl" title={n.manual ? "manual — click to run automatically" : "auto — click for manual"}
+            onClick={(e) => { e.stopPropagation(); actions.onToggleMode(n.id); }}
+            style={{ fontFamily: MONO, fontSize: 9.5, color: C.dim, cursor: "pointer", lineHeight: 1.4, whiteSpace: "nowrap" }}>
+            {n.manual ? "manual" : "auto"} ▾
+          </span>
+        )}
+        {isCode && (
+          <span className="ctrl" title="run now"
+            onClick={(e) => { e.stopPropagation(); actions.onRunOnce(n.id); }}><RunIcon /></span>
+        )}
         {n.lang !== "canvas" && (
           <span className="ctrl" title="this node's value"
             onPointerDown={(e) => { if (e.button !== 0) return; e.stopPropagation(); actions.onArmOut(n.id, "→"); }}
             onClick={(e) => e.stopPropagation()}
-            style={{ fontSize: 13, marginLeft: -2, color: res?.v != null || n.lang === "ui" ? C.ink : C.faint }}>→</span>
+            style={{ fontSize: 13, marginLeft: "auto", color: res?.v != null || n.lang === "ui" ? C.ink : C.faint }}>→</span>
         )}
       </div>
 

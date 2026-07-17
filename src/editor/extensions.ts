@@ -3,7 +3,7 @@
 // (ENGINE.md budgets many simultaneous CodeMirror instances per board).
 
 import { EditorState, type Extension } from "@codemirror/state";
-import { type EditorView, highlightActiveLine, highlightActiveLineGutter, keymap, lineNumbers } from "@codemirror/view";
+import { EditorView, highlightActiveLine, highlightActiveLineGutter, keymap, lineNumbers } from "@codemirror/view";
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { bracketMatching, codeFolding, ensureSyntaxTree, foldEffect, foldable, indentOnInput, syntaxHighlighting } from "@codemirror/language";
 import { javascript } from "@codemirror/lang-javascript";
@@ -21,7 +21,6 @@ const base: Extension = [
   keymap.of([...defaultKeymap, ...historyKeymap]),
   syntaxHighlighting(paperHighlight),
   EditorState.tabSize.of(2),
-  // no lineWrapping extension: default is off, matching the old wrap="off"
 ];
 
 // the rail is the "real editor": gutter, active line, brackets, auto-indent
@@ -39,8 +38,10 @@ export function editorExtensions(lang: string, variant: "pane" | "rail"): Extens
   const key = `${lang}:${variant}`;
   let ext = cache.get(key);
   if (!ext) {
+    // the pane wraps long lines to the node's width (mockup); the rail keeps
+    // them straight and scrolls horizontally, like a real editor
     ext = variant === "pane"
-      ? [langs[lang] ?? [], base, codeFolding(), paperThemePane]
+      ? [langs[lang] ?? [], base, codeFolding(), EditorView.lineWrapping, paperThemePane]
       : [langs[lang] ?? [], base, railExtras, lang === "js" ? jsLinter : [], paperThemeRail];
     cache.set(key, ext);
   }

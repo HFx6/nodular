@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
    Composition root only. State/behaviour live in hooks; rendering in ui/ and
    nodes/. See files/PROJECT.md and files/ENGINE.md for the target architecture. */
 
-import { C, SANS } from "./theme";
+import { C, SANS, ZOOM_MAX, ZOOM_MIN } from "./theme";
 import type { View } from "./types";
 import { useToast } from "./hooks/useToast";
 import { useGraph } from "./graph/useGraph";
@@ -19,6 +19,7 @@ import { INITIAL_EDGES, INITIAL_NODES } from "./graph/initialGraph";
 import { SPAWN_KINDS, type SpawnKind } from "./graph/spawn";
 import { clearSaved } from "./persist/autosave";
 import { exportFile, importFile } from "./persist/file";
+import { formatDoc } from "./editor/format";
 import type { MenuActions } from "./ui/Menu";
 import { GlobalStyles } from "./ui/GlobalStyles";
 import { TopBar } from "./ui/TopBar";
@@ -84,24 +85,27 @@ export default function App() {
       maxX = Math.max(maxX, rc.x + rc.w); maxY = Math.max(maxY, rc.y + rc.h);
     }
     const pad = 60;
-    const k = Math.min(1.6, Math.max(0.45, Math.min(r.width / (maxX - minX + pad * 2), r.height / (maxY - minY + pad * 2))));
+    const k = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.min(r.width / (maxX - minX + pad * 2), r.height / (maxY - minY + pad * 2))));
     tweenView({ k, x: r.width / 2 - ((minX + maxX) / 2) * k, y: r.height / 2 - ((minY + maxY) / 2) * k });
   };
 
-  // load a doc, auto-arrange it (estimated heights — nodes aren't measured yet),
-  // then make the tidied layout the clean history baseline and frame it
-  const loadDoc = (doc: GraphDoc) => {
+  // load a doc: prettify its js first, auto-arrange it (estimated heights —
+  // nodes aren't measured yet), then make the tidied layout the clean history
+  // baseline and frame it
+  const loadDoc = async (doc: GraphDoc) => {
+    const formatted = await formatDoc(doc);
     const st = useGraphStore.getState();
-    st.setDoc(doc);
+    st.setDoc(formatted);
     st.tidy();
     clearHistory();
     fitView();
   };
   const tidy = () => { useGraphStore.getState().tidy(); fitView(); say("tidied layout"); };
   const menu: MenuActions = {
-    onReset: () => { loadDoc({ nodes: INITIAL_NODES, edges: INITIAL_EDGES }); void clearSaved(); say("canvas reset"); },
+    onReset: () => { void loadDoc({ nodes: INITIAL_NODES, edges: INITIAL_EDGES }); void clearSaved(); say("canvas reset"); },
     onLoadExample: (ex) => void ex.load()
-      .then((doc) => { loadDoc(doc); say(ex.toast); })
+      .then((doc) => loadDoc(doc))
+      .then(() => say(ex.toast))
       .catch(() => say(`couldn't load ${ex.name}`)),
     onTidy: tidy,
     onExport: () => exportFile(),

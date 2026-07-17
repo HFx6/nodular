@@ -66,7 +66,7 @@ export function useNodeValue(id: string): unknown {
   return useStore(resultsStore, (s) => s.values[id]);
 }
 
-/** Display preview of a raw value: capped JSON + a kind badge. */
+/** Display preview of a raw value: a readable one-liner + a kind badge. */
 export function preview(v: unknown): NodeResult {
   // ports records preview as their "→" value (a state node shows its value, not the record)
   if (v != null && (v as Record<symbol, unknown>)[PORTS]) {
@@ -79,19 +79,49 @@ export function preview(v: unknown): NodeResult {
     case "boolean": return { v: String(v), k: "bool" };
     case "string": return { v: cap(JSON.stringify(v)), k: "str" };
     case "function": return { v: "ƒ", k: "fn" };
-    default:
-      return Array.isArray(v)
-        ? { v: cap(json(v)), k: `arr(${v.length})` }
-        : { v: cap(json(v)), k: "obj" };
+    default: {
+      if (Array.isArray(v)) return { v: cap(arrLine(v)), k: `arr(${v.length})` };
+      if (v instanceof Promise) return { v: "Promise — await it or .then a value out", k: "promise" };
+      if (v instanceof Date) return { v: v.toISOString(), k: "date" };
+      if (v instanceof Error) return { v: cap(`${v.name}: ${v.message}`), k: "Error" };
+      if (v instanceof Map) return { v: cap(objLine(Object.fromEntries(v), `Map(${v.size})`)), k: "map" };
+      if (v instanceof Set) return { v: cap(arrLine([...v])), k: `set(${v.size})` };
+      // class instances lead with the constructor name — a Response, a
+      // CanvasRenderingContext2D etc. is its type, not its (often empty) keys
+      const ctor = (v as object).constructor;
+      const tag = ctor && ctor !== Object && ctor.name ? ctor.name : undefined;
+      return { v: cap(objLine(v as object, tag)), k: "obj" };
+    }
   }
 }
 
-function json(v: unknown): string {
-  try {
-    return JSON.stringify(v) ?? String(v);
-  } catch {
-    return String(v);
+/** One-token rendering of a value nested inside a collection preview. */
+function inline(v: unknown): string {
+  if (v === undefined) return "undefined";
+  if (v === null) return "null";
+  switch (typeof v) {
+    case "string": return JSON.stringify(v.length > 24 ? v.slice(0, 23) + "…" : v);
+    case "function": return "ƒ";
+    case "object": return Array.isArray(v) ? `[${v.length}]` : `{…}`;
+    default: return String(v);
   }
+}
+
+function arrLine(a: unknown[]): string {
+  if (!a.length) return "[0]";
+  const head = a.slice(0, 4).map(inline).join(", ");
+  return `[${a.length}] ${head}${a.length > 4 ? ", …" : ""}`;
+}
+
+function objLine(o: object, tag?: string): string {
+  let keys: string[];
+  try { keys = Object.keys(o); } catch { return tag ?? String(o); }
+  if (!keys.length) return tag ?? "{}";
+  const shown = keys.slice(0, 3)
+    .map((k) => `${k}: ${inline((o as Record<string, unknown>)[k])}`)
+    .join(", ");
+  const line = `{ ${shown}${keys.length > 3 ? ", …" : ""} }`;
+  return tag ? `${tag} ${line}` : line;
 }
 
 function cap(s: string): string {

@@ -9,13 +9,17 @@ import { EditorState, Compartment } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { editorExtensions, foldLargeTopLevel } from "./extensions";
 
+/** an auto-height in-node pane grows to this then scrolls internally */
+const PANE_MAX_H = 280;
+
 interface CodeMirrorEditorProps {
   code: string;
   lang: string;
   variant: "pane" | "rail";
   readOnly?: boolean;
-  /** fixed pixel height (resized node) — the editor scrolls internally */
-  height?: number;
+  /** fixed pixel height (resized node) or "fill" (stretch to the parent box) —
+   *  either way the editor scrolls internally */
+  height?: number | "fill";
   onChange: (code: string) => void;
 }
 
@@ -28,9 +32,17 @@ export function CodeMirrorEditor({ code, lang, variant, readOnly = false, height
   const heightRef = useRef(height);
   heightRef.current = height;
 
-  const applyHeight = (v: EditorView, h: number | undefined) => {
-    v.scrollDOM.style.overflow = h !== undefined ? "auto" : "";
-    v.dom.style.height = h !== undefined ? `${h}px` : "";
+  const applyHeight = (v: EditorView, h: number | "fill" | undefined) => {
+    const auto = h === undefined;
+    // an auto-height in-node pane grows with its code but caps at PANE_MAX_H and
+    // scrolls past it (so a long node peeks, it doesn't run off the board); the
+    // rail fills its flex parent and never caps. Fixed / "fill" heights scroll.
+    // Overflow is owned by the theme (.cm-scroller: auto) so it survives
+    // construction timing — here we only bound the height, which is what turns
+    // that overflow into an actual scrollbar.
+    const capPane = auto && variant === "pane";
+    v.dom.style.maxHeight = capPane ? `${PANE_MAX_H}px` : "";
+    v.dom.style.height = auto ? "" : h === "fill" ? "100%" : `${h}px`;
   };
 
   // mount once per lang/variant; destroy cleanly (StrictMode-safe)
@@ -71,15 +83,20 @@ export function CodeMirrorEditor({ code, lang, variant, readOnly = false, height
     view.current?.dispatch({ effects: readOnlyComp.current.reconfigure(EditorState.readOnly.of(readOnly)) });
   }, [readOnly]);
 
-  // fixed-height panes scroll internally (the pane theme's default is overflow: hidden)
+  // re-bound the height when it changes; the theme keeps the scroller overflow: auto
   useEffect(() => {
     if (view.current) applyHeight(view.current, height);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- applyHeight only reads variant, which remounts the editor
   }, [height]);
 
   return (
     <div
       ref={host}
-      style={variant === "rail" ? { flex: 1, minHeight: 0, overflow: "hidden" } : undefined}
+      // the host must be full-height when the editor is told to fill it — a
+      // plain auto-height block makes the editor's `height: 100%` resolve to
+      // nothing and the code clips unscrollably under the region's overflow
+      style={variant === "rail" ? { flex: 1, minHeight: 0, overflow: "hidden" }
+        : height === "fill" ? { height: "100%", minHeight: 0 } : undefined}
       // focus fallback: if the browser's native mousedown→focus chain was
       // swallowed anywhere upstream, explicitly hand focus to the editor
       onClick={() => {

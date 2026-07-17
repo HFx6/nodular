@@ -50,7 +50,7 @@ const draw = (ctx, { width: w, height: h, cursor }) => {
 draw`;
 
 export const INITIAL_NODES: NodeMap = {
-  count: { id: "count", lang: "js", name: "count", x: 54, y: 54, w: 168, code: `40` },
+  count: { id: "count", lang: "js", name: "count", x: 54, y: 54, w: 234, code: `40` },
   field: { id: "field", lang: "js", name: "field", x: 54, y: 216, w: 240,
     code: `(x, y) =>\n  Math.sin(x * 3) * Math.cos(y * 3)` },
   walkers: { id: "walkers", lang: "js", name: "walkers", x: 342, y: 54, w: 360, h: 396, code: WALKERS_CODE },

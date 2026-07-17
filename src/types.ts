@@ -32,8 +32,10 @@ export interface GraphNode {
   target?: string;
   /** import nodes only: emit module.default rather than the whole namespace */
   useDefault?: boolean;
-  /** canvas nodes only: surface aspect ratio (width/height); undefined = 3:2.
-   *  NES is 256×240 ≈ 1.067 — without this its output renders stretched. */
+  /** canvas nodes only: fallback display aspect (width/height) used when the
+   *  renderer doesn't declare its own size. A renderer that draws at a fixed
+   *  resolution sets it from code — `{ draw, width, height }` — so this is only
+   *  a default for size-agnostic surfaces; undefined = 3:2. */
   aspect?: number;
   /** fixed input port names (canvas and fixed-input built-ins like table/image) */
   ins?: string[];
@@ -43,6 +45,9 @@ export interface GraphNode {
   valueMode?: ValueMode;
   /** code nodes: body render mode (undefined = default result strip) */
   renderMode?: RenderMode;
+  /** code nodes: editor/value split fraction 0..1 (editor share; undefined = ~0.5).
+   *  0 = value-only pane, 1 = editor-only — the other region collapses. */
+  split?: number;
 }
 
 export type NodeMap = Record<string, GraphNode>;
