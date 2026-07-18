@@ -1,4 +1,4 @@
-import { C, MONO } from "../theme";
+import { C, MONO, RADIUS } from "../theme";
 
 const MAX_ROWS = 100;
 const MAX_COLS = 6;
@@ -25,14 +25,14 @@ export function ValueTable({ rows, maxHeight, selIdx = -1, onRowClick }: ValueTa
   const shown = rows.slice(0, MAX_ROWS);
 
   return (
-    <div style={{ overflow: "auto", maxHeight, borderRadius: "0 0 4px 4px" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: MONO, fontSize: 10.5 }}>
+    <div style={{ overflow: "auto", maxHeight, borderRadius: `0 0 ${RADIUS}px ${RADIUS}px` }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: MONO, fontSize: 11 }}>
         {cols.length > 0 && (
           <thead>
             <tr>
               {cols.map((c) => (
                 <th key={c} style={{ position: "sticky", top: 0, background: C.headBg, textAlign: "left",
-                  padding: "4px 8px", color: C.dim, fontWeight: 500, whiteSpace: "nowrap" }}>{c}</th>
+                  padding: "5px 9px", color: C.dim, fontWeight: 500, whiteSpace: "nowrap" }}>{c}</th>
               ))}
             </tr>
           </thead>
@@ -43,13 +43,13 @@ export function ValueTable({ rows, maxHeight, selIdx = -1, onRowClick }: ValueTa
               style={{ cursor: onRowClick ? "pointer" : "default", background: i === selIdx ? C.selSoft : "transparent" }}>
               {cols.length > 0 ? (
                 cols.map((c) => (
-                  <td key={c} style={{ padding: "3px 8px", borderTop: `1px solid ${C.edge}`, color: C.ink,
+                  <td key={c} style={{ padding: "4px 9px", borderTop: `1px solid ${C.edge}`, color: C.ink,
                     whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 130 }}>
                     {cell((r as Record<string, unknown>)[c])}
                   </td>
                 ))
               ) : (
-                <td style={{ padding: "3px 8px", borderTop: `1px solid ${C.edge}`, color: C.ink,
+                <td style={{ padding: "4px 9px", borderTop: `1px solid ${C.edge}`, color: C.ink,
                   whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{cell(r)}</td>
               )}
             </tr>

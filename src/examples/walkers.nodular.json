@@ -7,7 +7,6 @@
       "name": "count",
       "x": 54,
       "y": 54,
-      "w": 234,
       "code": "40;"
     },
     "field": {
@@ -16,7 +15,6 @@
       "name": "field",
       "x": 54,
       "y": 216,
-      "w": 240,
       "code": "(x, y) => Math.sin(x * 3) * Math.cos(y * 3);"
     },
     "walkers": {
@@ -25,8 +23,6 @@
       "name": "walkers",
       "x": 342,
       "y": 54,
-      "w": 360,
-      "h": 396,
       "code": "const ws = [];\n\nconst draw = (ctx, { width: w, height: h, cursor }) => {\n  const n = count ?? 40;\n  while (ws.length < n)\n    ws.push({ x: Math.random() * w, y: Math.random() * h, trail: [] });\n  ws.length = Math.min(ws.length, n);\n\n  ctx.fillStyle = \"#242331\";\n  ctx.fillRect(0, 0, w, h);\n  ctx.strokeStyle = \"rgba(217,215,235,.55)\";\n  ctx.lineWidth = 1;\n\n  for (const p of ws) {\n    let dx = (Math.random() - 0.5) * 4;\n    let dy = (Math.random() - 0.5) * 4;\n    if (field) {\n      const a = field(p.x / 48, p.y / 48) * Math.PI * 2;\n      dx += Math.cos(a) * 1.1;\n      dy += Math.sin(a) * 1.1;\n    }\n    if (cursor) {\n      dx += (cursor.x - p.x) * 0.012;\n      dy += (cursor.y - p.y) * 0.012;\n    }\n    p.x = Math.max(0, Math.min(w, p.x + dx));\n    p.y = Math.max(0, Math.min(h, p.y + dy));\n    p.trail.push([p.x, p.y]);\n    if (p.trail.length > 14) p.trail.shift();\n    ctx.beginPath();\n    p.trail.forEach(([x, y], i) =>\n      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y),\n    );\n    ctx.stroke();\n  }\n\n  if (cursor) {\n    ctx.fillStyle = \"#d9a13f\";\n    ctx.fillRect(cursor.x - 2, cursor.y - 2, 4, 4);\n  }\n};\n\ndraw;"
     },
     "cvs": {
@@ -35,7 +31,6 @@
       "name": "screen",
       "x": 756,
       "y": 54,
-      "w": 288,
       "ins": [
         "render"
       ]

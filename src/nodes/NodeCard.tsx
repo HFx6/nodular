@@ -1,6 +1,6 @@
 import { memo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { IconAdjustments, IconArrowDownRight, IconChevronDown, IconMinus, IconPlayerPlay, IconX } from "@tabler/icons-react";
-import { C, HEAD, MONO, ROW } from "../theme";
+import { IconAdjustmentsHorizontal, IconArrowDownRight, IconChevronDown, IconMinus, IconPlayerPlay, IconX } from "@tabler/icons-react";
+import { C, HEAD, MONO, RADIUS, ROW } from "../theme";
 import { inputsOf, outsOf } from "../graph/geometry";
 import { useNodeResult } from "../engine/core/resultsStore";
 import type { ArmState, Edge, GraphNode } from "../types";
@@ -15,9 +15,9 @@ import { TextNodeBody } from "./TextNodeBody";
 import { StateNodeBody } from "./StateNodeBody";
 import { NodeSettings } from "./NodeSettings";
 
-// header icons are tabler at 12px with thin strokes, in currentColor so the
+// header icons are tabler at 13px with thin strokes, in currentColor so the
 // .ctrl class's dim→ink hover swap applies
-const icon = { size: 12, stroke: 1.5, style: { display: "block" } } as const;
+const icon = { size: 13, stroke: 1.5, style: { display: "block" } } as const;
 
 interface NodeCardProps {
   node: GraphNode;
@@ -53,14 +53,15 @@ function NodeCardImpl({ node: n, edges, selected: seld, arm, actions, dimmed, on
   return (
     <div ref={(el) => registerRef(n.id, el)} className="ncard dimmable"
       onPointerDown={(e) => { if (e.button === 0) e.stopPropagation(); }}
-      style={{ position: "absolute", left: n.x, top: n.y, width: n.w, background: C.pane, borderRadius: 4,
+      style={{ position: "absolute", left: n.x, top: n.y, width: n.w, background: C.pane, borderRadius: RADIUS,
         ...(n.h && !n.min ? { height: n.h } : {}),
         opacity: dimmed ? 0.25 : 1,
-        border: `1px solid ${seld ? C.sel : C.edge}`, boxShadow: seld ? `0 0 0 3px ${C.selSoft}` : "0 1px 3px rgba(40,40,36,.07)" }}>
+        border: `1px solid ${seld ? C.sel : C.edge}`, boxShadow: seld ? `0 0 0 3px ${C.selSoft}` : "0 1px 4px rgba(40,40,36,.08)" }}>
 
-      {/* header grammar (#5, mockup): × · – · title · settings · mode · run,
-          left-clustered, then the → value port alone at the far right — it's a
-          port, not a button, so it must stay on the edge for wire anchoring. */}
+      {/* header grammar (#5, natto): × · – · title+lang on the left, then
+          settings · mode · run clustered right, and the → value port last —
+          it's a port, not a button, so it must stay on the edge for wire
+          anchoring. */}
       <div onPointerDown={(e) => {
         if (e.button !== 0) return;
         e.stopPropagation();
@@ -73,8 +74,8 @@ function NodeCardImpl({ node: n, edges, selected: seld, arm, actions, dimmed, on
         }
         onHeaderPointerDown(e, n.id);
       }}
-        style={{ display: "flex", alignItems: "center", gap: 8, height: HEAD, padding: "0 8px 0 10px", background: C.headBg,
-          borderBottom: n.min ? "none" : `1px solid ${C.edge}`, borderRadius: n.min ? 4 : "4px 4px 0 0", cursor: "grab" }}>
+        style={{ display: "flex", alignItems: "center", gap: 6, height: HEAD, padding: "0 9px 0 10px", background: C.headBg,
+          borderBottom: n.min ? "none" : `1px solid ${C.edge}`, borderRadius: n.min ? RADIUS : `${RADIUS}px ${RADIUS}px 0 0`, cursor: "grab" }}>
         <span className="ctrl" title="delete node"
           onClick={(e) => { e.stopPropagation(); actions.onDelete(n.id); }}><IconX {...icon} /></span>
         <span className="ctrl" title="minimize"
@@ -82,30 +83,35 @@ function NodeCardImpl({ node: n, edges, selected: seld, arm, actions, dimmed, on
         {/* the title never shrinks or ellipsizes — minNodeWidth clamps resizes
             so the header always has room for every item at full length */}
         <span title={isCode ? "double-click to open the editor" : undefined}
-          style={{ display: "flex", alignItems: "baseline", gap: 5, flex: "none" }}>
-          <span style={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap" }}>{n.name}</span>
-          {isCode && <span style={{ fontFamily: MONO, fontSize: 9.5, color: C.faint }}>{n.lang}</span>}
+          style={{ display: "flex", alignItems: "center", gap: 5, flex: "none", marginLeft: 2 }}>
+          {n.name
+            ? <span style={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 500, whiteSpace: "nowrap" }}>{n.name}</span>
+            : <span style={{ fontFamily: MONO, fontSize: 12.5, color: C.faint, whiteSpace: "nowrap" }}>name</span>}
+          {isCode && <span style={{ fontFamily: MONO, fontSize: 9, color: C.dim, background: C.bg,
+            borderRadius: 3, padding: "1px 4px", lineHeight: 1.4 }}>{n.lang}</span>}
         </span>
+        {/* control cluster pushed right: ⚙ · auto-pill · ▷-pill, then the port */}
         {hasSettings && (
-          <span className="ctrl" title="node settings"
-            onClick={(e) => { e.stopPropagation(); setSettingsOpen((o) => !o); }}><IconAdjustments {...icon} /></span>
+          <span className="ctrl" title="node settings" style={{ marginLeft: "auto" }}
+            onClick={(e) => { e.stopPropagation(); setSettingsOpen((o) => !o); }}><IconAdjustmentsHorizontal {...icon} /></span>
         )}
         {isCode && (
-          <span className="hctl" title={n.manual ? "manual — click to run automatically" : "auto — click for manual"}
+          <span className="hctl pillbtn" title={n.manual ? "manual — click to run automatically" : "auto — click for manual"}
             onClick={(e) => { e.stopPropagation(); actions.onToggleMode(n.id); }}
-            style={{ display: "flex", alignItems: "center", gap: 1, fontFamily: MONO, fontSize: 9.5, color: C.dim, cursor: "pointer", lineHeight: 1.4, whiteSpace: "nowrap" }}>
+            style={{ display: "flex", alignItems: "center", gap: 2, fontFamily: MONO, fontSize: 10, color: C.dim, padding: "2px 6px", lineHeight: 1.4, whiteSpace: "nowrap" }}>
             {n.manual ? "manual" : "auto"} <IconChevronDown size={9} stroke={1.75} />
           </span>
         )}
         {isCode && (
-          <span className="ctrl" title="run now"
-            onClick={(e) => { e.stopPropagation(); actions.onRunOnce(n.id); }}><IconPlayerPlay {...icon} /></span>
+          <span className="hctl pillbtn" title="run now"
+            onClick={(e) => { e.stopPropagation(); actions.onRunOnce(n.id); }}
+            style={{ display: "flex", alignItems: "center", color: C.dim, padding: "2px 5px" }}><IconPlayerPlay size={11} stroke={1.5} style={{ display: "block" }} /></span>
         )}
         {n.lang !== "canvas" && (
           <span className="ctrl" title="this node's value"
             onPointerDown={(e) => { if (e.button !== 0) return; e.stopPropagation(); actions.onArmOut(n.id, "→"); }}
             onClick={(e) => e.stopPropagation()}
-            style={{ fontSize: 13, marginLeft: "auto", color: res?.v != null || n.lang === "ui" ? C.ink : C.faint }}>→</span>
+            style={{ fontSize: 13, marginLeft: isCode ? 2 : "auto", color: res?.v != null || n.lang === "ui" ? C.ink : C.faint }}>→</span>
         )}
       </div>
 

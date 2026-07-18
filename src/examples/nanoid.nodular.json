@@ -7,7 +7,6 @@
       "name": "nanoid",
       "x": 108,
       "y": 126,
-      "w": 300,
       "kind": "import",
       "ins": [],
       "code": "nanoid",
@@ -19,7 +18,6 @@
       "name": "id",
       "x": 492,
       "y": 126,
-      "w": 264,
       "code": "nanoid.nanoid();"
     }
   },

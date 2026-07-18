@@ -10,7 +10,7 @@ import { temporal } from "zundo";
 import type { ArmState, Edge, NodeMap, PortRef, RenderMode, ValueMode } from "../types";
 import { GRID } from "../theme";
 import { newId } from "./ids";
-import { spawnNode, type SpawnKind } from "./spawn";
+import { fillNodeWidths, spawnNode, type SpawnKind } from "./spawn";
 import { layeredLayout } from "./layout";
 import { sizeStore } from "./sizeStore";
 import walkers from "../examples/walkers.nodular.json";
@@ -21,7 +21,7 @@ export interface GraphDoc {
 }
 
 /** The walkers demo doubles as the seed doc a fresh canvas opens with. */
-export const SEED_DOC = walkers as unknown as GraphDoc;
+export const SEED_DOC = fillNodeWidths(walkers as unknown as GraphDoc);
 
 export interface DropResult {
   ok: boolean;

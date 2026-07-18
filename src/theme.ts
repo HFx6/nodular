@@ -1,18 +1,24 @@
 export const MONO = "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace";
 export const SANS = "ui-sans-serif, system-ui, sans-serif";
-export const HEAD = 30;
+export const HEAD = 34;
 export const ROW = 20;
+/** corner radius of node cards, popovers and other paper chrome */
+export const RADIUS = 6;
+/** max auto-height of a node's code editor before it scrolls */
+export const PANE_MAX_H = 280;
 export const GRID = 18;
 /** Zoom clamp. MIN = MAX / 4 on purpose: the dot grid's coarse LOD layer is
  *  4×GRID, so at full zoom-out the grid renders at exactly the same on-screen
  *  size as the fine grid at full zoom-in (#3). */
-export const ZOOM_MAX = 1.6;
+export const ZOOM_MAX = 1;
 export const ZOOM_MIN = ZOOM_MAX / 4;
 
 export const C = {
   bg: "#e9e9e6", dot: "#d7d7d3",
-  pane: "#ffffff", edge: "#d6d6d2", headBg: "#f6f6f4",
+  pane: "#ffffff", edge: "#d6d6d2", headBg: "#f4f4f1",
   ink: "#33322e", dim: "#8f8e88", faint: "#b9b8b2",
+  /** borderless header chips/buttons: a shade darker than headBg, warmer than bg */
+  chip: "#e7e6e1", chipHot: "#dddcd6",
   wire: "#bdbcb6", wireHot: "#6d6c66",
   /** port labels: darker than wires so they read over a passing wire (#4) */
   portLabel: "#5f5e58",

@@ -1,6 +1,6 @@
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useRef } from "react";
-import { C, HEAD, MONO } from "../theme";
+import { C, HEAD, MONO, RADIUS } from "../theme";
 import { CodeMirrorEditor } from "../editor/CodeMirrorEditor";
 import { useNodeValue } from "../engine/core/resultsStore";
 import { useGraphStore } from "../graph/store";
@@ -17,8 +17,8 @@ interface CodeNodeBodyProps {
 
 /** divider hit area (px) — the visible line is 1px, centred */
 const DIVIDER = 7;
-/** editor region vertical padding (8px top + bottom) */
-const PAD_V = 16;
+/** editor region vertical padding (10px top + bottom) */
+const PAD_V = 20;
 /** dragging the divider within this fraction of an edge snaps the region shut */
 const SNAP = 0.08;
 
@@ -80,7 +80,7 @@ export function CodeNodeBody({ node: n, result: res, actions }: CodeNodeBodyProp
           without one it takes whatever the footer doesn't need */}
       <div onPointerDown={(e: ReactPointerEvent) => { if (e.button !== 0) return; e.stopPropagation(); actions.onSelect(n.id); }}
         style={{ position: "relative", boxSizing: "border-box", overflow: "hidden",
-          padding: "8px 10px", fontFamily: MONO, fontSize: 11.5, lineHeight: "17px", color: C.ink, cursor: "text",
+          padding: "10px 12px", fontFamily: MONO, fontSize: 12.5, lineHeight: "19px", color: C.ink, cursor: "text",
           ...(editorRegionH !== undefined ? { height: editorRegionH, flex: "none" }
             : total !== undefined ? { flex: 1, minHeight: 0 } : {}) }}>
         <CodeMirrorEditor code={n.code ?? ""} lang={n.lang} variant="pane"
@@ -99,7 +99,7 @@ export function CodeNodeBody({ node: n, result: res, actions }: CodeNodeBodyProp
         </div>
         {/* value face — a first-class region; collapses at split 1 */}
         <div style={{ boxSizing: "border-box", minHeight: 0, overflow: "auto", background: "#fcfcfa",
-          borderRadius: "0 0 4px 4px",
+          borderRadius: `0 0 ${RADIUS}px ${RADIUS}px`,
           ...(valueRegionH !== undefined ? { height: valueRegionH, flex: "none" } : { maxHeight: 216 }) }}>
           <ValueFace value={rawValue} mode={face} maxHeight={valueRegionH ?? 216} />
         </div>
@@ -107,17 +107,17 @@ export function CodeNodeBody({ node: n, result: res, actions }: CodeNodeBodyProp
 
       {showFooter && (
         <div style={{ flex: "none", borderTop: `1px solid ${C.edge}`, background: "#fcfcfa",
-          borderRadius: "0 0 4px 4px", maxHeight: 120, overflow: "auto" }}>
+          borderRadius: `0 0 ${RADIUS}px ${RADIUS}px`, maxHeight: 120, overflow: "auto" }}>
           {isError ? (
             <div onPointerDown={(e: ReactPointerEvent) => e.stopPropagation()}
-              style={{ padding: "5px 10px", fontFamily: MONO, fontSize: 10.5, color: C.bad,
+              style={{ padding: "7px 12px", fontFamily: MONO, fontSize: 11, color: C.bad,
                 whiteSpace: "pre-wrap", overflowWrap: "anywhere", userSelect: "text" }}>{res?.why}</div>
           ) : (
             <div onPointerDown={(e: ReactPointerEvent) => e.stopPropagation()}
-              style={{ padding: "5px 10px", fontFamily: MONO, fontSize: 11, color: C.ink,
+              style={{ padding: "7px 12px", fontFamily: MONO, fontSize: 11.5, color: C.ink,
                 display: "flex", gap: 8, alignItems: "baseline", userSelect: "text" }}>
               <span style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", flex: 1, minWidth: 0 }}>{res?.v}</span>
-              <span style={{ fontSize: 9, color: C.dim, flex: "none", background: C.bg, borderRadius: 2,
+              <span style={{ fontSize: 9.5, color: C.dim, flex: "none", background: C.bg, borderRadius: 3,
                 padding: "1px 4px" }}>{res?.k}</span>
             </div>
           )}

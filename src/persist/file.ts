@@ -2,6 +2,7 @@
 // (PROJECT.md: local-first, files export without an account).
 
 import { clearHistory, useGraphStore, type GraphDoc } from "../graph/store";
+import { fillNodeWidths } from "../graph/spawn";
 
 const VERSION = 1;
 
@@ -9,7 +10,9 @@ export interface DocFile extends GraphDoc {
   version: number;
 }
 
-/** Light shape check — enough to reject corrupt/foreign JSON, not a schema. */
+/** Light shape check — enough to reject corrupt/foreign JSON, not a schema.
+ *  Docs may omit node sizing (`w`/`h`) — the examples ship unsized — in which
+ *  case the current defaults fill in. */
 export function parseDoc(raw: unknown): GraphDoc | null {
   if (typeof raw !== "object" || raw === null) return null;
   const d = raw as Partial<DocFile>;
@@ -20,7 +23,7 @@ export function parseDoc(raw: unknown): GraphDoc | null {
   for (const e of d.edges) {
     if (!e || typeof e.id !== "string" || !Array.isArray(e.from) || !Array.isArray(e.to)) return null;
   }
-  return { nodes: d.nodes, edges: d.edges };
+  return fillNodeWidths({ nodes: d.nodes, edges: d.edges });
 }
 
 export function exportFile(name = "graph") {

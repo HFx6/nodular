@@ -37,14 +37,19 @@ export function dropSize(id: string): void {
 
 export const useSizes = (): SizeMap => useStore(sizeStore, (s) => s.sizes);
 
-/** Resolves once every id has a measured size — or after `timeout` ms, so a
- *  node that never mounts can't wedge the caller. */
-export function whenMeasured(ids: string[], timeout = 800): Promise<void> {
+/** Resolves once every id has a measured size AND the size map has been quiet
+ *  for `settle` ms — cards get an early ResizeObserver reading before their
+ *  editors finish mounting/growing, so mere existence isn't enough to lay out
+ *  against. The `timeout` cap keeps a node that never mounts (or never stops
+ *  resizing) from wedging the caller. */
+export function whenMeasured(ids: string[], timeout = 3000, settle = 150): Promise<void> {
   const ready = () => ids.every((id) => sizeStore.getState().sizes[id]);
-  if (ready()) return Promise.resolve();
   return new Promise((resolve) => {
-    const done = () => { unsub(); clearTimeout(t); resolve(); };
-    const unsub = sizeStore.subscribe(() => { if (ready()) done(); });
-    const t = setTimeout(done, timeout);
+    let quiet: ReturnType<typeof setTimeout> | undefined;
+    const done = () => { unsub(); clearTimeout(cap); clearTimeout(quiet); resolve(); };
+    const arm = () => { clearTimeout(quiet); if (ready()) quiet = setTimeout(done, settle); };
+    const unsub = sizeStore.subscribe(arm);
+    const cap = setTimeout(done, timeout);
+    arm();
   });
 }

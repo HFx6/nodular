@@ -46,14 +46,15 @@ const shared = {
     { backgroundColor: "rgba(76,127,174,.30)" },
 } as const;
 
-/** In-pane peek editor: 11.5px/17px, grows with content then scrolls once
- *  capped (CodeMirrorEditor sets max-height / a fixed height); overflow lives
- *  here as a persistent rule so it can't be clobbered by construction timing. */
+/** In-pane peek editor: 12.5px/19px (lockstep with CodeNodeBody's editor
+ *  region), grows with content then scrolls once capped (CodeMirrorEditor sets
+ *  max-height / a fixed height); overflow lives here as a persistent rule so
+ *  it can't be clobbered by construction timing. */
 export const paperThemePane = EditorView.theme({
   ...shared,
   ...scrollbar,
-  ".cm-content": { ...shared[".cm-content"], fontSize: "11.5px", lineHeight: "17px" },
-  ".cm-scroller": { fontFamily: MONO, lineHeight: "17px", overflow: "auto" },
+  ".cm-content": { ...shared[".cm-content"], fontSize: "12.5px", lineHeight: "19px" },
+  ".cm-scroller": { fontFamily: MONO, lineHeight: "19px", overflow: "auto" },
   ".cm-foldPlaceholder": { background: C.headBg, border: `1px solid ${C.edge}`, color: C.dim,
     borderRadius: "3px", padding: "0 5px", margin: "0 2px", cursor: "pointer" },
 });

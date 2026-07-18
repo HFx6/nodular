@@ -8,9 +8,7 @@ import { useEffect, useRef } from "react";
 import { EditorState, Compartment } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { editorExtensions, foldLargeTopLevel } from "./extensions";
-
-/** an auto-height in-node pane grows to this then scrolls internally */
-const PANE_MAX_H = 280;
+import { PANE_MAX_H } from "../theme";
 
 interface CodeMirrorEditorProps {
   code: string;

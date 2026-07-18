@@ -1,7 +1,7 @@
 // Pure spatial model of the graph doc: which ports a node has, where they sit,
 // and the bezier path of each edge. No React, no side effects.
 
-import { HEAD, ROW } from "../theme";
+import { HEAD, PANE_MAX_H, ROW } from "../theme";
 import { outsFor } from "../engine/inference";
 import type { Edge, ExportInfo, GraphNode, NodeMap } from "../types";
 import type { SizeMap } from "./sizeStore";
@@ -33,23 +33,31 @@ export function estimateHeight(n: GraphNode, edges: Edge[]): number {
   if (n.min) return HEAD;
   const ports = Math.max(inputsOf(n, edges).length, outsOf(n).length);
   const portBlock = HEAD + 16 + ports * ROW;
-  if (n.lang === "js" || n.lang === "py") return Math.max(portBlock, n.h ?? 140);
+  if (n.lang === "js" || n.lang === "py") {
+    // auto-height pane: 19px lines + 10px vertical padding ×2, capped at the
+    // editor's scroll threshold. Folding can render shorter than this — an
+    // overestimate spaces the first frame loosely; the measured tidy tightens it.
+    const lines = (n.code ?? "").split("\n").length;
+    const editor = HEAD + 1 + 20 + Math.min(lines * 19, PANE_MAX_H);
+    return Math.max(portBlock, n.h ?? editor);
+  }
   if (n.lang === "canvas") return Math.max(portBlock, n.h ?? 180);
   return Math.max(portBlock, 60);
 }
 
 /** Narrowest width where the header still fits every control plus the full
  *  title — the resize clamp, so a title is never truncated. Mirrors the
- *  NodeCard header: padding 18, × – (~8 each), title (12.5px mono bold
- *  ≈7.6px/char) + lang tag, sliders/mode/run for code nodes, the → port, and
- *  8px gaps between items. */
+ *  NodeCard header: padding 19, × – (13px icons), title (12.5px mono medium
+ *  ≈7.6px/char) + lang chip, sliders/mode-pill/run-pill for code nodes, the →
+ *  port, and 6px gaps between items. */
 export function minNodeWidth(n: GraphNode): number {
   const isCode = n.lang !== "canvas" && n.lang !== "ui";
   const title = Math.ceil(n.name.length * 7.6);
   // padding + × – + title + → + gaps(4 items→3 gaps... measured generously)
-  if (!isCode) return 76 + title + (n.lang === "canvas" ? 12 : 0);
-  // + lang tag (17), sliders (12), mode chip ("manual ▾" ≈ 46), run (12), 3 more gaps
-  return 187 + title;
+  if (!isCode) return 82 + title + (n.lang === "canvas" ? 12 : 0);
+  // + lang chip (24), sliders (13), mode pill ("manual ▾" + padding ≈ 62),
+  //   run pill (23), 3 more gaps
+  return 222 + title;
 }
 
 /** The node's board-space rectangle: doc width, height from measured › doc › estimate. */

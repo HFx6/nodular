@@ -35,7 +35,7 @@ export function ValueFace({ value, mode, maxHeight }: ValueFaceProps) {
 
   if (mode === "html") {
     return (
-      <div style={{ padding: "6px 10px", overflow: "auto", maxHeight, fontSize: 12, userSelect: "text" }}
+      <div style={{ padding: "8px 12px", overflow: "auto", maxHeight, fontSize: 12, userSelect: "text" }}
         onPointerDown={(e) => e.stopPropagation()}
         dangerouslySetInnerHTML={{ __html: String(value) }} />
     );
@@ -43,7 +43,7 @@ export function ValueFace({ value, mode, maxHeight }: ValueFaceProps) {
 
   // text
   return (
-    <div style={{ padding: "6px 10px", overflow: "auto", maxHeight, fontFamily: MONO, fontSize: 11,
+    <div style={{ padding: "8px 12px", overflow: "auto", maxHeight, fontFamily: MONO, fontSize: 11.5,
       lineHeight: 1.5, color: C.ink, whiteSpace: "pre-wrap", userSelect: "text" }}
       onPointerDown={(e) => e.stopPropagation()}>
       {String(value)}
@@ -52,5 +52,5 @@ export function ValueFace({ value, mode, maxHeight }: ValueFaceProps) {
 }
 
 function Empty({ msg }: { msg: string }) {
-  return <div style={{ padding: "6px 10px", fontFamily: MONO, fontSize: 10.5, color: C.faint }}>{msg}</div>;
+  return <div style={{ padding: "8px 12px", fontFamily: MONO, fontSize: 10.5, color: C.faint }}>{msg}</div>;
 }
