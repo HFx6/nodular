@@ -50,17 +50,18 @@ export function estimateHeight(n: GraphNode, edges: Edge[]): number {
 
 /** Narrowest width where the header still fits every control plus the full
  *  title — the resize clamp, so a title is never truncated. Mirrors the
- *  NodeCard header: padding 19, × – (13px icons), title (12.5px mono medium
- *  ≈7.6px/char) + lang chip, sliders/mode-pill/run-pill for code nodes, the →
- *  port, and 6px gaps between items. */
+ *  NodeCard header: padding 19, kind tab (12px icon + ≈6px/char label + 12
+ *  chip padding), name chip (11.5px mono ≈7px/char + 10 chip padding), then
+ *  the right cluster × – (⚙ mode-pill run-pill for code) →, 6px gaps. */
 export function minNodeWidth(n: GraphNode): number {
   const isCode = n.lang !== "canvas" && n.lang !== "ui";
-  const title = Math.ceil(n.name.length * 7.6);
-  // padding + × – + title + → + gaps(4 items→3 gaps... measured generously)
-  if (!isCode) return 82 + title + (n.lang === "canvas" ? 12 : 0);
-  // + lang chip (24), sliders (13), mode pill ("manual ▾" + padding ≈ 62),
-  //   run pill (23), 3 more gaps
-  return 222 + title;
+  const kind = n.lang === "canvas" ? "canvas" : n.lang === "ui" ? (n.kind ?? "source") : n.lang;
+  const tab = 30 + Math.ceil(kind.length * 6);
+  const title = Math.ceil(n.name.length * 7) + 10;
+  // padding + tab + title + × – + → + gaps (measured generously)
+  if (!isCode) return 100 + tab + title;
+  // + sliders (13), mode pill ("manual ▾" + padding ≈ 62), run pill (23), 3 more gaps
+  return 216 + tab + title;
 }
 
 /** The node's board-space rectangle: doc width, height from measured › doc › estimate. */

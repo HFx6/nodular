@@ -6,10 +6,18 @@ import {
 } from "react";
 import {
   IconAdjustmentsHorizontal,
+  IconAlignLeft,
   IconArrowDownRight,
+  IconBrush,
   IconChevronDown,
+  IconCode,
+  IconDatabase,
+  IconDownload,
+  IconFile,
   IconMinus,
+  IconPhoto,
   IconPlayerPlay,
+  IconTable,
   IconX,
 } from "@tabler/icons-react";
 import { C, HEAD, ROW } from "../theme";
@@ -30,6 +38,25 @@ import { NodeSettings } from "./NodeSettings";
 // header icons are tabler at 13px with thin strokes, in currentColor so the
 // .ctrl class's dim→ink hover swap applies
 const icon = { size: 13, stroke: 1.5 } as const;
+
+// black kind tab (Observable): family icon + kind label, front of the header
+const kindIcon = { size: 12, stroke: 1.5 } as const;
+const KIND_ICONS: Record<string, typeof IconCode> = {
+  canvas: IconBrush,
+  table: IconTable,
+  image: IconPhoto,
+  import: IconDownload,
+  text: IconAlignLeft,
+  state: IconDatabase,
+  source: IconFile,
+};
+
+/** kind label shown in the tab: the lang for code nodes, the ui kind otherwise */
+function kindOf(n: GraphNode): string {
+  if (n.lang === "canvas") return "canvas";
+  if (n.lang === "ui") return n.kind ?? "source";
+  return n.lang;
+}
 
 interface NodeCardProps {
   node: GraphNode;
@@ -107,8 +134,33 @@ function NodeCardImpl({
           onHeaderPointerDown(e, n.id);
         }}
       >
+        {/* black kind tab first (Observable), then the mono name chip */}
+        {(() => {
+          const kind = kindOf(n);
+          const KIcon = KIND_ICONS[kind] ?? IconCode;
+          return (
+            <span className="node-kindtab">
+              <KIcon {...kindIcon} />
+              {kind}
+            </span>
+          );
+        })()}
+        {/* the title never shrinks or ellipsizes — minNodeWidth clamps resizes
+            so the header always has room for every item at full length */}
         <span
-          className="ctrl"
+          className="node-title"
+          title={isCode ? "double-click to open the editor" : undefined}
+        >
+          {n.name ? (
+            <span className="node-name">{n.name}</span>
+          ) : (
+            <span className="node-name empty">name</span>
+          )}
+        </span>
+        {/* control cluster pushed right: × · – · ⚙ · auto-pill · ▷-pill, then
+            the port (must stay last, on the edge, for wire anchoring) */}
+        <span
+          className="ctrl push"
           title="delete node"
           onClick={(e) => {
             e.stopPropagation();
@@ -127,23 +179,9 @@ function NodeCardImpl({
         >
           <IconMinus {...icon} />
         </span>
-        {/* the title never shrinks or ellipsizes — minNodeWidth clamps resizes
-            so the header always has room for every item at full length */}
-        <span
-          className="node-title"
-          title={isCode ? "double-click to open the editor" : undefined}
-        >
-          {n.name ? (
-            <span className="node-name">{n.name}</span>
-          ) : (
-            <span className="node-name empty">name</span>
-          )}
-          {isCode && <span className="node-langchip">{n.lang}</span>}
-        </span>
-        {/* control cluster pushed right: ⚙ · auto-pill · ▷-pill, then the port */}
         {hasSettings && (
           <span
-            className="ctrl push"
+            className="ctrl"
             title="node settings"
             onClick={(e) => {
               e.stopPropagation();
@@ -184,7 +222,7 @@ function NodeCardImpl({
         )}
         {n.lang !== "canvas" && (
           <span
-            className={`ctrl node-port${isCode ? " port-code" : ""}${res?.v != null || n.lang === "ui" ? " port-live" : ""}`}
+            className={`ctrl node-port${res?.v != null || n.lang === "ui" ? " port-live" : ""}`}
             title="this node's value"
             onPointerDown={(e) => {
               if (e.button !== 0) return;

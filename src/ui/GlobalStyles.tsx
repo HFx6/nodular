@@ -1,4 +1,15 @@
-import { C, GRID, HEAD, MONO, RADIUS, ROW, SANS } from "../theme";
+import {
+  C,
+  EASE,
+  GRID,
+  HEAD,
+  MONO,
+  RADIUS,
+  ROW,
+  SANS,
+  SHADOW,
+  TRACK,
+} from "../theme";
 
 /** Emits every design token from theme.ts as a CSS custom property on :root.
  *  theme.ts stays the single source of truth (geometry/canvas code needs the
@@ -11,8 +22,9 @@ export function GlobalStyles() {
         ${Object.entries(C)
           .map(([k, v]) => `--${k}:${v};`)
           .join(" ")}
-        --mono:${MONO}; --sans:${SANS};
+        --mono:${MONO}; --sans:${SANS}; --track:${TRACK};
         --radius:${RADIUS}px; --row:${ROW}px; --head:${HEAD}px; --grid:${GRID}px;
+        --shadow-card:${SHADOW.card}; --shadow-pop:${SHADOW.pop}; --ease:${EASE};
       }
     `}</style>
   );

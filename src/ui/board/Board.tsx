@@ -438,25 +438,31 @@ export function Board({
   const onBackground = (e: { target: EventTarget | null }) =>
     e.target === boardRef.current || e.target === boardRef.current?.firstChild;
 
-  // dot grid with level-of-detail (#3): zooming out from k=1 immediately starts
-  // fading the fine layer (every GRID) out and a coarse layer (every 4×GRID,
-  // same color — never darker than the normal grid) in, completing by k≈0.65 —
-  // the grid re-forms at a legible period instead of aliasing into noise.
-  // ZOOM_MIN = ZOOM_MAX/4, so the coarse grid at full zoom-out is exactly the
-  // on-screen size of the fine grid at full zoom-in. At k≥1 only the fine
-  // layer shows, exactly today's look. Both are just extra entries in the
-  // background shorthand — no extra DOM.
+  // ruled line grid (Observable) with level-of-detail (#3): zooming out from
+  // k=1 immediately starts fading the fine layer (every GRID) out and a coarse
+  // layer (every 4×GRID, same color — never darker than the normal grid) in,
+  // completing by k≈0.65 — the grid re-forms at a legible period instead of
+  // aliasing into noise. ZOOM_MIN = ZOOM_MAX/4, so the coarse grid at full
+  // zoom-out is exactly the on-screen size of the fine grid at full zoom-in.
+  // At k≥1 only the fine layer shows. Each LOD level is a horizontal + a
+  // vertical 1px linear-gradient — 4 background layers, no extra DOM.
   const fineA = Math.min(1, Math.max(0, (view.k - 0.65) / 0.35));
   const fineTile = GRID * view.k,
     coarseTile = fineTile * 4;
-  // both layers are C.dot #d7d7d3 → rgb(215,215,211), crossfaded by alpha
+  // all layers are C.dot #e0e0df → rgb(224,224,223), crossfaded by alpha
+  const line = (a: number, dir: "to right" | "to bottom") =>
+    `linear-gradient(${dir}, rgba(224,224,223,${a}) 1px, transparent 1px)`;
   const gridLayers = {
-    backgroundImage: `radial-gradient(rgba(215,215,211,${1 - fineA}) 1px, transparent 1px),
-       radial-gradient(rgba(215,215,211,${fineA}) 1px, transparent 1px)`,
-    backgroundSize: `${coarseTile}px ${coarseTile}px, ${fineTile}px ${fineTile}px`,
-    // the gradient dot sits at tile centre; offset half a tile so dots land
-    // exactly on grid multiples, where nodes snap
-    backgroundPosition: `${view.x - coarseTile / 2}px ${view.y - coarseTile / 2}px, ${view.x - fineTile / 2}px ${view.y - fineTile / 2}px`,
+    backgroundImage: [
+      line(1 - fineA, "to right"),
+      line(1 - fineA, "to bottom"),
+      line(fineA, "to right"),
+      line(fineA, "to bottom"),
+    ].join(","),
+    backgroundSize: `${coarseTile}px ${coarseTile}px, ${coarseTile}px ${coarseTile}px, ${fineTile}px ${fineTile}px, ${fineTile}px ${fineTile}px`,
+    // the 1px line sits at tile start, so lines land exactly on grid
+    // multiples (where nodes snap) with no half-tile offset
+    backgroundPosition: `${view.x}px ${view.y}px, ${view.x}px ${view.y}px, ${view.x}px ${view.y}px, ${view.x}px ${view.y}px`,
   };
 
   const focusEdge = focus ? (edges.find((e) => e.id === focus) ?? null) : null;

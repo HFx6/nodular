@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# SF Pro is user-supplied and not redistributable (Apple license)
+public/fonts/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
