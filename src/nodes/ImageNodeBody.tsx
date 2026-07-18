@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { C, MONO } from "../theme";
 import { useNodeInputs } from "../engine/core/resultsStore";
 import type { GraphNode } from "../types";
 
@@ -12,13 +11,12 @@ export function ImageNodeBody({ node: n }: { node: GraphNode }) {
 
   if (!src || broken) {
     return (
-      <div style={{ padding: "8px 10px", fontFamily: MONO, fontSize: 10.5, color: broken ? C.bad : C.faint }}>
+      <div className={`bihint${broken ? " bad" : ""}`}>
         {broken ? "couldn't load image" : "url · waiting for an image url"}
       </div>
     );
   }
   return (
-    <img src={src} alt="" draggable={false} onError={() => setBroken(true)}
-      style={{ display: "block", width: "100%", borderRadius: "0 0 4px 4px", pointerEvents: "none" }} />
+    <img className="img-fit" src={src} alt="" draggable={false} onError={() => setBroken(true)} />
   );
 }

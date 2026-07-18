@@ -1,6 +1,6 @@
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useRef } from "react";
-import { C, HEAD, MONO, RADIUS } from "../theme";
+import { HEAD } from "../theme";
 import { CodeMirrorEditor } from "../editor/CodeMirrorEditor";
 import { useNodeValue } from "../engine/core/resultsStore";
 import { useGraphStore } from "../graph/store";
@@ -73,16 +73,13 @@ export function CodeNodeBody({ node: n, result: res, actions }: CodeNodeBodyProp
   };
 
   return (
-    <div ref={colRef} style={{ display: "flex", flexDirection: "column", minHeight: 0,
-      ...(total !== undefined ? { height: total } : {}) }}>
+    <div ref={colRef} className="code-col" style={total !== undefined ? { height: total } : undefined}>
 
       {/* editor region — with a face it collapses to its padding bar at split 0;
           without one it takes whatever the footer doesn't need */}
-      <div onPointerDown={(e: ReactPointerEvent) => { if (e.button !== 0) return; e.stopPropagation(); actions.onSelect(n.id); }}
-        style={{ position: "relative", boxSizing: "border-box", overflow: "hidden",
-          padding: "10px 12px", fontFamily: MONO, fontSize: 12.5, lineHeight: "19px", color: C.ink, cursor: "text",
-          ...(editorRegionH !== undefined ? { height: editorRegionH, flex: "none" }
-            : total !== undefined ? { flex: 1, minHeight: 0 } : {}) }}>
+      <div className="code-edit" onPointerDown={(e: ReactPointerEvent) => { if (e.button !== 0) return; e.stopPropagation(); actions.onSelect(n.id); }}
+        style={editorRegionH !== undefined ? { height: editorRegionH, flex: "none" }
+          : total !== undefined ? { flex: 1, minHeight: 0 } : undefined}>
         <CodeMirrorEditor code={n.code ?? ""} lang={n.lang} variant="pane"
           height={editorRegionH !== undefined ? Math.max(0, editorRegionH - PAD_V)
             : total !== undefined ? "fill" : undefined}
@@ -90,35 +87,26 @@ export function CodeNodeBody({ node: n, result: res, actions }: CodeNodeBodyProp
       </div>
 
       {face && (<>
-        <div onPointerDown={dividerDown} onPointerMove={dividerMove}
+        <div className="code-div" onPointerDown={dividerDown} onPointerMove={dividerMove}
           onPointerUp={(e: ReactPointerEvent) => e.stopPropagation()}
-          title="drag to resize the value area"
-          style={{ height: DIVIDER, flex: "none", cursor: "row-resize", display: "flex", alignItems: "center",
-            touchAction: "none" }}>
-          <div style={{ height: 1, width: "100%", background: C.edge }} />
+          title="drag to resize the value area">
+          <div className="code-divline" />
         </div>
         {/* value face — a first-class region; collapses at split 1 */}
-        <div style={{ boxSizing: "border-box", minHeight: 0, overflow: "auto", background: "#fcfcfa",
-          borderRadius: `0 0 ${RADIUS}px ${RADIUS}px`,
-          ...(valueRegionH !== undefined ? { height: valueRegionH, flex: "none" } : { maxHeight: 216 }) }}>
+        <div className="code-face"
+          style={valueRegionH !== undefined ? { height: valueRegionH, flex: "none" } : { maxHeight: 216 }}>
           <ValueFace value={rawValue} mode={face} maxHeight={valueRegionH ?? 216} />
         </div>
       </>)}
 
       {showFooter && (
-        <div style={{ flex: "none", borderTop: `1px solid ${C.edge}`, background: "#fcfcfa",
-          borderRadius: `0 0 ${RADIUS}px ${RADIUS}px`, maxHeight: 120, overflow: "auto" }}>
+        <div className="code-foot">
           {isError ? (
-            <div onPointerDown={(e: ReactPointerEvent) => e.stopPropagation()}
-              style={{ padding: "7px 12px", fontFamily: MONO, fontSize: 11, color: C.bad,
-                whiteSpace: "pre-wrap", overflowWrap: "anywhere", userSelect: "text" }}>{res?.why}</div>
+            <div className="code-err" onPointerDown={(e: ReactPointerEvent) => e.stopPropagation()}>{res?.why}</div>
           ) : (
-            <div onPointerDown={(e: ReactPointerEvent) => e.stopPropagation()}
-              style={{ padding: "7px 12px", fontFamily: MONO, fontSize: 11.5, color: C.ink,
-                display: "flex", gap: 8, alignItems: "baseline", userSelect: "text" }}>
-              <span style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", flex: 1, minWidth: 0 }}>{res?.v}</span>
-              <span style={{ fontSize: 9.5, color: C.dim, flex: "none", background: C.bg, borderRadius: 3,
-                padding: "1px 4px" }}>{res?.k}</span>
+            <div className="code-prev" onPointerDown={(e: ReactPointerEvent) => e.stopPropagation()}>
+              <span className="code-prev-v">{res?.v}</span>
+              <span className="kindchip">{res?.k}</span>
             </div>
           )}
         </div>

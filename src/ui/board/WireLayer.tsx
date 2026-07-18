@@ -1,6 +1,6 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { useStore } from "zustand";
-import { C, MONO } from "../../theme";
+import { C } from "../../theme";
 import { portPos, wireGeometry } from "../../graph/geometry";
 import { routeWire } from "../../graph/routing";
 import { preview, resultsStore } from "../../engine/core/resultsStore";
@@ -59,20 +59,17 @@ const Wire = memo(function Wire({ e, d, broken, hot, dimmed, onHot, onHotEnd }: 
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(leaveTimer.current), []);
   return (
-    <g style={{ pointerEvents: "auto", opacity: dimmed ? 0.18 : 1, transition: "opacity .25s ease" }}>
-      <path d={d} stroke="transparent" strokeWidth="24" fill="none" strokeLinecap="round" style={{ cursor: "pointer" }}
+    <g className={dimmed ? "wire-g dimmed" : "wire-g"}>
+      <path className="wire-hit" d={d} stroke="transparent" strokeWidth="24" fill="none" strokeLinecap="round"
         onMouseEnter={() => { clearTimeout(leaveTimer.current); onHot(e.id); }}
         onMouseLeave={() => { leaveTimer.current = setTimeout(() => onHotEnd(e.id), 100); }}
         onClick={(ev) => ev.stopPropagation()} />
-      <path d={d} fill="none"
+      <path className="wire-path" d={d} fill="none"
         stroke={broken ? C.bad : fresh ? C.run : hot ? C.wireHot : C.wire}
         strokeWidth={hot ? 1.6 : fresh ? 1.5 : 1.2}
         strokeDasharray={broken ? "3 4" : e.stream ? "1 7" : "none"}
         strokeLinecap="round"
-        style={{
-          transition: "stroke .35s ease, stroke-width .35s ease",
-          ...(e.stream && !broken ? { animation: "drift 1.1s linear infinite" } : {}),
-        }} />
+        style={e.stream && !broken ? { animation: "drift 1.1s linear infinite" } : undefined} />
     </g>
   );
 });
@@ -108,7 +105,7 @@ export function WireLayer({ nodes, edges, hot, focus, onHot, onHotEnd, arm }: Wi
     ? `M ${src.x} ${src.y} C ${src.x + Math.max(38, Math.abs(arm.drag.x - src.x) * 0.42)} ${src.y}, ${arm.drag.x - 38} ${arm.drag.y}, ${arm.drag.x} ${arm.drag.y}`
     : null;
   return (
-    <svg width="1" height="1" style={{ position: "absolute", left: 0, top: 0, overflow: "visible", pointerEvents: "none" }}>
+    <svg className="wire-svg" width="1" height="1">
       {pendingD && (
         <path d={pendingD} fill="none" stroke={C.sel} strokeWidth={1.4} strokeDasharray="4 4" strokeLinecap="round" />
       )}
@@ -130,18 +127,16 @@ export function WireLayer({ nodes, edges, hot, focus, onHot, onHotEnd, arm }: Wi
  *  transform as WireLayer; fully pointer-transparent. */
 export function WireLabels({ nodes, edges, hot }: { nodes: NodeMap; edges: Edge[]; hot: string | null }) {
   return (
-    <svg width="1" height="1" style={{ position: "absolute", left: 0, top: 0, overflow: "visible", pointerEvents: "none" }}>
+    <svg className="wire-svg" width="1" height="1">
       {edges.map((e) => {
         const g = wireGeometry(e, nodes, edges);
         if (!g) return null;
         const mx = (g.a.x + g.b.x) / 2, my = (g.a.y + g.b.y) / 2;
         if (hot === e.id || g.broken) {
           return (
-            <foreignObject key={e.id} x={mx - 80} y={my - 24} width="160" height="40" style={{ overflow: "visible", pointerEvents: "none" }}>
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <span style={{ fontFamily: MONO, fontSize: 10, padding: "2px 7px", borderRadius: 3, whiteSpace: "nowrap",
-                  background: g.broken ? C.badSoft : C.ink, color: g.broken ? C.bad : "#f2f1ec",
-                  border: g.broken ? `1px solid ${C.bad}` : "none" }}>
+            <foreignObject key={e.id} className="wire-fo" x={mx - 80} y={my - 24} width="160" height="40">
+              <div className="wire-badge-row">
+                <span className={`wire-badge${g.broken ? " broken" : ""}`}>
                   {g.broken ? `missing export "${e.from[1]}"` : liveSample(e)}
                 </span>
               </div>
@@ -150,8 +145,8 @@ export function WireLabels({ nodes, edges, hot }: { nodes: NodeMap; edges: Edge[
         }
         if (e.xlang) {
           return (
-            <foreignObject key={e.id} x={mx - 24} y={my - 9} width="48" height="18" style={{ overflow: "visible", pointerEvents: "none" }}>
-              <span style={{ fontFamily: MONO, fontSize: 9, padding: "1px 5px", borderRadius: 8, background: C.pane, border: `1px solid ${C.edge}`, color: C.dim }}>{e.xlang}</span>
+            <foreignObject key={e.id} className="wire-fo" x={mx - 24} y={my - 9} width="48" height="18">
+              <span className="wire-xlang">{e.xlang}</span>
             </foreignObject>
           );
         }

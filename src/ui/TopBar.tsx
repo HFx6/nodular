@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { IconChevronDown, IconPlus } from "@tabler/icons-react";
-import { C, MONO } from "../theme";
+import { IconChevronDown, IconFocusCentered, IconPlus } from "@tabler/icons-react";
 import { SPAWN_KINDS, type SpawnKind } from "../graph/spawn";
 import { Menu, type MenuActions } from "./Menu";
 
 interface TopBarProps {
   zoom: number;
   onAdd: (kind: SpawnKind) => void;
+  onCenter: () => void;
   menu: MenuActions;
 }
 
@@ -29,16 +29,15 @@ function AddButton({ onAdd }: { onAdd: (kind: SpawnKind) => void }) {
   }, [open]);
 
   return (
-    <div ref={root} style={{ position: "relative", marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
-      <span className="ctrl" title="add an eval node" onClick={() => onAdd("eval")}
-        style={{ display: "flex", alignItems: "center", gap: 3, fontFamily: MONO, fontSize: 11.5 }}>
+    <div ref={root} className="top-add">
+      <span className="ctrl frow top-eval" title="add an eval node" onClick={() => onAdd("eval")}>
         <IconPlus size={13} stroke={1.75} />eval
       </span>
-      <span className="ctrl" title="node palette" onClick={() => setOpen((o) => !o)} style={{ display: "flex" }}>
+      <span className="ctrl frow" title="node palette" onClick={() => setOpen((o) => !o)}>
         <IconChevronDown size={13} stroke={1.75} />
       </span>
       {open && (
-        <div className="popover" style={{ top: "calc(100% + 9px)", right: -8, minWidth: 150, padding: "5px 0" }}>
+        <div className="popover top-pop">
           {SPAWN_KINDS.map(({ kind, label }) => (
             <div key={kind} className="popitem" onClick={() => { setOpen(false); onAdd(kind); }}>{label}</div>
           ))}
@@ -49,14 +48,17 @@ function AddButton({ onAdd }: { onAdd: (kind: SpawnKind) => void }) {
 }
 
 /** Top bar — only things that do things. */
-export function TopBar({ zoom, onAdd, menu }: TopBarProps) {
+export function TopBar({ zoom, onAdd, onCenter, menu }: TopBarProps) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "7px 14px", borderBottom: `1px solid ${C.edge}`, background: C.pane }}>
+    <div className="topbar">
       <Menu {...menu} />
-      <span style={{ fontFamily: MONO, fontSize: 13, fontWeight: 600 }}>nodular</span>
-      <span style={{ fontFamily: MONO, fontSize: 11.5, color: C.dim }}>walkers.nodular</span>
+      <span className="top-brand">nodular</span>
+      <span className="top-doc">walkers.nodular</span>
       <AddButton onAdd={onAdd} />
-      <span style={{ fontFamily: MONO, fontSize: 10.5, color: C.faint }}>{Math.round(zoom * 100)}%</span>
+      <span className="ctrl frow" title="center graph" onClick={onCenter}>
+        <IconFocusCentered size={13} stroke={1.75} />
+      </span>
+      <span className="top-zoom">{Math.round(zoom * 100)}%</span>
     </div>
   );
 }

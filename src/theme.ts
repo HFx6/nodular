@@ -28,4 +28,10 @@ export const C = {
   // extended syntax tags (#8) — same muted paper band as kw/str/num
   cmt: "#a3a29a", fn: "#8a6d3b", prop: "#59788e", typ: "#3d7a76",
   dark: "#242331", darkInk: "#c9c8d6",
+  /** code-pane / value-face background: a hair brighter than pane */
+  paneSoft: "#fcfcfa",
+  /** light text on dark ink chips (board note, wire sample badge) */
+  inkInv: "#f2f1ec",
+  /** hint text over the dark canvas surface */
+  canvasHint: "#5b5877",
 } as const;

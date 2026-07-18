@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { C, MONO } from "../theme";
 import { useNodeInputs } from "../engine/core/resultsStore";
 import type { GraphNode } from "../types";
 
@@ -92,16 +91,13 @@ export function CanvasNodeBody({ node: n }: { node: GraphNode }) {
   const stop = (e: ReactPointerEvent) => { if (e.button === 0) e.stopPropagation(); };
 
   return (
-    <div style={{ position: "relative", borderRadius: "0 0 4px 4px", overflow: "hidden" }} onPointerDown={stop}>
-      <canvas ref={ref} onPointerMove={onMove} onPointerLeave={() => (cursor.current = null)}
-        style={{ display: "block", width: "100%", height: "auto",
-          aspectRatio: native ? `${nativeW} / ${nativeH}` : String(n.aspect ?? DEFAULT_ASPECT),
+    <div className="canvas-wrap" onPointerDown={stop}>
+      <canvas className="canvas-surf" ref={ref} onPointerMove={onMove} onPointerLeave={() => (cursor.current = null)}
+        style={{ aspectRatio: native ? `${nativeW} / ${nativeH}` : String(n.aspect ?? DEFAULT_ASPECT),
           // fixed-resolution surfaces are upscaled by CSS — keep their pixels crisp
-          imageRendering: native ? "pixelated" : "auto",
-          cursor: "crosshair", background: C.dark }} />
+          imageRendering: native ? "pixelated" : "auto" }} />
       {(!fn || err) && (
-        <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", padding: 8,
-          fontFamily: MONO, fontSize: 10.5, color: err ? C.bad : "#5b5877", pointerEvents: "none", textAlign: "center" }}>
+        <div className={`canvas-hint${err ? " bad" : ""}`}>
           {err ? `render error — ${err}` : "no renderer connected"}
         </div>
       )}

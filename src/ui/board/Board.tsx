@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type Dispatch, type PointerEvent as ReactPointerEvent, type RefObject, type SetStateAction } from "react";
-import { C, GRID, MONO, ZOOM_MAX, ZOOM_MIN } from "../../theme";
+import { GRID, ZOOM_MAX, ZOOM_MIN } from "../../theme";
 import { NodeCard } from "../../nodes/NodeCard";
 import type { NodeActions } from "../../graph/useGraph";
 import { pauseHistory, resumeHistory, useGraphStore } from "../../graph/store";
@@ -365,10 +365,10 @@ export function Board({ boardRef, nodes, edges, sel, arm, note, view, setView, a
         e.preventDefault();
         void importFile(f).then((ok) => notify(ok ? `imported ${f.name}` : `couldn't read ${f.name}`));
       }}
-      style={{ position: "relative", flex: 1, overflow: "hidden", cursor: placing ? "copy" : arm ? "crosshair" : "default",
-        ...gridLayers }}>
+      className="board"
+      style={{ cursor: placing ? "copy" : arm ? "crosshair" : "default", ...gridLayers }}>
 
-      <div style={{ position: "absolute", left: 0, top: 0, transform: `translate(${view.x}px, ${view.y}px) scale(${view.k})`, transformOrigin: "0 0" }}>
+      <div className="board-space" style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.k})` }}>
         <WireLayer nodes={nodes} edges={edges} hot={hot} focus={focus} onHot={onHot} onHotEnd={onHotEnd} arm={arm} />
         {Object.values(nodes).map((n) => (
           <NodeCard key={n.id} node={n} edges={edges} selected={sel.includes(n.id)} arm={arm} actions={actions}
@@ -379,25 +379,21 @@ export function Board({ boardRef, nodes, edges, sel, arm, note, view, setView, a
         {/* wire badges paint above the cards so a node can't hide them (#3) */}
         <WireLabels nodes={nodes} edges={edges} hot={hot} />
         {ghostNode && (
-          <div style={{ position: "absolute", left: ghostNode.x, top: ghostNode.y, width: ghostNode.w,
-            border: `1.5px dashed ${C.sel}`, borderRadius: 4, background: "rgba(255,255,255,.55)",
-            pointerEvents: "none", opacity: 0.9 }}>
-            <div style={{ height: 30, display: "flex", alignItems: "center", padding: "0 10px",
-              borderBottom: `1px dashed ${C.sel}`, fontFamily: MONO, fontSize: 12.5, fontWeight: 600, color: C.sel }}>
+          <div className="ghost" style={{ left: ghostNode.x, top: ghostNode.y, width: ghostNode.w }}>
+            <div className="ghost-head">
               {ghostNode.name}
             </div>
-            <div style={{ height: 46 }} />
+            <div className="ghost-body" />
           </div>
         )}
         {marquee && (
-          <div style={{ position: "absolute", left: marquee.x, top: marquee.y, width: marquee.w, height: marquee.h,
-            border: `1px solid ${C.sel}`, background: C.selSoft, pointerEvents: "none" }} />
+          <div className="marquee" style={{ left: marquee.x, top: marquee.y, width: marquee.w, height: marquee.h }} />
         )}
       </div>
 
       
       {note && (
-        <div style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", fontFamily: MONO, fontSize: 11, background: C.ink, color: "#f2f1ec", padding: "5px 12px", borderRadius: 4, zIndex: 5 }}>{note}</div>
+        <div className="toast">{note}</div>
       )}
     </div>
   );

@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
    Composition root only. State/behaviour live in hooks; rendering in ui/ and
    nodes/. See files/PROJECT.md and files/ENGINE.md for the target architecture. */
 
-import { C, SANS, ZOOM_MAX, ZOOM_MIN } from "./theme";
+import { ZOOM_MAX, ZOOM_MIN } from "./theme";
 import type { View } from "./types";
 import { useToast } from "./hooks/useToast";
 import { useGraph } from "./graph/useGraph";
@@ -88,6 +88,16 @@ export default function App() {
     tweenView({ k, x: r.width / 2 - ((minX + maxX) / 2) * k, y: r.height / 2 - ((minY + maxY) / 2) * k });
   };
 
+  // frame the graph on first mount — the saved doc hydrates before render, but
+  // card heights are content-driven and only exist once the cards have measured
+  const didInitialFit = useRef(false);
+  useEffect(() => {
+    if (didInitialFit.current) return;
+    didInitialFit.current = true;
+    void whenMeasured(Object.keys(useGraphStore.getState().nodes)).then(fitView);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // opening the rail narrows the board — pan so the edited node lands in the
   // centre of the board area that will remain visible (#6)
   const centerNode = (id: string) => {
@@ -145,10 +155,10 @@ export default function App() {
   };
 
   return (
-    <div style={{ fontFamily: SANS, width: "100%", height: "100dvh", minHeight: 480, display: "flex", flexDirection: "column", background: C.bg, color: C.ink, userSelect: "none", overflow: "hidden" }}>
+    <div className="app">
       <GlobalStyles />
-      <TopBar zoom={view.k} onAdd={onAdd} menu={menu} />
-      <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
+      <TopBar zoom={view.k} onAdd={onAdd} onCenter={fitView} menu={menu} />
+      <div className="app-main">
         <Board boardRef={boardRef} nodes={nodes} edges={edges} sel={sel} arm={arm} note={note}
           view={view} setView={setView} actions={actions} notify={say}
           placing={placing} onPlace={onPlace} onCancelPlace={() => setPlacing(null)}

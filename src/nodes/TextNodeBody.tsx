@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { C, MONO } from "../theme";
 import { emitValue } from "../engine/core/engine";
 import { useGraphStore } from "../graph/store";
 import type { GraphNode } from "../types";
@@ -13,16 +12,13 @@ export function TextNodeBody({ node: n }: { node: GraphNode }) {
   }, [n.code, n.id]);
 
   return (
-    <div style={{ padding: 8 }}>
-      <textarea
+    <div className="text-pane">
+      <textarea className="text-ta"
         value={n.code ?? ""}
         placeholder="text…"
         spellCheck={false}
         onChange={(e) => useGraphStore.getState().updateCode(n.id, e.target.value)}
         onPointerDown={(e) => e.stopPropagation()}
-        style={{ fontFamily: MONO, fontSize: 11.5, lineHeight: 1.5, padding: "5px 7px", borderRadius: 4,
-          border: `1px solid ${C.edge}`, background: C.pane, color: C.ink, outline: "none", resize: "none",
-          width: "100%", minHeight: 64, boxSizing: "border-box", display: "block" }}
       />
     </div>
   );

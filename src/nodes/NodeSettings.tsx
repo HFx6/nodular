@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { C, MONO } from "../theme";
 import { useGraphStore } from "../graph/store";
 import type { GraphNode, RenderMode, ValueMode } from "../types";
 
@@ -42,8 +41,7 @@ export function NodeSettings({ node: n, onClose }: { node: GraphNode; onClose: (
   const renderMode = n.renderMode ?? "default";
 
   return (
-    <div ref={root} className="popover" onPointerDown={(e) => e.stopPropagation()}
-      style={{ top: 30, right: 6, width: 196, zIndex: 30, fontFamily: MONO, padding: "4px 0 6px" }}>
+    <div ref={root} className="popover nset" onPointerDown={(e) => e.stopPropagation()}>
       <Section title="editor value" />
       {VALUE_MODES.map(({ m, label, hint }) => (
         <Row key={m} label={label} hint={hint} on={valueMode === m}
@@ -60,7 +58,7 @@ export function NodeSettings({ node: n, onClose }: { node: GraphNode; onClose: (
 
 function Section({ title }: { title: string }) {
   return (
-    <div style={{ padding: "6px 10px 2px", fontSize: 9.5, color: C.faint, textTransform: "uppercase", letterSpacing: ".06em" }}>
+    <div className="nset-sect">
       {title}
     </div>
   );
@@ -68,12 +66,9 @@ function Section({ title }: { title: string }) {
 
 function Row({ label, hint, on, onPick }: { label: string; hint: string; on: boolean; onPick: () => void }) {
   return (
-    <div onClick={onPick}
-      style={{ padding: "4px 10px", cursor: "pointer", background: on ? C.selSoft : "transparent" }}
-      onMouseEnter={(e) => { if (!on) e.currentTarget.style.background = C.headBg; }}
-      onMouseLeave={(e) => { e.currentTarget.style.background = on ? C.selSoft : "transparent"; }}>
-      <div style={{ fontSize: 11, color: C.ink, fontWeight: on ? 600 : 400 }}>{label}</div>
-      <div style={{ fontSize: 9.5, color: C.dim }}>{hint}</div>
+    <div className={`nset-row${on ? " on" : ""}`} onClick={onPick}>
+      <div className="nset-lbl">{label}</div>
+      <div className="nset-hint">{hint}</div>
     </div>
   );
 }

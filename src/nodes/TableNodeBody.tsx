@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { C, MONO } from "../theme";
 import { useNodeInputs } from "../engine/core/resultsStore";
 import { emitValue } from "../engine/core/engine";
 import type { GraphNode } from "../types";
@@ -13,7 +12,7 @@ export function TableNodeBody({ node: n }: { node: GraphNode }) {
 
   if (!Array.isArray(rows) || rows.length === 0) {
     return (
-      <div style={{ padding: "8px 10px", fontFamily: MONO, fontSize: 10.5, color: C.faint }}>
+      <div className="bihint">
         rows · waiting for an array
       </div>
     );

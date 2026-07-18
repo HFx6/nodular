@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { C, MONO } from "../theme";
 import type { RenderMode } from "../types";
 import { ValueTable } from "./ValueTable";
 
@@ -35,7 +34,7 @@ export function ValueFace({ value, mode, maxHeight }: ValueFaceProps) {
 
   if (mode === "html") {
     return (
-      <div style={{ padding: "8px 12px", overflow: "auto", maxHeight, fontSize: 12, userSelect: "text" }}
+      <div className="face-html" style={{ maxHeight }}
         onPointerDown={(e) => e.stopPropagation()}
         dangerouslySetInnerHTML={{ __html: String(value) }} />
     );
@@ -43,8 +42,7 @@ export function ValueFace({ value, mode, maxHeight }: ValueFaceProps) {
 
   // text
   return (
-    <div style={{ padding: "8px 12px", overflow: "auto", maxHeight, fontFamily: MONO, fontSize: 11.5,
-      lineHeight: 1.5, color: C.ink, whiteSpace: "pre-wrap", userSelect: "text" }}
+    <div className="face-text" style={{ maxHeight }}
       onPointerDown={(e) => e.stopPropagation()}>
       {String(value)}
     </div>
@@ -52,5 +50,5 @@ export function ValueFace({ value, mode, maxHeight }: ValueFaceProps) {
 }
 
 function Empty({ msg }: { msg: string }) {
-  return <div style={{ padding: "8px 12px", fontFamily: MONO, fontSize: 10.5, color: C.faint }}>{msg}</div>;
+  return <div className="face-empty">{msg}</div>;
 }

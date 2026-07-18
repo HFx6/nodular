@@ -3,7 +3,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { IconMenu2 } from "@tabler/icons-react";
-import { C, MONO } from "../theme";
 import { EXAMPLES, type Example } from "../examples";
 
 export interface MenuActions {
@@ -33,7 +32,7 @@ function Item({ label, onPick }: { label: string; onPick: () => void }) {
 
 function Section({ title }: { title: string }) {
   return (
-    <div style={{ padding: "7px 12px 3px", fontFamily: MONO, fontSize: 9.5, color: C.faint, textTransform: "uppercase", letterSpacing: ".06em" }}>
+    <div className="menu-sect">
       {title}
     </div>
   );
@@ -58,12 +57,12 @@ export function Menu(actions: MenuActions) {
   const pick = (fn: () => void) => () => { setOpen(false); fn(); };
 
   return (
-    <div ref={root} style={{ position: "relative" }}>
-      <span className="ctrl" style={{ display: "flex" }} onClick={() => setOpen((o) => !o)}>
+    <div ref={root} className="rel">
+      <span className="ctrl frow" onClick={() => setOpen((o) => !o)}>
         <IconMenu2 size={15} stroke={1.75} />
       </span>
       {open && (
-        <div className="popover" style={{ top: "calc(100% + 9px)", left: -8, minWidth: 190, paddingBottom: 6 }}>
+        <div className="popover menu-pop">
           <Section title="file" />
           <Item label="reset canvas" onPick={pick(actions.onReset)} />
           <Item label="export .nodular" onPick={pick(actions.onExport)} />
@@ -78,15 +77,15 @@ export function Menu(actions: MenuActions) {
           <Item label="zoom 100%" onPick={pick(actions.onZoomReset)} />
           <Item label="toggle editor rail" onPick={pick(actions.onToggleRail)} />
           <Section title="shortcuts" />
-          <div style={{ padding: "2px 12px 4px" }}>
+          <div className="menu-keys">
             {SHORTCUTS.map(([k, what]) => (
-              <div key={k} style={{ display: "flex", justifyContent: "space-between", gap: 12, fontFamily: MONO, fontSize: 10, lineHeight: 1.9 }}>
-                <span style={{ color: C.dim }}>{k}</span>
-                <span style={{ color: C.faint }}>{what}</span>
+              <div key={k} className="menu-key">
+                <span className="dim">{k}</span>
+                <span className="faint">{what}</span>
               </div>
             ))}
           </div>
-          <input ref={fileInput} type="file" accept=".nodular,application/json" style={{ display: "none" }}
+          <input ref={fileInput} type="file" accept=".nodular,application/json" hidden
             onChange={(e) => {
               const f = e.target.files?.[0];
               e.target.value = "";

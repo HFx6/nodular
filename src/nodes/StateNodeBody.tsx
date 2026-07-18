@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { C, MONO } from "../theme";
 import { emitValue } from "../engine/core/engine";
 import { PORTS } from "../engine/core/types";
 import { preview } from "../engine/core/resultsStore";
@@ -53,22 +52,20 @@ export function StateNodeBody({ node: n }: { node: GraphNode }) {
 
   const p = preview(cur.current);
   return (
-    <div style={{ padding: "8px 10px", fontFamily: MONO, fontSize: 11, display: "grid", gap: 6 }}>
-      <input
+    <div className="bipane">
+      <input className="biput"
         value={n.code ?? ""}
         placeholder="initial value (js expression)"
         spellCheck={false}
         onChange={(e) => useGraphStore.getState().updateCode(n.id, e.target.value)}
         onPointerDown={(e) => e.stopPropagation()}
-        style={{ fontFamily: MONO, fontSize: 11, padding: "4px 6px", borderRadius: 4,
-          border: `1px solid ${C.edge}`, background: C.pane, color: C.ink, outline: "none", width: "100%", boxSizing: "border-box" }}
       />
-      <div style={{ display: "flex", alignItems: "baseline", gap: 6, minWidth: 0 }}>
+      <div className="birow">
         {err
-          ? <span style={{ fontSize: 10, color: C.bad, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{err}</span>
+          ? <span className="bierr trunc">{err}</span>
           : <>
-              <span style={{ fontSize: 9.5, color: C.faint }}>{p.k ?? "value"}</span>
-              <span style={{ fontSize: 10.5, color: p.v == null ? C.faint : C.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <span className="bikind">{p.k ?? "value"}</span>
+              <span className={`bival trunc${p.v == null ? " unset" : ""}`}>
                 {p.v ?? "unset"}
               </span>
             </>}

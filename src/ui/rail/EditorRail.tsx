@@ -1,6 +1,6 @@
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { IconChevronsLeft, IconChevronsRight } from "@tabler/icons-react";
-import { C, MONO } from "../../theme";
+import { C } from "../../theme";
 import { CodeMirrorEditor } from "../../editor/CodeMirrorEditor";
 import { formatCode } from "../../editor/format";
 import type { Edge, GraphNode, NodeMap } from "../../types";
@@ -33,9 +33,9 @@ function ResizeHandle({ onWidthChange }: { onWidthChange: (w: number) => void })
     onWidthChange(Math.min(max, Math.max(RAIL_MIN, Math.round(window.innerWidth - e.clientX))));
   };
   return (
-    <div onPointerDown={down} onPointerMove={move} onDoubleClick={() => onWidthChange(296)}
-      title="drag to resize · double-click to reset"
-      style={{ position: "absolute", left: -3, top: 0, bottom: 0, width: 7, cursor: "col-resize", zIndex: 5 }} />
+    <div className="rail-grip" onPointerDown={down} onPointerMove={move}
+      onDoubleClick={() => onWidthChange(296)}
+      title="drag to resize · double-click to reset" />
   );
 }
 
@@ -44,51 +44,46 @@ function ResizeHandle({ onWidthChange }: { onWidthChange: (w: number) => void })
 export function EditorRail({ open, onToggle, node: selNode, nodes, edges, sel, width, onWidthChange, onCodeChange }: EditorRailProps) {
   if (!open) {
     return (
-      <div onClick={() => onToggle(true)}
-        style={{ width: 24, borderLeft: `1px solid ${C.edge}`, background: C.pane, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 10, gap: 8 }}>
+      <div className="rail-tab" onClick={() => onToggle(true)}>
         <IconChevronsLeft size={13} stroke={1.5} color={C.dim} />
-        <span style={{ fontFamily: MONO, fontSize: 10, color: C.faint, writingMode: "vertical-rl" }}>editor</span>
+        <span className="lbl rail-vlbl">editor</span>
       </div>
     );
   }
-  const railStyle = {
-    position: "relative", width: `min(${width}px, 70vw)`, borderLeft: `1px solid ${C.edge}`,
-    background: C.pane, display: "flex", flexDirection: "column", minHeight: 0,
-  } as const;
   const inScope = edges.filter((e) => e.to[0] === sel);
   const isCode = selNode && selNode.lang !== "canvas" && selNode.lang !== "ui";
   if (!selNode) {
     return (
-      <div className="rail" style={railStyle}>
+      <div className="rail" style={{ width: `min(${width}px, 70vw)` }}>
         <ResizeHandle onWidthChange={onWidthChange} />
-        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderBottom: `1px solid ${C.edge}` }}>
-          <span style={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600, color: C.faint }}>editor</span>
-          <span className="ctrl" style={{ marginLeft: "auto", display: "flex" }} onClick={() => onToggle(false)}><IconChevronsRight size={13} stroke={1.5} /></span>
+        <div className="rail-head">
+          <span className="rail-title empty">editor</span>
+          <span className="ctrl frow push" onClick={() => onToggle(false)}><IconChevronsRight size={13} stroke={1.5} /></span>
         </div>
-        <div style={{ padding: 12, fontSize: 11.5, color: C.faint, fontStyle: "italic" }}>select a node</div>
+        <div className="rail-none">select a node</div>
       </div>
     );
   }
   return (
-    <div className="rail" style={railStyle}>
+    <div className="rail" style={{ width: `min(${width}px, 70vw)` }}>
       <ResizeHandle onWidthChange={onWidthChange} />
-      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderBottom: `1px solid ${C.edge}` }}>
-        <span style={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600 }}>{selNode?.name}</span>
-        <span style={{ fontFamily: MONO, fontSize: 10, color: C.faint }}>{selNode?.lang}</span>
-        <span style={{ marginLeft: "auto" }} />
+      <div className="rail-head">
+        <span className="rail-title">{selNode?.name}</span>
+        <span className="lbl">{selNode?.lang}</span>
+        <span className="push" />
         {isCode && selNode!.lang === "js" && (
-          <span className="ctrl" title="format with prettier" style={{ fontFamily: MONO, fontSize: 10 }}
+          <span className="ctrl lbl" title="format with prettier"
             onClick={() => void formatCode(selNode!.lang, selNode!.code ?? "").then((out) => {
               if (out != null && out !== selNode!.code) onCodeChange(selNode!.id, out);
             })}>fmt</span>
         )}
-        <span className="ctrl" style={{ display: "flex" }} onClick={() => onToggle(false)}><IconChevronsRight size={13} stroke={1.5} /></span>
+        <span className="ctrl frow" onClick={() => onToggle(false)}><IconChevronsRight size={13} stroke={1.5} /></span>
       </div>
       {isCode ? (
         <>
           <CodeMirrorEditor key={selNode!.id} code={selNode!.code ?? ""} lang={selNode!.lang} variant="rail"
             onChange={(code) => onCodeChange(selNode!.id, code)} />
-          <div style={{ borderTop: `1px dashed ${C.edge}`, padding: "7px 12px", fontSize: 10.5, color: C.dim, lineHeight: 1.6 }}>
+          <div className="rail-note hint">
             {selNode!.id === "count" && <>the last expression is this node's value — set n to 200 and watch the screen.</>}
             {selNode!.id === "parts" && <>delete the draw export and the screen loses its renderer; retype it and it's back.</>}
             {selNode!.id === "noise" && <>a module of defs — ƒ field crosses py→js as an async function.</>}
@@ -96,7 +91,7 @@ export function EditorRail({ open, onToggle, node: selNode, nodes, edges, sel, w
           </div>
         </>
       ) : (
-        <div style={{ padding: 12, fontSize: 12, color: C.dim, lineHeight: 1.65 }}>
+        <div className="rail-doc">
           {selNode?.lang === "canvas"
             ? <>The screen is a pure sink — one input, and its body is the surface. Hover it: the pointer source node reads from it and the walkers follow.</>
             : selNode?.kind === "tick"
@@ -104,15 +99,15 @@ export function EditorRail({ open, onToggle, node: selNode, nodes, edges, sel, w
               : <>A source node emitting pointer events from the surface it's pointed at. Sinks sink, sources source.</>}
         </div>
       )}
-      <div style={{ borderTop: `1px solid ${C.edge}`, padding: "9px 12px" }}>
-        <div style={{ fontSize: 10, color: C.faint, marginBottom: 5 }}>in scope</div>
+      <div className="rail-scope">
+        <div className="rail-scope-h">in scope</div>
         {inScope.map((e) => (
-          <div key={e.id} style={{ display: "flex", gap: 7, alignItems: "baseline", marginBottom: 3 }}>
-            <span style={{ fontFamily: MONO, fontSize: 11 }}>{e.to[1]}</span>
-            <span style={{ fontSize: 10, color: C.faint }}>← {nodes[e.from[0]]?.name}</span>
+          <div key={e.id} className="rail-scope-row">
+            <span className="rail-scope-name">{e.to[1]}</span>
+            <span className="rail-scope-src">← {nodes[e.from[0]]?.name}</span>
           </div>
         ))}
-        {inScope.length === 0 && <div style={{ fontSize: 10.5, color: C.faint, fontStyle: "italic" }}>nothing wired in</div>}
+        {inScope.length === 0 && <div className="rail-scope-none">nothing wired in</div>}
       </div>
     </div>
   );
