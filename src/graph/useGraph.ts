@@ -21,7 +21,12 @@ export interface NodeActions {
 
 export function useGraph(notify: (m: string) => void) {
   const { nodes, edges, sel, arm } = useGraphStore(
-    useShallow((s) => ({ nodes: s.nodes, edges: s.edges, sel: s.sel, arm: s.arm })),
+    useShallow((s) => ({
+      nodes: s.nodes,
+      edges: s.edges,
+      sel: s.sel,
+      arm: s.arm,
+    })),
   );
 
   const actions = useMemo<NodeActions>(() => {
@@ -31,10 +36,15 @@ export function useGraph(notify: (m: string) => void) {
       onDelete: (id) => st().deleteNodes([id]),
       onToggleMin: (id) => st().toggleMin(id),
       onToggleMode: (id) => st().toggleManual(id),
-      onRunOnce: (id) => { runNode(id); notify(`ran ${st().nodes[id]?.name}`); },
+      onRunOnce: (id) => {
+        runNode(id);
+        notify(`ran ${st().nodes[id]?.name}`);
+      },
       onArmOut: (id, port) => {
         st().armOut(id, port);
-        notify(`connecting ${port === "→" ? id : port} — click a node's left edge`);
+        notify(
+          `connecting ${port === "→" ? id : port} — click a node's left edge`,
+        );
       },
       onDropIn: (id, port) => {
         const armed = st().arm;

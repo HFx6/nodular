@@ -19,21 +19,34 @@ export interface Example {
   load: () => Promise<GraphDoc>;
 }
 
-const META: Record<string, { name?: string; toast?: string; order?: number }> = {
-  walkers: { order: 0 },
-  "art-browser": { order: 1, toast: "loaded art browser — click a row" },
-  nanoid: { order: 2, name: "npm import (nanoid)", toast: "loaded npm import — a random nanoid" },
-  nes: { order: 3, name: "NES emulator", toast: "loaded NES — click canvas, arrows + z/x + enter/space" },
-};
+const META: Record<string, { name?: string; toast?: string; order?: number }> =
+  {
+    walkers: { order: 0 },
+    "art-browser": { order: 1, toast: "loaded art browser — click a row" },
+    nanoid: {
+      order: 2,
+      name: "npm import (nanoid)",
+      toast: "loaded npm import — a random nanoid",
+    },
+    nes: {
+      order: 3,
+      name: "NES emulator",
+      toast: "loaded NES — click canvas, arrows + z/x + enter/space",
+    },
+  };
 
-const dropIns = import.meta.glob<unknown>("./*.nodular.json", { import: "default" });
+const dropIns = import.meta.glob<unknown>("./*.nodular.json", {
+  import: "default",
+});
 
 export const EXAMPLES: Example[] = Object.entries(dropIns)
   .map(([path, load]) => {
     const id = path.replace(/^\.\//, "").replace(/\.nodular\.json$/, "");
     const name = META[id]?.name ?? id.replace(/[-_]/g, " ");
     return {
-      id, name, toast: META[id]?.toast ?? `loaded ${name}`,
+      id,
+      name,
+      toast: META[id]?.toast ?? `loaded ${name}`,
       load: async () => {
         const doc = parseDoc(await load());
         if (!doc) throw new Error(`${id}.nodular.json is not a valid doc`);

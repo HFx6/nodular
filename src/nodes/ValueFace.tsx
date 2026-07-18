@@ -18,15 +18,29 @@ export function ValueFace({ value, mode, maxHeight }: ValueFaceProps) {
   const [selIdx, setSelIdx] = useState(-1);
 
   if (mode === "table") {
-    const rec = value && typeof value === "object" && !Array.isArray(value)
-      ? (value as { data?: unknown; onRowClick?: (row: unknown) => void })
-      : undefined;
-    const rows = Array.isArray(value) ? value : Array.isArray(rec?.data) ? rec.data : null;
-    if (!rows || rows.length === 0) return <Empty msg="table · waiting for an array or { data }" />;
-    const onRowClick = typeof rec?.onRowClick === "function" ? rec.onRowClick : undefined;
+    const rec =
+      value && typeof value === "object" && !Array.isArray(value)
+        ? (value as { data?: unknown; onRowClick?: (row: unknown) => void })
+        : undefined;
+    const rows = Array.isArray(value)
+      ? value
+      : Array.isArray(rec?.data)
+        ? rec.data
+        : null;
+    if (!rows || rows.length === 0)
+      return <Empty msg="table · waiting for an array or { data }" />;
+    const onRowClick =
+      typeof rec?.onRowClick === "function" ? rec.onRowClick : undefined;
     return (
-      <ValueTable rows={rows} maxHeight={maxHeight} selIdx={selIdx}
-        onRowClick={(r, i) => { setSelIdx(i); onRowClick?.(r); }} />
+      <ValueTable
+        rows={rows}
+        maxHeight={maxHeight}
+        selIdx={selIdx}
+        onRowClick={(r, i) => {
+          setSelIdx(i);
+          onRowClick?.(r);
+        }}
+      />
     );
   }
 
@@ -34,16 +48,22 @@ export function ValueFace({ value, mode, maxHeight }: ValueFaceProps) {
 
   if (mode === "html") {
     return (
-      <div className="face-html" style={{ maxHeight }}
+      <div
+        className="face-html"
+        style={{ maxHeight }}
         onPointerDown={(e) => e.stopPropagation()}
-        dangerouslySetInnerHTML={{ __html: String(value) }} />
+        dangerouslySetInnerHTML={{ __html: String(value) }}
+      />
     );
   }
 
   // text
   return (
-    <div className="face-text" style={{ maxHeight }}
-      onPointerDown={(e) => e.stopPropagation()}>
+    <div
+      className="face-text"
+      style={{ maxHeight }}
+      onPointerDown={(e) => e.stopPropagation()}
+    >
       {String(value)}
     </div>
   );

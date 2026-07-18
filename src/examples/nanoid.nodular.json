@@ -24,14 +24,8 @@
   "edges": [
     {
       "id": "n1",
-      "from": [
-        "lib",
-        "→"
-      ],
-      "to": [
-        "id",
-        "nanoid"
-      ]
+      "from": ["lib", "→"],
+      "to": ["id", "nanoid"]
     }
   ]
 }

@@ -25,11 +25,19 @@ export interface LayoutOpts {
 const CHAR = 6.6;
 function outLabelWidth(n: GraphNode): number {
   if (n.min) return 0;
-  return Math.max(0, ...outsOf(n).map((o) => 7 + ((o.fn ? 2 : 0) + o.name.length + 2) * CHAR + 6));
+  return Math.max(
+    0,
+    ...outsOf(n).map(
+      (o) => 7 + ((o.fn ? 2 : 0) + o.name.length + 2) * CHAR + 6,
+    ),
+  );
 }
 function inLabelWidth(n: GraphNode, edges: Edge[]): number {
   if (n.min) return 0;
-  return Math.max(0, ...inputsOf(n, edges).map((name) => 7 + name.length * CHAR));
+  return Math.max(
+    0,
+    ...inputsOf(n, edges).map((name) => 7 + name.length * CHAR),
+  );
 }
 
 export function layeredLayout(
@@ -47,14 +55,20 @@ export function layeredLayout(
   const pos: Record<string, { x: number; y: number }> = {};
   if (ids.length === 0) return pos;
 
-  const height = (id: string) => sizes[id]?.h ?? nodes[id]!.h ?? estimateHeight(nodes[id]!, edges);
+  const height = (id: string) =>
+    sizes[id]?.h ?? nodes[id]!.h ?? estimateHeight(nodes[id]!, edges);
   const width = (id: string) => nodes[id]!.w;
 
   // directed edges (deduped, no self-loops), plus undirected adjacency for ordering
-  const dir = new Map<string, Set<string>>(ids.map((id) => [id, new Set<string>()]));
-  const undirected = new Map<string, Set<string>>(ids.map((id) => [id, new Set<string>()]));
+  const dir = new Map<string, Set<string>>(
+    ids.map((id) => [id, new Set<string>()]),
+  );
+  const undirected = new Map<string, Set<string>>(
+    ids.map((id) => [id, new Set<string>()]),
+  );
   for (const e of edges) {
-    const u = e.from[0], v = e.to[0];
+    const u = e.from[0],
+      v = e.to[0];
     if (u === v || !nodes[u] || !nodes[v]) continue;
     dir.get(u)!.add(v);
     undirected.get(u)!.add(v);
@@ -62,7 +76,9 @@ export function layeredLayout(
   }
 
   // break cycles: DFS, drop edges pointing back to a node on the current stack
-  const forward = new Map<string, Set<string>>(ids.map((id) => [id, new Set<string>()]));
+  const forward = new Map<string, Set<string>>(
+    ids.map((id) => [id, new Set<string>()]),
+  );
   const state = new Map<string, 0 | 1 | 2>(ids.map((id) => [id, 0])); // 0 white 1 gray 2 black
   const dfs = (u: string) => {
     state.set(u, 1);
@@ -77,7 +93,8 @@ export function layeredLayout(
 
   // longest-path ranks over the DAG of forward edges (Kahn topological order)
   const indeg = new Map<string, number>(ids.map((id) => [id, 0]));
-  for (const u of ids) for (const v of forward.get(u)!) indeg.set(v, indeg.get(v)! + 1);
+  for (const u of ids)
+    for (const v of forward.get(u)!) indeg.set(v, indeg.get(v)! + 1);
   const rank = new Map<string, number>(ids.map((id) => [id, 0]));
   const queue = ids.filter((id) => indeg.get(id) === 0);
   const topo: string[] = [];
@@ -128,7 +145,9 @@ export function layeredLayout(
         if (ns.length === 0) return Infinity; // keep floating nodes in place
         const vals = ns.map((n) => idx.get(n)!).sort((a, b) => a - b);
         const m = vals.length;
-        return m % 2 ? vals[(m - 1) / 2]! : (vals[m / 2 - 1]! + vals[m / 2]!) / 2;
+        return m % 2
+          ? vals[(m - 1) / 2]!
+          : (vals[m / 2 - 1]! + vals[m / 2]!) / 2;
       };
       const withBary = layers[l]!.map((id, i) => ({ id, i, b: bary(id) }));
       withBary.sort((p, q) => (p.b === q.b ? p.i - q.i : p.b - q.b));
@@ -140,8 +159,12 @@ export function layeredLayout(
   // Each inter-column gap fits this column's output labels + the next column's
   // input labels + a wire channel, so labels never overlap.
   const layerW = layers.map((layer) => Math.max(0, ...layer.map(width)));
-  const maxOutW = layers.map((layer) => Math.max(0, ...layer.map((id) => outLabelWidth(nodes[id]!))));
-  const maxInW = layers.map((layer) => Math.max(0, ...layer.map((id) => inLabelWidth(nodes[id]!, edges))));
+  const maxOutW = layers.map((layer) =>
+    Math.max(0, ...layer.map((id) => outLabelWidth(nodes[id]!))),
+  );
+  const maxInW = layers.map((layer) =>
+    Math.max(0, ...layer.map((id) => inLabelWidth(nodes[id]!, edges))),
+  );
   const layerX: number[] = [];
   let x = origin.x + (maxInW[0] ?? 0); // room for the leftmost column's input labels
   for (let l = 0; l < layers.length; l++) {

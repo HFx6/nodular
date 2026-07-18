@@ -10,7 +10,13 @@ import { resolve } from "./registry";
 import type { NodeContext, NodeInstance } from "./types";
 import { PORTS } from "./types";
 import { downstreamClosure, kahnTopo } from "./graph";
-import { preview, publishInputs, publishResult, publishValue, removeNodeResults } from "./resultsStore";
+import {
+  preview,
+  publishInputs,
+  publishResult,
+  publishValue,
+  removeNodeResults,
+} from "./resultsStore";
 
 interface NodeState {
   epoch: number;
@@ -68,9 +74,13 @@ export function emitValue(id: string, value: unknown, port?: string): void {
   publishResult(id, preview(value));
   publishValue(id, value);
   const { edges } = useGraphStore.getState();
-  markDirty(edges
-    .filter((e) => e.from[0] === id && (port === undefined || e.from[1] === port))
-    .map((e) => e.to[0]));
+  markDirty(
+    edges
+      .filter(
+        (e) => e.from[0] === id && (port === undefined || e.from[1] === port),
+      )
+      .map((e) => e.to[0]),
+  );
 }
 
 async function flush(): Promise<void> {
@@ -82,12 +92,20 @@ async function flush(): Promise<void> {
       // manual = autorun off: a manual node (and everything only reachable
       // through it) evaluates solely via runNode's forced set.
       const paused = (id: string) => !!nodes[id]?.manual && !forced.has(id);
-      const work = downstreamClosure([...dirty].filter((id) => !paused(id)), edges, paused);
+      const work = downstreamClosure(
+        [...dirty].filter((id) => !paused(id)),
+        edges,
+        paused,
+      );
       dirty.clear();
       forced.clear();
       const { order, cyclic } = kahnTopo(work, edges);
       for (const id of cyclic) {
-        publishResult(id, { v: null, k: "error", why: "cycle — node is part of a dependency loop" });
+        publishResult(id, {
+          v: null,
+          k: "error",
+          why: "cycle — node is part of a dependency loop",
+        });
       }
       // sequential for v0; kahn's layers make this parallelizable later
       for (const id of order) await evalNode(id);
@@ -105,9 +123,12 @@ async function flush(): Promise<void> {
  *  js-module exports and (later) Python defs flow through the same path. */
 export function portValue(value: unknown, port: string): unknown {
   if (value == null) return undefined;
-  if ((value as Record<symbol, unknown>)[PORTS]) return (value as Record<string, unknown>)[port];
-  const isNs = (value as Record<symbol, unknown>)[Symbol.toStringTag] === "Module";
-  if (port === "→") return isNs ? (value as Record<string, unknown>).default : value;
+  if ((value as Record<symbol, unknown>)[PORTS])
+    return (value as Record<string, unknown>)[port];
+  const isNs =
+    (value as Record<symbol, unknown>)[Symbol.toStringTag] === "Module";
+  if (port === "→")
+    return isNs ? (value as Record<string, unknown>).default : value;
   return (value as Record<string, unknown>)[port];
 }
 
@@ -125,11 +146,46 @@ function gatherInputs(id: string, edges: Edge[]): Record<string, unknown> {
 
 const IDENT = /^[A-Za-z_$][\w$]*$/;
 const RESERVED = new Set([
-  "await", "break", "case", "catch", "class", "const", "continue", "debugger",
-  "default", "delete", "do", "else", "enum", "export", "extends", "false",
-  "finally", "for", "function", "if", "import", "in", "instanceof", "let",
-  "new", "null", "return", "static", "super", "switch", "this", "throw",
-  "true", "try", "typeof", "var", "void", "while", "with", "yield",
+  "await",
+  "break",
+  "case",
+  "catch",
+  "class",
+  "const",
+  "continue",
+  "debugger",
+  "default",
+  "delete",
+  "do",
+  "else",
+  "enum",
+  "export",
+  "extends",
+  "false",
+  "finally",
+  "for",
+  "function",
+  "if",
+  "import",
+  "in",
+  "instanceof",
+  "let",
+  "new",
+  "null",
+  "return",
+  "static",
+  "super",
+  "switch",
+  "this",
+  "throw",
+  "true",
+  "try",
+  "typeof",
+  "var",
+  "void",
+  "while",
+  "with",
+  "yield",
   "fetch", // injected by the adapter
 ]);
 
@@ -138,7 +194,12 @@ function inputNamesFor(id: string, edges: Edge[]): string[] {
   const names: string[] = [];
   for (const e of edges) {
     const name = e.to[1];
-    if (e.to[0] === id && IDENT.test(name) && !RESERVED.has(name) && !names.includes(name)) {
+    if (
+      e.to[0] === id &&
+      IDENT.test(name) &&
+      !RESERVED.has(name) &&
+      !names.includes(name)
+    ) {
       names.push(name);
     }
   }
@@ -157,7 +218,10 @@ async function evalNode(id: string): Promise<void> {
   st.abort?.abort();
   const abort = new AbortController();
   st.abort = abort;
-  const ctx: NodeContext = { signal: abort.signal, emit: (v) => emitValue(id, v) };
+  const ctx: NodeContext = {
+    signal: abort.signal,
+    emit: (v) => emitValue(id, v),
+  };
   const inputs = gatherInputs(id, edges);
 
   if (r.kind === "builtin") {
@@ -178,7 +242,11 @@ async function evalNode(id: string): Promise<void> {
 
   let exe;
   try {
-    exe = r.adapter.instantiate(n.code ?? "", inputNamesFor(id, edges), n.valueMode);
+    exe = r.adapter.instantiate(
+      n.code ?? "",
+      inputNamesFor(id, edges),
+      n.valueMode,
+    );
   } catch (err) {
     publishResult(id, errorResult(err));
     return;
@@ -202,7 +270,11 @@ async function evalNode(id: string): Promise<void> {
 
 function errorResult(err: unknown): NodeResult {
   const msg = err instanceof Error ? err.message : String(err);
-  return { v: null, k: "error", why: msg.length > 160 ? msg.slice(0, 159) + "…" : msg };
+  return {
+    v: null,
+    k: "error",
+    why: msg.length > 160 ? msg.slice(0, 159) + "…" : msg,
+  };
 }
 
 function isAbort(err: unknown): boolean {
@@ -226,13 +298,21 @@ function dropNode(id: string, prevEdges: Edge[], dirtyOut: Set<string>): void {
  *  themselves, removed nodes tear down and dirty their former downstream,
  *  edge changes dirty the target (its inputs changed). setDoc, undo/redo, and
  *  file import all fall out of the same diff. */
-function onDocChange(s: { nodes: NodeMap; edges: Edge[] }, p: { nodes: NodeMap; edges: Edge[] }): void {
+function onDocChange(
+  s: { nodes: NodeMap; edges: Edge[] },
+  p: { nodes: NodeMap; edges: Edge[] },
+): void {
   if (s.nodes === p.nodes && s.edges === p.edges) return;
   const next = new Set<string>();
   if (s.nodes !== p.nodes) {
     for (const id in s.nodes) {
       const prev: GraphNode | undefined = p.nodes[id];
-      if (!prev || prev.code !== s.nodes[id]!.code || prev.valueMode !== s.nodes[id]!.valueMode) next.add(id);
+      if (
+        !prev ||
+        prev.code !== s.nodes[id]!.code ||
+        prev.valueMode !== s.nodes[id]!.valueMode
+      )
+        next.add(id);
     }
     for (const id in p.nodes) {
       if (!s.nodes[id]) dropNode(id, p.edges, next);
@@ -242,7 +322,8 @@ function onDocChange(s: { nodes: NodeMap; edges: Edge[] }, p: { nodes: NodeMap; 
     const prev = new Set(p.edges);
     const cur = new Set(s.edges);
     for (const e of s.edges) if (!prev.has(e)) next.add(e.to[0]);
-    for (const e of p.edges) if (!cur.has(e) && s.nodes[e.to[0]]) next.add(e.to[0]);
+    for (const e of p.edges)
+      if (!cur.has(e) && s.nodes[e.to[0]]) next.add(e.to[0]);
   }
   markDirty(next);
 }

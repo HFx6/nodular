@@ -9,7 +9,11 @@ import { exportFile } from "../../persist/file";
 /** True when the event's target is a text-editing surface — those own their keys. */
 function inEditor(t: EventTarget | null): boolean {
   if (!(t instanceof HTMLElement)) return false;
-  return !!t.closest(".cm-editor") || t instanceof HTMLTextAreaElement || t instanceof HTMLInputElement;
+  return (
+    !!t.closest(".cm-editor") ||
+    t instanceof HTMLTextAreaElement ||
+    t instanceof HTMLInputElement
+  );
 }
 
 export function useBoardKeys() {
@@ -25,14 +29,16 @@ export function useBoardKeys() {
       }
       if (inEditor(e.target)) {
         // Escape steps out of the editor; everything else belongs to it
-        if (e.key === "Escape" && document.activeElement instanceof HTMLElement) document.activeElement.blur();
+        if (e.key === "Escape" && document.activeElement instanceof HTMLElement)
+          document.activeElement.blur();
         return;
       }
       const st = useGraphStore.getState();
 
       if (mod && e.key.toLowerCase() === "z") {
         e.preventDefault();
-        if (e.shiftKey) redo(); else undo();
+        if (e.shiftKey) redo();
+        else undo();
       } else if (mod && e.key.toLowerCase() === "y") {
         e.preventDefault();
         redo();
@@ -40,7 +46,10 @@ export function useBoardKeys() {
         e.preventDefault();
         st.tidy();
       } else if (e.key === "Delete" || e.key === "Backspace") {
-        if (st.sel.length) { e.preventDefault(); st.deleteNodes(st.sel); }
+        if (st.sel.length) {
+          e.preventDefault();
+          st.deleteNodes(st.sel);
+        }
       } else if (e.key === "Escape") {
         if (st.arm) st.disarm();
         else if (st.sel.length) st.clearSelection();

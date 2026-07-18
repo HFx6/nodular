@@ -8,7 +8,9 @@ export function GlobalStyles() {
   return (
     <style>{`
       :root{
-        ${Object.entries(C).map(([k, v]) => `--${k}:${v};`).join(" ")}
+        ${Object.entries(C)
+          .map(([k, v]) => `--${k}:${v};`)
+          .join(" ")}
         --mono:${MONO}; --sans:${SANS};
         --radius:${RADIUS}px; --row:${ROW}px; --head:${HEAD}px; --grid:${GRID}px;
       }

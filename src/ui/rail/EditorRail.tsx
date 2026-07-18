@@ -21,7 +21,11 @@ interface EditorRailProps {
 const RAIL_MIN = 240;
 
 /** Left-edge drag handle: drag resizes the rail, double-click resets (#17). */
-function ResizeHandle({ onWidthChange }: { onWidthChange: (w: number) => void }) {
+function ResizeHandle({
+  onWidthChange,
+}: {
+  onWidthChange: (w: number) => void;
+}) {
   const down = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (e.button !== 0) return;
     e.preventDefault();
@@ -30,18 +34,37 @@ function ResizeHandle({ onWidthChange }: { onWidthChange: (w: number) => void })
   const move = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
     const max = Math.round(window.innerWidth * 0.7);
-    onWidthChange(Math.min(max, Math.max(RAIL_MIN, Math.round(window.innerWidth - e.clientX))));
+    onWidthChange(
+      Math.min(
+        max,
+        Math.max(RAIL_MIN, Math.round(window.innerWidth - e.clientX)),
+      ),
+    );
   };
   return (
-    <div className="rail-grip" onPointerDown={down} onPointerMove={move}
+    <div
+      className="rail-grip"
+      onPointerDown={down}
+      onPointerMove={move}
       onDoubleClick={() => onWidthChange(296)}
-      title="drag to resize · double-click to reset" />
+      title="drag to resize · double-click to reset"
+    />
   );
 }
 
 /** Collapsible side editor: full code editor plus the in-scope bindings for the
  *  selected node. A placeholder for the real CodeMirror 6 panel (ENGINE.md). */
-export function EditorRail({ open, onToggle, node: selNode, nodes, edges, sel, width, onWidthChange, onCodeChange }: EditorRailProps) {
+export function EditorRail({
+  open,
+  onToggle,
+  node: selNode,
+  nodes,
+  edges,
+  sel,
+  width,
+  onWidthChange,
+  onCodeChange,
+}: EditorRailProps) {
   if (!open) {
     return (
       <div className="rail-tab" onClick={() => onToggle(true)}>
@@ -58,7 +81,9 @@ export function EditorRail({ open, onToggle, node: selNode, nodes, edges, sel, w
         <ResizeHandle onWidthChange={onWidthChange} />
         <div className="rail-head">
           <span className="rail-title empty">editor</span>
-          <span className="ctrl frow push" onClick={() => onToggle(false)}><IconChevronsRight size={13} stroke={1.5} /></span>
+          <span className="ctrl frow push" onClick={() => onToggle(false)}>
+            <IconChevronsRight size={13} stroke={1.5} />
+          </span>
         </div>
         <div className="rail-none">select a node</div>
       </div>
@@ -72,31 +97,75 @@ export function EditorRail({ open, onToggle, node: selNode, nodes, edges, sel, w
         <span className="lbl">{selNode?.lang}</span>
         <span className="push" />
         {isCode && selNode!.lang === "js" && (
-          <span className="ctrl lbl" title="format with prettier"
-            onClick={() => void formatCode(selNode!.lang, selNode!.code ?? "").then((out) => {
-              if (out != null && out !== selNode!.code) onCodeChange(selNode!.id, out);
-            })}>fmt</span>
+          <span
+            className="ctrl lbl"
+            title="format with prettier"
+            onClick={() =>
+              void formatCode(selNode!.lang, selNode!.code ?? "").then(
+                (out) => {
+                  if (out != null && out !== selNode!.code)
+                    onCodeChange(selNode!.id, out);
+                },
+              )
+            }
+          >
+            fmt
+          </span>
         )}
-        <span className="ctrl frow" onClick={() => onToggle(false)}><IconChevronsRight size={13} stroke={1.5} /></span>
+        <span className="ctrl frow" onClick={() => onToggle(false)}>
+          <IconChevronsRight size={13} stroke={1.5} />
+        </span>
       </div>
       {isCode ? (
         <>
-          <CodeMirrorEditor key={selNode!.id} code={selNode!.code ?? ""} lang={selNode!.lang} variant="rail"
-            onChange={(code) => onCodeChange(selNode!.id, code)} />
+          <CodeMirrorEditor
+            key={selNode!.id}
+            code={selNode!.code ?? ""}
+            lang={selNode!.lang}
+            variant="rail"
+            onChange={(code) => onCodeChange(selNode!.id, code)}
+          />
           <div className="rail-note hint">
-            {selNode!.id === "count" && <>the last expression is this node's value — set n to 200 and watch the screen.</>}
-            {selNode!.id === "parts" && <>delete the draw export and the screen loses its renderer; retype it and it's back.</>}
-            {selNode!.id === "noise" && <>a module of defs — ƒ field crosses py→js as an async function.</>}
-            {!["count", "parts", "noise"].includes(selNode!.id) && <>the last expression is this node's value.</>}
+            {selNode!.id === "count" && (
+              <>
+                the last expression is this node's value — set n to 200 and
+                watch the screen.
+              </>
+            )}
+            {selNode!.id === "parts" && (
+              <>
+                delete the draw export and the screen loses its renderer; retype
+                it and it's back.
+              </>
+            )}
+            {selNode!.id === "noise" && (
+              <>
+                a module of defs — ƒ field crosses py→js as an async function.
+              </>
+            )}
+            {!["count", "parts", "noise"].includes(selNode!.id) && (
+              <>the last expression is this node's value.</>
+            )}
           </div>
         </>
       ) : (
         <div className="rail-doc">
-          {selNode?.lang === "canvas"
-            ? <>The screen is a pure sink — one input, and its body is the surface. Hover it: the pointer source node reads from it and the walkers follow.</>
-            : selNode?.kind === "tick"
-              ? <>A clock source — emits at the chosen interval. Its → is a stream.</>
-              : <>A source node emitting pointer events from the surface it's pointed at. Sinks sink, sources source.</>}
+          {selNode?.lang === "canvas" ? (
+            <>
+              The screen is a pure sink — one input, and its body is the
+              surface. Hover it: the pointer source node reads from it and the
+              walkers follow.
+            </>
+          ) : selNode?.kind === "tick" ? (
+            <>
+              A clock source — emits at the chosen interval. Its → is a stream.
+            </>
+          ) : (
+            <>
+              A source node emitting pointer events from the surface it's
+              pointed at. Sinks sink, sources source.
+            </>
+          )}
         </div>
       )}
       <div className="rail-scope">
@@ -107,7 +176,9 @@ export function EditorRail({ open, onToggle, node: selNode, nodes, edges, sel, w
             <span className="rail-scope-src">← {nodes[e.from[0]]?.name}</span>
           </div>
         ))}
-        {inScope.length === 0 && <div className="rail-scope-none">nothing wired in</div>}
+        {inScope.length === 0 && (
+          <div className="rail-scope-none">nothing wired in</div>
+        )}
       </div>
     </div>
   );

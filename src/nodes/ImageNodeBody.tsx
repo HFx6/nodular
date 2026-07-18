@@ -17,6 +17,12 @@ export function ImageNodeBody({ node: n }: { node: GraphNode }) {
     );
   }
   return (
-    <img className="img-fit" src={src} alt="" draggable={false} onError={() => setBroken(true)} />
+    <img
+      className="img-fit"
+      src={src}
+      alt=""
+      draggable={false}
+      onError={() => setBroken(true)}
+    />
   );
 }

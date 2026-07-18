@@ -19,11 +19,13 @@ export const jsLinter = linter((view): Diagnostic[] => {
   } catch (e) {
     const len = view.state.doc.length;
     const pos = Math.min((e as { pos?: number }).pos ?? 0, len);
-    return [{
-      from: pos,
-      to: Math.min(pos + 1, len),
-      severity: "error",
-      message: (e as Error).message.replace(/\s*\(\d+:\d+\)$/, ""),
-    }];
+    return [
+      {
+        from: pos,
+        to: Math.min(pos + 1, len),
+        severity: "error",
+        message: (e as Error).message.replace(/\s*\(\d+:\d+\)$/, ""),
+      },
+    ];
   }
 });

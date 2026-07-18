@@ -7,9 +7,13 @@ export function SourceNodeBody({ node }: { node: GraphNode }) {
   return (
     <div className="bipane tight">
       {node.kind === "tick" ? (
-        <div className="dim">interval <span className="ink">16ms ▾</span></div>
+        <div className="dim">
+          interval <span className="ink">16ms ▾</span>
+        </div>
       ) : (
-        <div className="dim">surface <span className="ink">{node.target} ▾</span></div>
+        <div className="dim">
+          surface <span className="ink">{node.target} ▾</span>
+        </div>
       )}
       <div className="lbl">stream · coming with the stream phase</div>
     </div>

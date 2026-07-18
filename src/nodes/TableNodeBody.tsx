@@ -11,15 +11,18 @@ export function TableNodeBody({ node: n }: { node: GraphNode }) {
   const [selIdx, setSelIdx] = useState(-1);
 
   if (!Array.isArray(rows) || rows.length === 0) {
-    return (
-      <div className="bihint">
-        rows · waiting for an array
-      </div>
-    );
+    return <div className="bihint">rows · waiting for an array</div>;
   }
 
   return (
-    <ValueTable rows={rows} maxHeight={n.h ? n.h - 30 : 216} selIdx={selIdx}
-      onRowClick={(r, i) => { setSelIdx(i); emitValue(n.id, r); }} />
+    <ValueTable
+      rows={rows}
+      maxHeight={n.h ? n.h - 30 : 216}
+      selIdx={selIdx}
+      onRowClick={(r, i) => {
+        setSelIdx(i);
+        emitValue(n.id, r);
+      }}
+    />
   );
 }

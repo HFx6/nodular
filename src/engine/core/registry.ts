@@ -11,7 +11,10 @@ export function registerAdapter(lang: Lang, adapter: LanguageAdapter): void {
   adapters.set(lang, adapter);
 }
 
-export function registerBuiltin(kind: UiKind | "canvas", def: NodeDefinition): void {
+export function registerBuiltin(
+  kind: UiKind | "canvas",
+  def: NodeDefinition,
+): void {
   builtins.set(kind, def);
 }
 

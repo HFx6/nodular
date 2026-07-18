@@ -42,12 +42,24 @@ export const useSizes = (): SizeMap => useStore(sizeStore, (s) => s.sizes);
  *  editors finish mounting/growing, so mere existence isn't enough to lay out
  *  against. The `timeout` cap keeps a node that never mounts (or never stops
  *  resizing) from wedging the caller. */
-export function whenMeasured(ids: string[], timeout = 3000, settle = 150): Promise<void> {
+export function whenMeasured(
+  ids: string[],
+  timeout = 3000,
+  settle = 150,
+): Promise<void> {
   const ready = () => ids.every((id) => sizeStore.getState().sizes[id]);
   return new Promise((resolve) => {
     let quiet: ReturnType<typeof setTimeout> | undefined;
-    const done = () => { unsub(); clearTimeout(cap); clearTimeout(quiet); resolve(); };
-    const arm = () => { clearTimeout(quiet); if (ready()) quiet = setTimeout(done, settle); };
+    const done = () => {
+      unsub();
+      clearTimeout(cap);
+      clearTimeout(quiet);
+      resolve();
+    };
+    const arm = () => {
+      clearTimeout(quiet);
+      if (ready()) quiet = setTimeout(done, settle);
+    };
     const unsub = sizeStore.subscribe(arm);
     const cap = setTimeout(done, timeout);
     arm();

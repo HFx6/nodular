@@ -22,7 +22,10 @@ export function outsFor(n: GraphNode): ExportInfo[] {
   const code = n.code ?? "";
   const key = n.lang + "\0" + code;
   const hit = byCode.get(key);
-  if (hit) { lastGood.set(n.id, hit); return hit; }
+  if (hit) {
+    lastGood.set(n.id, hit);
+    return hit;
+  }
   try {
     const outs = adapter.inferInterface(code).outputs;
     if (byCode.size > 500) byCode.clear();

@@ -27,15 +27,15 @@ const SHORTCUTS: Array<[string, string]> = [
 ];
 
 function Item({ label, onPick }: { label: string; onPick: () => void }) {
-  return <div className="popitem" onClick={onPick}>{label}</div>;
+  return (
+    <div className="popitem" onClick={onPick}>
+      {label}
+    </div>
+  );
 }
 
 function Section({ title }: { title: string }) {
-  return (
-    <div className="menu-sect">
-      {title}
-    </div>
-  );
+  return <div className="menu-sect">{title}</div>;
 }
 
 export function Menu(actions: MenuActions) {
@@ -46,15 +46,24 @@ export function Menu(actions: MenuActions) {
   useEffect(() => {
     if (!open) return;
     const onDown = (e: PointerEvent) => {
-      if (root.current && !root.current.contains(e.target as Node)) setOpen(false);
+      if (root.current && !root.current.contains(e.target as Node))
+        setOpen(false);
     };
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
     window.addEventListener("pointerdown", onDown);
     window.addEventListener("keydown", onKey);
-    return () => { window.removeEventListener("pointerdown", onDown); window.removeEventListener("keydown", onKey); };
+    return () => {
+      window.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
-  const pick = (fn: () => void) => () => { setOpen(false); fn(); };
+  const pick = (fn: () => void) => () => {
+    setOpen(false);
+    fn();
+  };
 
   return (
     <div ref={root} className="rel">
@@ -69,13 +78,20 @@ export function Menu(actions: MenuActions) {
           <Item label="import…" onPick={() => fileInput.current?.click()} />
           <Section title="examples" />
           {EXAMPLES.map((ex) => (
-            <Item key={ex.id} label={ex.name} onPick={pick(() => actions.onLoadExample(ex))} />
+            <Item
+              key={ex.id}
+              label={ex.name}
+              onPick={pick(() => actions.onLoadExample(ex))}
+            />
           ))}
           <Section title="arrange" />
           <Item label="auto-arrange  ⇧L" onPick={pick(actions.onTidy)} />
           <Section title="view" />
           <Item label="zoom 100%" onPick={pick(actions.onZoomReset)} />
-          <Item label="toggle editor rail" onPick={pick(actions.onToggleRail)} />
+          <Item
+            label="toggle editor rail"
+            onPick={pick(actions.onToggleRail)}
+          />
           <Section title="shortcuts" />
           <div className="menu-keys">
             {SHORTCUTS.map(([k, what]) => (
@@ -85,12 +101,20 @@ export function Menu(actions: MenuActions) {
               </div>
             ))}
           </div>
-          <input ref={fileInput} type="file" accept=".nodular,application/json" hidden
+          <input
+            ref={fileInput}
+            type="file"
+            accept=".nodular,application/json"
+            hidden
             onChange={(e) => {
               const f = e.target.files?.[0];
               e.target.value = "";
-              if (f) { setOpen(false); actions.onImport(f); }
-            }} />
+              if (f) {
+                setOpen(false);
+                actions.onImport(f);
+              }
+            }}
+          />
         </div>
       )}
     </div>

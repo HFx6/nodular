@@ -15,16 +15,17 @@ Done and struck from the queue: **js-module adapter + import built-in** (July 20
 **Why first**: it's the biggest remaining semantic gap and everything animated or interactive queues behind it — tick and pointer as real source built-ins (their bodies in `nodes/SourceNodeBody.tsx` are placeholders), the slider/button controls being interesting (item 3), and paying down v0 deviation #2: the canvas currently hands its renderer `frame = { t, dt, width, height, cursor }` because there was no other way to move per-frame data. With streams, tick/pointer become nodes again and the frame record slims down.
 
 **How**:
+
 - Scheduler: `emitValue` (`core/engine.ts`) grows a stream path - instead of dirtying downstream immediately, buffer latest-per-port and flush the batch on `requestAnimationFrame`. Value emits keep the current microtask path.
 - `Edge.stream` already exists in the doc schema (`types.ts`) and renders dashed in `WireLayer` - make it semantic, not decorative: an edge is stream-flavored when its source port is a stream port.
-- tick built-in: `NodeDefinition` whose instance starts an interval/rAF on first `update`, emits `t` via ctx.emit, stops in `teardown`. pointer built-in: subscribes to a surface's pointer events - needs a small **surface registry** (canvas bodies register their element by node name; pointer nodes reference it via `GraphNode.target`, already in the schema). ENGINE.md "DOM & surfaces" describes the full model: interaction comes from source built-ins referencing a surface *by setting, not by wire*, keeping the graph acyclic.
+- tick built-in: `NodeDefinition` whose instance starts an interval/rAF on first `update`, emits `t` via ctx.emit, stops in `teardown`. pointer built-in: subscribes to a surface's pointer events - needs a small **surface registry** (canvas bodies register their element by node name; pointer nodes reference it via `GraphNode.target`, already in the schema). ENGINE.md "DOM & surfaces" describes the full model: interaction comes from source built-ins referencing a surface _by setting, not by wire_, keeping the graph acyclic.
 - Inspectors sample at rAF, never re-render per emit (ENGINE.md performance tactics; the deleted `useLiveTick.ts` pattern was the sketch).
 
 **Watch out**: a 60/s emit into a js-expr node re-runs it per frame - closure state resets. That's why walkers uses the draw-callback design; streams into code nodes are for genuinely per-event logic (brush strokes, emulator input). The docs/demos should teach this distinction.
 
 ## 2. Value faces - the `auto` face
 
-**What**: finish ENGINE.md "Legibility mechanisms": *"Bodies show what the node is right now"*. The first half landed (July 2026): raw values cross to React (`values` slice in `core/resultsStore.ts`, `useNodeValue`), `GraphNode.renderMode` (default/table/text/html) rendered by `nodes/ValueFace.tsx`, `GraphNode.valueMode` in the ⚙ popover. Remaining: the **`auto` face** — dispatch on the observed value's type (arrays/objects as lazy inspector trees, images as images, strings as text), face mode `value | hidden`, and eventually DOM/React/graphviz/custom render modes.
+**What**: finish ENGINE.md "Legibility mechanisms": _"Bodies show what the node is right now"_. The first half landed (July 2026): raw values cross to React (`values` slice in `core/resultsStore.ts`, `useNodeValue`), `GraphNode.renderMode` (default/table/text/html) rendered by `nodes/ValueFace.tsx`, `GraphNode.valueMode` in the ⚙ popover. Remaining: the **`auto` face** — dispatch on the observed value's type (arrays/objects as lazy inspector trees, images as images, strings as text), face mode `value | hidden`, and eventually DOM/React/graphviz/custom render modes.
 
 **Why second**: PROJECT.md pillar 1 (legibility) and the "every intermediate value is inspectable" promise — and it directly kills the two most user-visible complaints in issues.md: #6 ("footers just say obj {}") and much of #2 (code view; values-first bodies shrink the editor's job). The art browser's fetch node showing a 120-char JSON string is the current ceiling.
 
@@ -34,7 +35,7 @@ Done and struck from the queue: **js-module adapter + import built-in** (July 20
 
 **What**: PROJECT.md node families table - controls. Each is a few lines on the now-existing contract (`NodeDefinition` + a small React body + `emitValue`; text/state from the natto-parity pass are the templates, `builtins/index.ts` + their bodies). Natto's `StateControl` (number slider / boolean / select / text widgets) is prior art. Also: a no-code **Fetch built-in** (url/method/headers in; response/json/error out; debounce + manual trigger) - ENGINE.md "Platform services".
 
-**Why third**: with streams (item 1) this completes PROJECT.md's success criterion #1: *"slider → sine wave → canvas plot in under two minutes without docs."* Slider is dual-direction eventually (source of its value AND sink for upstream - the `derives` case, item 7); v0 of it is source-only.
+**Why third**: with streams (item 1) this completes PROJECT.md's success criterion #1: _"slider → sine wave → canvas plot in under two minutes without docs."_ Slider is dual-direction eventually (source of its value AND sink for upstream - the `derives` case, item 7); v0 of it is source-only.
 
 ## 4. Node chrome & board polish pass — absorbs issues.md
 
@@ -54,13 +55,14 @@ Done and struck from the queue: **js-module adapter + import built-in** (July 20
 
 ## Parked: the Python track (decide before building)
 
-**Gate**: items 6-7 are a package whose payoff is real Python. Before starting either, answer: *does the product need Python now, or is JS + built-ins carrying every demo we care about?* If JS is carrying it, both stay parked. The one standalone argument for item 6 is `while(true)` freezing the tab — if that bites before Python does, consider a cheaper interim (accept it, or a coarse "unresponsive node" detector) rather than pulling the whole worker track forward.
+**Gate**: items 6-7 are a package whose payoff is real Python. Before starting either, answer: _does the product need Python now, or is JS + built-ins carrying every demo we care about?_ If JS is carrying it, both stay parked. The one standalone argument for item 6 is `while(true)` freezing the tab — if that bites before Python does, consider a cheaper interim (accept it, or a coarse "unresponsive node" detector) rather than pulling the whole worker track forward.
 
 ## 6. Workers + watchdog
 
 **What**: ENGINE.md stack: "one Web Worker per language, lazy-loaded - isolation, kill-ability, main thread stays responsive". Plus the watchdog: workers hard-terminate on timeout with a visible **"node killed"** state (Execution model bullet 4). Prerequisite for Pyodide — never load a Python runtime on the main thread.
 
 **How**:
+
 - The core doesn't change (Executable is already async + AbortSignal-threaded; ENGINE.md Status deviation #4 notes this was designed for). The **adapter** moves compilation/execution into a worker and proxies `instantiate` over RPC - Comlink is the candidate (ENGINE.md stack).
 - Watchdog: per-eval timer on the host side; on expiry, `worker.terminate()`, respawn lazily, publish `{ k: "error", why: "node killed - exceeded …" }`. Kill/respawn lifecycle lives in the adapter, not the engine.
 - Decide: main-thread js-expr stays as the fast path (natto-like instant feel) with worker execution opt-in/automatic for long-running nodes, or everything moves. Leaning fast-path-stays.
@@ -71,6 +73,7 @@ Done and struck from the queue: **js-module adapter + import built-in** (July 20
 **What**: replace the placeholder py adapter (`adapters/py.ts`, regex heuristics from `inference/py.ts`) with a Pyodide worker kernel. First real cross-language edges.
 
 **How** (ENGINE.md "Languages" + stack):
+
 - Worker kernel loading Pyodide lazily on first py-node eval, with inline progress on the node ("Pyodide first load: seconds cold" - performance budget table; service-worker cache after).
 - `inferInterface` via `ast.parse` **in-kernel** (top-level defs / `__all__`), replacing the regex; same `InferredInterface` shape, so handles/geometry don't change.
 - Inputs injected as a globals dict; result = last expression (Pyodide's `runPython` returns it natively - matches the "→" convention for free).

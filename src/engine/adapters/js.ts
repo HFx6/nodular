@@ -17,7 +17,9 @@ import type { ValueMode } from "../../types";
 import type { Executable, LanguageAdapter, StaticResult } from "../core/types";
 
 let lexReady = false;
-void lexInit.then(() => { lexReady = true; });
+void lexInit.then(() => {
+  lexReady = true;
+});
 
 const MODULE_RE = /^\s*(import|export)\b/m;
 
@@ -37,7 +39,9 @@ function isModule(code: string): boolean {
 /** Injected-input handoff: blob modules can't close over JS values, so the
  *  generated prelude reads wired inputs from this global map by a per-eval key. */
 const moduleInputs = new Map<string, Record<string, unknown>>();
-(globalThis as unknown as { __nodularInputs?: typeof moduleInputs }).__nodularInputs = moduleInputs;
+(
+  globalThis as unknown as { __nodularInputs?: typeof moduleInputs }
+).__nodularInputs = moduleInputs;
 let instSeq = 0;
 
 /** Rewrite bare npm specifiers to esm.sh in place, reusing es-module-lexer's
@@ -80,7 +84,9 @@ function moduleExecutable(code: string, inputNames: string[]): Executable {
       : "";
     const source = decl + rewriteSpecifiers(code);
     moduleInputs.set(key, inputs);
-    const url = URL.createObjectURL(new Blob([source], { type: "text/javascript" }));
+    const url = URL.createObjectURL(
+      new Blob([source], { type: "text/javascript" }),
+    );
     try {
       return await import(/* @vite-ignore */ url);
     } finally {
@@ -92,8 +98,9 @@ function moduleExecutable(code: string, inputNames: string[]): Executable {
 
 type Raw = (...args: unknown[]) => Promise<unknown>;
 
-const AsyncFunction = Object.getPrototypeOf(async function () { /* probe */ })
-  .constructor as new (...src: string[]) => Raw;
+const AsyncFunction = Object.getPrototypeOf(async function () {
+  /* probe */
+}).constructor as new (...src: string[]) => Raw;
 
 const cache = new Map<string, Raw>();
 
@@ -131,13 +138,17 @@ function compile(code: string, names: string[], mode?: ValueMode): Raw {
     try {
       raw = new AsyncFunction("fetch", ...names, `return (\n${code}\n);`);
     } catch {
-      const prog = acornParse(code, { ecmaVersion: "latest", allowAwaitOutsideFunction: true });
+      const prog = acornParse(code, {
+        ecmaVersion: "latest",
+        allowAwaitOutsideFunction: true,
+      });
       const last = prog.body[prog.body.length - 1];
-      const body = last && last.type === "ExpressionStatement"
-        ? code.slice(0, last.start) +
-          `return (${code.slice(last.expression.start, last.expression.end)});` +
-          code.slice(last.end)
-        : code;
+      const body =
+        last && last.type === "ExpressionStatement"
+          ? code.slice(0, last.start) +
+            `return (${code.slice(last.expression.start, last.expression.end)});` +
+            code.slice(last.end)
+          : code;
       raw = new AsyncFunction("fetch", ...names, body);
     }
   }
@@ -167,6 +178,7 @@ export const jsAdapter: LanguageAdapter = {
       return moduleExecutable(code, inputNames);
     }
     const raw = compile(code, inputNames, mode);
-    return (inputs, ctx) => raw(fetchWith(ctx.signal), ...inputNames.map((k) => inputs[k]));
+    return (inputs, ctx) =>
+      raw(fetchWith(ctx.signal), ...inputNames.map((k) => inputs[k]));
   },
 };

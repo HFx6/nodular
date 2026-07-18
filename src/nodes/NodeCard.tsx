@@ -1,5 +1,17 @@
-import { memo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { IconAdjustmentsHorizontal, IconArrowDownRight, IconChevronDown, IconMinus, IconPlayerPlay, IconX } from "@tabler/icons-react";
+import {
+  memo,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
+import {
+  IconAdjustmentsHorizontal,
+  IconArrowDownRight,
+  IconChevronDown,
+  IconMinus,
+  IconPlayerPlay,
+  IconX,
+} from "@tabler/icons-react";
 import { C, HEAD, ROW } from "../theme";
 import { inputsOf, outsOf } from "../graph/geometry";
 import { useNodeResult } from "../engine/core/resultsStore";
@@ -38,7 +50,18 @@ interface NodeCardProps {
  *  left edge, and a family-specific body. Memoized — engine ticks and board
  *  pan/zoom must not re-render node chrome (ENGINE.md); the engine's result
  *  arrives through a per-id store subscription, not props. */
-function NodeCardImpl({ node: n, edges, selected: seld, arm, actions, dimmed, onHeaderPointerDown, onHeaderDoubleClick, onResizeStart, registerRef }: NodeCardProps) {
+function NodeCardImpl({
+  node: n,
+  edges,
+  selected: seld,
+  arm,
+  actions,
+  dimmed,
+  onHeaderPointerDown,
+  onHeaderDoubleClick,
+  onResizeStart,
+  registerRef,
+}: NodeCardProps) {
   const res = useNodeResult(n.id);
   const [settingsOpen, setSettingsOpen] = useState(false);
   // reliable double-click to open the rail: pointer capture during a node drag
@@ -51,104 +74,217 @@ function NodeCardImpl({ node: n, edges, selected: seld, arm, actions, dimmed, on
   const ins = inputsOf(n, edges);
   const outs = outsOf(n);
   return (
-    <div ref={(el) => registerRef(n.id, el)} className={`ncard dimmable${seld ? " sel" : ""}`}
-      onPointerDown={(e) => { if (e.button === 0) e.stopPropagation(); }}
-      style={{ left: n.x, top: n.y, width: n.w,
+    <div
+      ref={(el) => registerRef(n.id, el)}
+      className={`ncard dimmable${seld ? " sel" : ""}`}
+      onPointerDown={(e) => {
+        if (e.button === 0) e.stopPropagation();
+      }}
+      style={{
+        left: n.x,
+        top: n.y,
+        width: n.w,
         ...(n.h && !n.min ? { height: n.h } : {}),
-        opacity: dimmed ? 0.25 : 1 }}>
-
-      <div className={`node-head${n.min ? " min" : ""}`} onPointerDown={(e) => {
-        if (e.button !== 0) return;
-        e.stopPropagation();
-        // second press on the header (not on a control) opens the editor; the
-        // press that opens it must not also start a node drag
-        const t = e.target instanceof HTMLElement ? e.target : null;
-        if (isCode && (!t || !t.closest(".ctrl, .hctl"))) {
-          if (e.timeStamp - lastHeadDown.current < 400) { lastHeadDown.current = 0; onHeaderDoubleClick(n.id); return; }
-          lastHeadDown.current = e.timeStamp;
-        }
-        onHeaderPointerDown(e, n.id);
-      }}>
-        <span className="ctrl" title="delete node"
-          onClick={(e) => { e.stopPropagation(); actions.onDelete(n.id); }}><IconX {...icon} /></span>
-        <span className="ctrl" title="minimize"
-          onClick={(e) => { e.stopPropagation(); actions.onToggleMin(n.id); }}><IconMinus {...icon} /></span>
+        opacity: dimmed ? 0.25 : 1,
+      }}
+    >
+      <div
+        className={`node-head${n.min ? " min" : ""}`}
+        onPointerDown={(e) => {
+          if (e.button !== 0) return;
+          e.stopPropagation();
+          // second press on the header (not on a control) opens the editor; the
+          // press that opens it must not also start a node drag
+          const t = e.target instanceof HTMLElement ? e.target : null;
+          if (isCode && (!t || !t.closest(".ctrl, .hctl"))) {
+            if (e.timeStamp - lastHeadDown.current < 400) {
+              lastHeadDown.current = 0;
+              onHeaderDoubleClick(n.id);
+              return;
+            }
+            lastHeadDown.current = e.timeStamp;
+          }
+          onHeaderPointerDown(e, n.id);
+        }}
+      >
+        <span
+          className="ctrl"
+          title="delete node"
+          onClick={(e) => {
+            e.stopPropagation();
+            actions.onDelete(n.id);
+          }}
+        >
+          <IconX {...icon} />
+        </span>
+        <span
+          className="ctrl"
+          title="minimize"
+          onClick={(e) => {
+            e.stopPropagation();
+            actions.onToggleMin(n.id);
+          }}
+        >
+          <IconMinus {...icon} />
+        </span>
         {/* the title never shrinks or ellipsizes — minNodeWidth clamps resizes
             so the header always has room for every item at full length */}
-        <span className="node-title" title={isCode ? "double-click to open the editor" : undefined}>
-          {n.name
-            ? <span className="node-name">{n.name}</span>
-            : <span className="node-name empty">name</span>}
+        <span
+          className="node-title"
+          title={isCode ? "double-click to open the editor" : undefined}
+        >
+          {n.name ? (
+            <span className="node-name">{n.name}</span>
+          ) : (
+            <span className="node-name empty">name</span>
+          )}
           {isCode && <span className="node-langchip">{n.lang}</span>}
         </span>
         {/* control cluster pushed right: ⚙ · auto-pill · ▷-pill, then the port */}
         {hasSettings && (
-          <span className="ctrl push" title="node settings"
-            onClick={(e) => { e.stopPropagation(); setSettingsOpen((o) => !o); }}><IconAdjustmentsHorizontal {...icon} /></span>
-        )}
-        {isCode && (
-          <span className="hctl pillbtn node-mode" title={n.manual ? "manual — click to run automatically" : "auto — click for manual"}
-            onClick={(e) => { e.stopPropagation(); actions.onToggleMode(n.id); }}>
-            {n.manual ? "manual" : "auto"} <IconChevronDown size={9} stroke={1.75} />
+          <span
+            className="ctrl push"
+            title="node settings"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSettingsOpen((o) => !o);
+            }}
+          >
+            <IconAdjustmentsHorizontal {...icon} />
           </span>
         )}
         {isCode && (
-          <span className="hctl pillbtn node-run" title="run now"
-            onClick={(e) => { e.stopPropagation(); actions.onRunOnce(n.id); }}><IconPlayerPlay size={11} stroke={1.5} /></span>
+          <span
+            className="hctl pillbtn node-mode"
+            title={
+              n.manual
+                ? "manual — click to run automatically"
+                : "auto — click for manual"
+            }
+            onClick={(e) => {
+              e.stopPropagation();
+              actions.onToggleMode(n.id);
+            }}
+          >
+            {n.manual ? "manual" : "auto"}{" "}
+            <IconChevronDown size={9} stroke={1.75} />
+          </span>
+        )}
+        {isCode && (
+          <span
+            className="hctl pillbtn node-run"
+            title="run now"
+            onClick={(e) => {
+              e.stopPropagation();
+              actions.onRunOnce(n.id);
+            }}
+          >
+            <IconPlayerPlay size={11} stroke={1.5} />
+          </span>
         )}
         {n.lang !== "canvas" && (
-          <span className={`ctrl node-port${isCode ? " port-code" : ""}${res?.v != null || n.lang === "ui" ? " port-live" : ""}`}
+          <span
+            className={`ctrl node-port${isCode ? " port-code" : ""}${res?.v != null || n.lang === "ui" ? " port-live" : ""}`}
             title="this node's value"
-            onPointerDown={(e) => { if (e.button !== 0) return; e.stopPropagation(); actions.onArmOut(n.id, "→"); }}
-            onClick={(e) => e.stopPropagation()}>→</span>
+            onPointerDown={(e) => {
+              if (e.button !== 0) return;
+              e.stopPropagation();
+              actions.onArmOut(n.id, "→");
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            →
+          </span>
         )}
       </div>
 
-      {settingsOpen && <NodeSettings node={n} onClose={() => setSettingsOpen(false)} />}
+      {settingsOpen && (
+        <NodeSettings node={n} onClose={() => setSettingsOpen(false)} />
+      )}
 
       {/* inputs on the left edge: chipped label for contrast over wires (#4) */}
-      {!n.min && ins.map((name, i) => (
-        <span key={name} className={arm ? "ilabel armed" : "ilabel"} style={{ top: HEAD + 4 + i * ROW }}
-          onPointerUp={() => actions.onDropIn(n.id, name)}
-          onClick={(e) => { e.stopPropagation(); actions.onDropIn(n.id, name); }}>
-          <span className="portchip">{name}</span>
-        </span>
-      ))}
+      {!n.min &&
+        ins.map((name, i) => (
+          <span
+            key={name}
+            className={arm ? "ilabel armed" : "ilabel"}
+            style={{ top: HEAD + 4 + i * ROW }}
+            onPointerUp={() => actions.onDropIn(n.id, name)}
+            onClick={(e) => {
+              e.stopPropagation();
+              actions.onDropIn(n.id, name);
+            }}
+          >
+            <span className="portchip">{name}</span>
+          </span>
+        ))}
       {!n.min && arm && arm.id !== n.id && isCode && (
-        <span className="ilabel add" style={{ top: HEAD + 4 + ins.length * ROW }}
+        <span
+          className="ilabel add"
+          style={{ top: HEAD + 4 + ins.length * ROW }}
           onPointerUp={() => actions.onDropIn(n.id, null)}
-          onClick={(e) => { e.stopPropagation(); actions.onDropIn(n.id, null); }}>+ {arm.port === "→" ? arm.id : arm.port}</span>
+          onClick={(e) => {
+            e.stopPropagation();
+            actions.onDropIn(n.id, null);
+          }}
+        >
+          + {arm.port === "→" ? arm.id : arm.port}
+        </span>
       )}
 
       {/* inferred export handles, outside the right edge (aligned to wire anchors) */}
-      {!n.min && outs.map((o, i) => (
-        <span key={o.name} className="olabel" style={{ top: HEAD + 6 + i * ROW }}
-          onPointerDown={(e) => { if (e.button !== 0) return; e.stopPropagation(); actions.onArmOut(n.id, o.name); }}
-          onClick={(e) => e.stopPropagation()}>
-          <span className="portchip">{o.fn ? "ƒ " : ""}{o.name}</span> <span className="faint">→</span>
-        </span>
-      ))}
+      {!n.min &&
+        outs.map((o, i) => (
+          <span
+            key={o.name}
+            className="olabel"
+            style={{ top: HEAD + 6 + i * ROW }}
+            onPointerDown={(e) => {
+              if (e.button !== 0) return;
+              e.stopPropagation();
+              actions.onArmOut(n.id, o.name);
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="portchip">
+              {o.fn ? "ƒ " : ""}
+              {o.name}
+            </span>{" "}
+            <span className="faint">→</span>
+          </span>
+        ))}
 
       {/* family body */}
-      {!n.min && (n.lang === "canvas"
-        ? <CanvasNodeBody node={n} />
-        : n.lang === "ui"
-          ? (n.kind === "table"
-            ? <TableNodeBody node={n} />
-            : n.kind === "image"
-              ? <ImageNodeBody node={n} />
-              : n.kind === "import"
-                ? <ImportNodeBody node={n} />
-                : n.kind === "text"
-                  ? <TextNodeBody node={n} />
-                  : n.kind === "state"
-                    ? <StateNodeBody node={n} />
-                    : <SourceNodeBody node={n} />)
-          : <CodeNodeBody node={n} result={res} actions={actions} />)}
+      {!n.min &&
+        (n.lang === "canvas" ? (
+          <CanvasNodeBody node={n} />
+        ) : n.lang === "ui" ? (
+          n.kind === "table" ? (
+            <TableNodeBody node={n} />
+          ) : n.kind === "image" ? (
+            <ImageNodeBody node={n} />
+          ) : n.kind === "import" ? (
+            <ImportNodeBody node={n} />
+          ) : n.kind === "text" ? (
+            <TextNodeBody node={n} />
+          ) : n.kind === "state" ? (
+            <StateNodeBody node={n} />
+          ) : (
+            <SourceNodeBody node={n} />
+          )
+        ) : (
+          <CodeNodeBody node={n} result={res} actions={actions} />
+        ))}
 
       {/* resize grip */}
-      <div className={seld ? "node-grip shown" : "node-grip"}
-        onPointerDown={(e) => { if (e.button !== 0) return; e.stopPropagation(); onResizeStart(e, n.id); }}>
+      <div
+        className={seld ? "node-grip shown" : "node-grip"}
+        onPointerDown={(e) => {
+          if (e.button !== 0) return;
+          e.stopPropagation();
+          onResizeStart(e, n.id);
+        }}
+      >
         <IconArrowDownRight size={12} stroke={1.5} color={C.faint} />
       </div>
     </div>

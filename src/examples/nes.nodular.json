@@ -111,297 +111,139 @@
       "name": "screen",
       "x": 1340,
       "y": 40,
-      "ins": [
-        "render"
-      ]
+      "ins": ["render"]
     }
   },
   "edges": [
     {
       "id": "ne1",
-      "from": [
-        "cpu",
-        "Cpu"
-      ],
-      "to": [
-        "nes",
-        "Cpu"
-      ]
+      "from": ["cpu", "Cpu"],
+      "to": ["nes", "Cpu"]
     },
     {
       "id": "ne2",
-      "from": [
-        "ppu",
-        "Ppu"
-      ],
-      "to": [
-        "nes",
-        "Ppu"
-      ]
+      "from": ["ppu", "Ppu"],
+      "to": ["nes", "Ppu"]
     },
     {
       "id": "ne3",
-      "from": [
-        "apu",
-        "Apu"
-      ],
-      "to": [
-        "nes",
-        "Apu"
-      ]
+      "from": ["apu", "Apu"],
+      "to": ["nes", "Apu"]
     },
     {
       "id": "ne4",
-      "from": [
-        "joypad",
-        "Joypad"
-      ],
-      "to": [
-        "nes",
-        "Joypad"
-      ]
+      "from": ["joypad", "Joypad"],
+      "to": ["nes", "Joypad"]
     },
     {
       "id": "ne5",
-      "from": [
-        "memory",
-        "Memory"
-      ],
-      "to": [
-        "rom",
-        "Memory"
-      ]
+      "from": ["memory", "Memory"],
+      "to": ["rom", "Memory"]
     },
     {
       "id": "ne6",
-      "from": [
-        "mapper",
-        "Mapper"
-      ],
-      "to": [
-        "rom",
-        "Mapper"
-      ]
+      "from": ["mapper", "Mapper"],
+      "to": ["rom", "Mapper"]
     },
     {
       "id": "ne7",
-      "from": [
-        "mapper",
-        "MapperFactory"
-      ],
-      "to": [
-        "rom",
-        "MapperFactory"
-      ]
+      "from": ["mapper", "MapperFactory"],
+      "to": ["rom", "MapperFactory"]
     },
     {
       "id": "ne8",
-      "from": [
-        "utility",
-        "Utility"
-      ],
-      "to": [
-        "rom",
-        "Utility"
-      ]
+      "from": ["utility", "Utility"],
+      "to": ["rom", "Utility"]
     },
     {
       "id": "ne9",
-      "from": [
-        "register",
-        "Register8bit"
-      ],
-      "to": [
-        "mapper",
-        "Register8bit"
-      ]
+      "from": ["register", "Register8bit"],
+      "to": ["mapper", "Register8bit"]
     },
     {
       "id": "ne10",
-      "from": [
-        "register",
-        "Register8bit"
-      ],
-      "to": [
-        "joypad",
-        "Register8bit"
-      ]
+      "from": ["register", "Register8bit"],
+      "to": ["joypad", "Register8bit"]
     },
     {
       "id": "ne11",
-      "from": [
-        "register",
-        "Register8bit"
-      ],
-      "to": [
-        "apu",
-        "Register8bit"
-      ]
+      "from": ["register", "Register8bit"],
+      "to": ["apu", "Register8bit"]
     },
     {
       "id": "ne12",
-      "from": [
-        "register",
-        "Register8bit"
-      ],
-      "to": [
-        "cpu",
-        "Register8bit"
-      ]
+      "from": ["register", "Register8bit"],
+      "to": ["cpu", "Register8bit"]
     },
     {
       "id": "ne13",
-      "from": [
-        "register",
-        "Register16bit"
-      ],
-      "to": [
-        "cpu",
-        "Register16bit"
-      ]
+      "from": ["register", "Register16bit"],
+      "to": ["cpu", "Register16bit"]
     },
     {
       "id": "ne14",
-      "from": [
-        "memory",
-        "Memory"
-      ],
-      "to": [
-        "cpu",
-        "Memory"
-      ]
+      "from": ["memory", "Memory"],
+      "to": ["cpu", "Memory"]
     },
     {
       "id": "ne15",
-      "from": [
-        "utility",
-        "Utility"
-      ],
-      "to": [
-        "cpu",
-        "Utility"
-      ]
+      "from": ["utility", "Utility"],
+      "to": ["cpu", "Utility"]
     },
     {
       "id": "ne16",
-      "from": [
-        "utility",
-        "Utility"
-      ],
-      "to": [
-        "register",
-        "Utility"
-      ]
+      "from": ["utility", "Utility"],
+      "to": ["register", "Utility"]
     },
     {
       "id": "ne17",
-      "from": [
-        "register",
-        "Register8bit"
-      ],
-      "to": [
-        "ppu",
-        "Register8bit"
-      ]
+      "from": ["register", "Register8bit"],
+      "to": ["ppu", "Register8bit"]
     },
     {
       "id": "ne18",
-      "from": [
-        "register",
-        "Register16bit"
-      ],
-      "to": [
-        "ppu",
-        "Register16bit"
-      ]
+      "from": ["register", "Register16bit"],
+      "to": ["ppu", "Register16bit"]
     },
     {
       "id": "ne19",
-      "from": [
-        "memory",
-        "Memory"
-      ],
-      "to": [
-        "ppu",
-        "Memory"
-      ]
+      "from": ["memory", "Memory"],
+      "to": ["ppu", "Memory"]
     },
     {
       "id": "ne20",
-      "from": [
-        "utility",
-        "Utility"
-      ],
-      "to": [
-        "ppu",
-        "Utility"
-      ]
+      "from": ["utility", "Utility"],
+      "to": ["ppu", "Utility"]
     },
     {
       "id": "ne21",
-      "from": [
-        "utility",
-        "Utility"
-      ],
-      "to": [
-        "memory",
-        "Utility"
-      ]
+      "from": ["utility", "Utility"],
+      "to": ["memory", "Utility"]
     },
     {
       "id": "nd22",
-      "from": [
-        "nes",
-        "Nes"
-      ],
-      "to": [
-        "loadnes",
-        "Nes"
-      ]
+      "from": ["nes", "Nes"],
+      "to": ["loadnes", "Nes"]
     },
     {
       "id": "nd23",
-      "from": [
-        "rom",
-        "Rom"
-      ],
-      "to": [
-        "loadnes",
-        "Rom"
-      ]
+      "from": ["rom", "Rom"],
+      "to": ["loadnes", "Rom"]
     },
     {
       "id": "nd24",
-      "from": [
-        "display",
-        "Display"
-      ],
-      "to": [
-        "loadnes",
-        "Display"
-      ]
+      "from": ["display", "Display"],
+      "to": ["loadnes", "Display"]
     },
     {
       "id": "nd25",
-      "from": [
-        "joypad",
-        "Joypad"
-      ],
-      "to": [
-        "loadnes",
-        "Joypad"
-      ]
+      "from": ["joypad", "Joypad"],
+      "to": ["loadnes", "Joypad"]
     },
     {
       "id": "nd26",
-      "from": [
-        "loadnes",
-        "→"
-      ],
-      "to": [
-        "screen",
-        "render"
-      ]
+      "from": ["loadnes", "→"],
+      "to": ["screen", "render"]
     }
   ]
 }

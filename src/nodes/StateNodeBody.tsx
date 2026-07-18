@@ -19,7 +19,10 @@ export function StateNodeBody({ node: n }: { node: GraphNode }) {
   const set = useMemo(() => {
     const setter = (v: unknown) => {
       try {
-        v = typeof v === "function" ? (v as (prev: unknown) => unknown)(cur.current) : v;
+        v =
+          typeof v === "function"
+            ? (v as (prev: unknown) => unknown)(cur.current)
+            : v;
       } catch {
         return; // updater threw — keep the current value (natto behavior)
       }
@@ -53,22 +56,27 @@ export function StateNodeBody({ node: n }: { node: GraphNode }) {
   const p = preview(cur.current);
   return (
     <div className="bipane">
-      <input className="biput"
+      <input
+        className="biput"
         value={n.code ?? ""}
         placeholder="initial value (js expression)"
         spellCheck={false}
-        onChange={(e) => useGraphStore.getState().updateCode(n.id, e.target.value)}
+        onChange={(e) =>
+          useGraphStore.getState().updateCode(n.id, e.target.value)
+        }
         onPointerDown={(e) => e.stopPropagation()}
       />
       <div className="birow">
-        {err
-          ? <span className="bierr trunc">{err}</span>
-          : <>
-              <span className="bikind">{p.k ?? "value"}</span>
-              <span className={`bival trunc${p.v == null ? " unset" : ""}`}>
-                {p.v ?? "unset"}
-              </span>
-            </>}
+        {err ? (
+          <span className="bierr trunc">{err}</span>
+        ) : (
+          <>
+            <span className="bikind">{p.k ?? "value"}</span>
+            <span className={`bival trunc${p.v == null ? " unset" : ""}`}>
+              {p.v ?? "unset"}
+            </span>
+          </>
+        )}
       </div>
     </div>
   );

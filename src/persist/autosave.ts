@@ -22,7 +22,11 @@ export async function loadSavedDoc(): Promise<void> {
 
 /** Drop the saved doc (reset). The next doc change re-saves as usual. */
 export async function clearSaved(): Promise<void> {
-  try { await del(KEY); } catch { /* nothing to clear */ }
+  try {
+    await del(KEY);
+  } catch {
+    /* nothing to clear */
+  }
 }
 
 /** Subscribe to doc changes and persist them, debounced. Call once at startup. */

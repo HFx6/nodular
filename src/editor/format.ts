@@ -4,7 +4,10 @@
 
 import type { GraphDoc } from "../graph/store";
 
-export async function formatCode(lang: string, src: string): Promise<string | null> {
+export async function formatCode(
+  lang: string,
+  src: string,
+): Promise<string | null> {
   if (lang !== "js") return null;
   const [prettier, babel, estree] = await Promise.all([
     import("prettier/standalone"),
@@ -31,7 +34,8 @@ export async function formatDoc(doc: GraphDoc): Promise<GraphDoc> {
     Object.entries(doc.nodes).map(async ([id, n]) => {
       if (n.code) {
         const out = await formatCode(n.lang, n.code);
-        if (out != null && out !== n.code) return [id, { ...n, code: out }] as const;
+        if (out != null && out !== n.code)
+          return [id, { ...n, code: out }] as const;
       }
       return [id, n] as const;
     }),

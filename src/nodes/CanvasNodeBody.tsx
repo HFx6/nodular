@@ -1,4 +1,9 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { useNodeInputs } from "../engine/core/resultsStore";
 import type { GraphNode } from "../types";
 
@@ -34,10 +39,23 @@ export function CanvasNodeBody({ node: n }: { node: GraphNode }) {
   let nativeH: number | null = null;
   if (typeof render === "function") {
     fn = render as RenderFn;
-  } else if (render && typeof render === "object" && typeof (render as { draw?: unknown }).draw === "function") {
-    const spec = render as { draw: RenderFn; width?: unknown; height?: unknown };
+  } else if (
+    render &&
+    typeof render === "object" &&
+    typeof (render as { draw?: unknown }).draw === "function"
+  ) {
+    const spec = render as {
+      draw: RenderFn;
+      width?: unknown;
+      height?: unknown;
+    };
     fn = spec.draw;
-    if (typeof spec.width === "number" && spec.width > 0 && typeof spec.height === "number" && spec.height > 0) {
+    if (
+      typeof spec.width === "number" &&
+      spec.width > 0 &&
+      typeof spec.height === "number" &&
+      spec.height > 0
+    ) {
       nativeW = Math.round(spec.width);
       nativeH = Math.round(spec.height);
     }
@@ -65,7 +83,13 @@ export function CanvasNodeBody({ node: n }: { node: GraphNode }) {
       if (cvs.width !== w) cvs.width = w;
       if (cvs.height !== h) cvs.height = h;
       try {
-        fn(ctx, { t: (now - t0) / 1000, dt: (now - last) / 1000, width: w, height: h, cursor: cursor.current });
+        fn(ctx, {
+          t: (now - t0) / 1000,
+          dt: (now - last) / 1000,
+          width: w,
+          height: h,
+          cursor: cursor.current,
+        });
       } catch (e) {
         setErr(e instanceof Error ? e.message : String(e));
         return;
@@ -88,14 +112,25 @@ export function CanvasNodeBody({ node: n }: { node: GraphNode }) {
   };
 
   // only claim left-button presses; middle-drag must bubble to the board pan
-  const stop = (e: ReactPointerEvent) => { if (e.button === 0) e.stopPropagation(); };
+  const stop = (e: ReactPointerEvent) => {
+    if (e.button === 0) e.stopPropagation();
+  };
 
   return (
     <div className="canvas-wrap" onPointerDown={stop}>
-      <canvas className="canvas-surf" ref={ref} onPointerMove={onMove} onPointerLeave={() => (cursor.current = null)}
-        style={{ aspectRatio: native ? `${nativeW} / ${nativeH}` : String(n.aspect ?? DEFAULT_ASPECT),
+      <canvas
+        className="canvas-surf"
+        ref={ref}
+        onPointerMove={onMove}
+        onPointerLeave={() => (cursor.current = null)}
+        style={{
+          aspectRatio: native
+            ? `${nativeW} / ${nativeH}`
+            : String(n.aspect ?? DEFAULT_ASPECT),
           // fixed-resolution surfaces are upscaled by CSS — keep their pixels crisp
-          imageRendering: native ? "pixelated" : "auto" }} />
+          imageRendering: native ? "pixelated" : "auto",
+        }}
+      />
       {(!fn || err) && (
         <div className={`canvas-hint${err ? " bad" : ""}`}>
           {err ? `render error — ${err}` : "no renderer connected"}

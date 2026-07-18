@@ -36,17 +36,26 @@ export function publishResult(id: string, res: NodeResult): void {
   resultsStore.setState((s) => ({ results: { ...s.results, [id]: res } }));
 }
 
-export function publishInputs(id: string, inputs: Record<string, unknown>): void {
-  resultsStore.setState((s) => ({ nodeInputs: { ...s.nodeInputs, [id]: inputs } }));
+export function publishInputs(
+  id: string,
+  inputs: Record<string, unknown>,
+): void {
+  resultsStore.setState((s) => ({
+    nodeInputs: { ...s.nodeInputs, [id]: inputs },
+  }));
 }
 
 export function publishValue(id: string, v: unknown): void {
   const raw = v;
   // ports records cross as their "→" value (consistent with preview)
-  if (v != null && (v as Record<symbol, unknown>)[PORTS]) v = (v as Record<string, unknown>)["→"];
+  if (v != null && (v as Record<symbol, unknown>)[PORTS])
+    v = (v as Record<string, unknown>)["→"];
   const cur = resultsStore.getState();
   if (Object.is(cur.values[id], v) && Object.is(cur.raws[id], raw)) return;
-  resultsStore.setState((s) => ({ values: { ...s.values, [id]: v }, raws: { ...s.raws, [id]: raw } }));
+  resultsStore.setState((s) => ({
+    values: { ...s.values, [id]: v },
+    raws: { ...s.raws, [id]: raw },
+  }));
 }
 
 export function removeNodeResults(id: string): void {
@@ -84,17 +93,29 @@ export function preview(v: unknown): NodeResult {
   if (v === undefined) return { v: null, why: "no result" };
   if (v === null) return { v: "null", k: "null" };
   switch (typeof v) {
-    case "number": return { v: String(v), k: "num" };
-    case "boolean": return { v: String(v), k: "bool" };
-    case "string": return { v: cap(JSON.stringify(v)), k: "str" };
-    case "function": return { v: "ƒ", k: "fn" };
+    case "number":
+      return { v: String(v), k: "num" };
+    case "boolean":
+      return { v: String(v), k: "bool" };
+    case "string":
+      return { v: cap(JSON.stringify(v)), k: "str" };
+    case "function":
+      return { v: "ƒ", k: "fn" };
     default: {
-      if (Array.isArray(v)) return { v: cap(arrLine(v)), k: `arr(${v.length})` };
-      if (v instanceof Promise) return { v: "Promise — await it or .then a value out", k: "promise" };
+      if (Array.isArray(v))
+        return { v: cap(arrLine(v)), k: `arr(${v.length})` };
+      if (v instanceof Promise)
+        return { v: "Promise — await it or .then a value out", k: "promise" };
       if (v instanceof Date) return { v: v.toISOString(), k: "date" };
-      if (v instanceof Error) return { v: cap(`${v.name}: ${v.message}`), k: "Error" };
-      if (v instanceof Map) return { v: cap(objLine(Object.fromEntries(v), `Map(${v.size})`)), k: "map" };
-      if (v instanceof Set) return { v: cap(arrLine([...v])), k: `set(${v.size})` };
+      if (v instanceof Error)
+        return { v: cap(`${v.name}: ${v.message}`), k: "Error" };
+      if (v instanceof Map)
+        return {
+          v: cap(objLine(Object.fromEntries(v), `Map(${v.size})`)),
+          k: "map",
+        };
+      if (v instanceof Set)
+        return { v: cap(arrLine([...v])), k: `set(${v.size})` };
       // class instances lead with the constructor name — a Response, a
       // CanvasRenderingContext2D etc. is its type, not its (often empty) keys
       const ctor = (v as object).constructor;
@@ -109,10 +130,14 @@ function inline(v: unknown): string {
   if (v === undefined) return "undefined";
   if (v === null) return "null";
   switch (typeof v) {
-    case "string": return JSON.stringify(v.length > 24 ? v.slice(0, 23) + "…" : v);
-    case "function": return "ƒ";
-    case "object": return Array.isArray(v) ? `[${v.length}]` : `{…}`;
-    default: return String(v);
+    case "string":
+      return JSON.stringify(v.length > 24 ? v.slice(0, 23) + "…" : v);
+    case "function":
+      return "ƒ";
+    case "object":
+      return Array.isArray(v) ? `[${v.length}]` : `{…}`;
+    default:
+      return String(v);
   }
 }
 
@@ -124,9 +149,14 @@ function arrLine(a: unknown[]): string {
 
 function objLine(o: object, tag?: string): string {
   let keys: string[];
-  try { keys = Object.keys(o); } catch { return tag ?? String(o); }
+  try {
+    keys = Object.keys(o);
+  } catch {
+    return tag ?? String(o);
+  }
   if (!keys.length) return tag ?? "{}";
-  const shown = keys.slice(0, 3)
+  const shown = keys
+    .slice(0, 3)
     .map((k) => `${k}: ${inline((o as Record<string, unknown>)[k])}`)
     .join(", ");
   const line = `{ ${shown}${keys.length > 3 ? ", …" : ""} }`;

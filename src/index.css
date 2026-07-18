@@ -11,7 +11,7 @@ body {
 }
 
 textarea:focus {
-  outline: none
+  outline: none;
 }
 
 /* the app root is user-select:none; editors must stay selectable no matter
@@ -31,12 +31,12 @@ textarea:focus {
 /* during a drag the whole board keeps one cursor, whatever it passes over (#14) */
 [data-drag="grabbing"],
 [data-drag="grabbing"] * {
-  cursor: grabbing !important
+  cursor: grabbing !important;
 }
 
 [data-drag="nwse-resize"],
 [data-drag="nwse-resize"] * {
-  cursor: nwse-resize !important
+  cursor: nwse-resize !important;
 }
 
 /* ── shared primitives ────────────────────────────────────────────────── */
@@ -48,11 +48,11 @@ textarea:focus {
   cursor: pointer;
   line-height: 1;
   padding: 5px;
-  margin: -5px
+  margin: -5px;
 }
 
 .ctrl:hover {
-  color: var(--ink)
+  color: var(--ink);
 }
 
 /* natto-style pill buttons in the node header (mode toggle, run): tight,
@@ -60,12 +60,12 @@ textarea:focus {
 .pillbtn {
   background: var(--chip);
   border-radius: 4px;
-  cursor: pointer
+  cursor: pointer;
 }
 
 .pillbtn:hover {
   background: var(--chipHot);
-  color: var(--ink)
+  color: var(--ink);
 }
 
 /* paper dropdown chrome, shared by the top menu, node palette and node
@@ -76,7 +76,7 @@ textarea:focus {
   background: var(--pane);
   border: 1px solid var(--edge);
   border-radius: var(--radius);
-  box-shadow: 0 4px 14px rgba(40, 40, 36, .12)
+  box-shadow: 0 4px 14px rgba(40, 40, 36, 0.12);
 }
 
 .popitem {
@@ -84,18 +84,18 @@ textarea:focus {
   font-family: var(--mono);
   font-size: 12px;
   color: var(--ink);
-  cursor: pointer
+  cursor: pointer;
 }
 
 .popitem:hover {
-  background: var(--headBg)
+  background: var(--headBg);
 }
 
 /* tabler icons are inline svg — block them so they don't add baseline gap */
 .ctrl svg,
 .pillbtn svg,
 .node-grip svg {
-  display: block
+  display: block;
 }
 
 /* the two toolbar popovers' anchoring */
@@ -103,14 +103,14 @@ textarea:focus {
   top: calc(100% + 9px);
   left: -8px;
   min-width: 190px;
-  padding-bottom: 6px
+  padding-bottom: 6px;
 }
 
 .top-pop {
   top: calc(100% + 9px);
   right: -8px;
   min-width: 150px;
-  padding: 5px 0
+  padding: 5px 0;
 }
 
 /* port labels: darker than wires + a paper chip so a wire running underneath
@@ -126,77 +126,77 @@ textarea:focus {
   font-size: 11px;
   color: var(--portLabel);
   white-space: nowrap;
-  cursor: pointer
+  cursor: pointer;
 }
 
 .olabel {
   left: 100%;
-  padding-left: 7px
+  padding-left: 7px;
 }
 
 .ilabel {
   right: 100%;
-  padding-right: 7px
+  padding-right: 7px;
 }
 
 .olabel:hover,
 .ilabel:hover {
-  color: var(--ink)
+  color: var(--ink);
 }
 
 .portchip {
   background: var(--bg);
   border-radius: 3px;
-  padding: 0 3px
+  padding: 0 3px;
 }
 
 /* cross-cutting utilities */
 .mono {
-  font-family: var(--mono)
+  font-family: var(--mono);
 }
 
 .lbl {
   font-family: var(--mono);
   font-size: 10px;
-  color: var(--faint)
+  color: var(--faint);
 }
 
 .hint {
   font-size: 10.5px;
   color: var(--dim);
-  line-height: 1.6
+  line-height: 1.6;
 }
 
 .push {
-  margin-left: auto
+  margin-left: auto;
 }
 
 .faint {
-  color: var(--faint)
+  color: var(--faint);
 }
 
 .dim {
-  color: var(--dim)
+  color: var(--dim);
 }
 
 .ink {
-  color: var(--ink)
+  color: var(--ink);
 }
 
 .rel {
-  position: relative
+  position: relative;
 }
 
 .trunc {
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap
+  white-space: nowrap;
 }
 
 /* icon-in-a-span wrapper — flex kills the baseline gap under the svg */
 .frow {
   display: flex;
-  align-items: center
+  align-items: center;
 }
 
 /* ── node card ────────────────────────────────────────────────────────── */
@@ -207,12 +207,12 @@ textarea:focus {
   background: var(--pane);
   border-radius: var(--radius);
   border: 1px solid var(--edge);
-  box-shadow: 0 1px 4px rgba(40, 40, 36, .08)
+  box-shadow: 0 1px 4px rgba(40, 40, 36, 0.08);
 }
 
 .ncard.sel {
   border-color: var(--sel);
-  box-shadow: 0 0 0 3px var(--selSoft)
+  box-shadow: 0 0 0 3px var(--selSoft);
 }
 
 /* header grammar (#5, natto): × · – · title+lang left, settings · mode · run
@@ -227,12 +227,12 @@ textarea:focus {
   background: var(--headBg);
   border-bottom: 1px solid var(--edge);
   border-radius: var(--radius) var(--radius) 0 0;
-  cursor: grab
+  cursor: grab;
 }
 
 .node-head.min {
   border-bottom: none;
-  border-radius: var(--radius)
+  border-radius: var(--radius);
 }
 
 .node-title {
@@ -240,19 +240,19 @@ textarea:focus {
   align-items: center;
   gap: 5px;
   flex: none;
-  margin-left: 2px
+  margin-left: 2px;
 }
 
 .node-name {
   font-family: var(--mono);
   font-size: 12.5px;
   font-weight: 500;
-  white-space: nowrap
+  white-space: nowrap;
 }
 
 .node-name.empty {
   font-weight: 400;
-  color: var(--faint)
+  color: var(--faint);
 }
 
 .node-langchip {
@@ -262,7 +262,7 @@ textarea:focus {
   background: var(--bg);
   border-radius: 3px;
   padding: 1px 4px;
-  line-height: 1.4
+  line-height: 1.4;
 }
 
 .node-mode {
@@ -274,40 +274,40 @@ textarea:focus {
   color: var(--dim);
   padding: 2px 6px;
   line-height: 1.4;
-  white-space: nowrap
+  white-space: nowrap;
 }
 
 .node-run {
   display: flex;
   align-items: center;
   color: var(--dim);
-  padding: 2px 5px
+  padding: 2px 5px;
 }
 
 .node-port {
   font-size: 13px;
   margin-left: auto;
-  color: var(--faint)
+  color: var(--faint);
 }
 
 .node-port.port-code {
-  margin-left: 2px
+  margin-left: 2px;
 }
 
 /* code nodes: sits beside the run button */
 .node-port.port-live {
-  color: var(--ink)
+  color: var(--ink);
 }
 
 /* node has a value */
 .ilabel.armed {
-  color: var(--sel)
+  color: var(--sel);
 }
 
 /* armed drop target for a new input (#4) */
 .ilabel.add {
   color: var(--sel);
-  font-style: italic
+  font-style: italic;
 }
 
 /* resize grip — hidden until the node is selected */
@@ -318,12 +318,12 @@ textarea:focus {
   width: 12px;
   height: 12px;
   cursor: nwse-resize;
-  transition: opacity .12s;
-  opacity: 0
+  transition: opacity 0.12s;
+  opacity: 0;
 }
 
 .node-grip.shown {
-  opacity: 1
+  opacity: 1;
 }
 
 /* ── app shell + board ────────────────────────────────────────────────── */
@@ -338,20 +338,20 @@ textarea:focus {
   background: var(--bg);
   color: var(--ink);
   user-select: none;
-  overflow: hidden
+  overflow: hidden;
 }
 
 .app-main {
   flex: 1;
   display: flex;
-  min-height: 0
+  min-height: 0;
 }
 
 /* board root — cursor and the dot-grid background layers are view state, inline */
 .board {
   position: relative;
   flex: 1;
-  overflow: hidden
+  overflow: hidden;
 }
 
 /* pan/zoom space — transform is view state, inline */
@@ -359,7 +359,7 @@ textarea:focus {
   position: absolute;
   left: 0;
   top: 0;
-  transform-origin: 0 0
+  transform-origin: 0 0;
 }
 
 /* placement ghost: the palette kind's default doc shape at the snapped cursor (#18) */
@@ -367,9 +367,9 @@ textarea:focus {
   position: absolute;
   border: 1.5px dashed var(--sel);
   border-radius: 4px;
-  background: rgba(255, 255, 255, .55);
+  background: rgba(255, 255, 255, 0.55);
   pointer-events: none;
-  opacity: .9
+  opacity: 0.9;
 }
 
 .ghost-head {
@@ -381,18 +381,18 @@ textarea:focus {
   font-family: var(--mono);
   font-size: 12.5px;
   font-weight: 600;
-  color: var(--sel)
+  color: var(--sel);
 }
 
 .ghost-body {
-  height: 46px
+  height: 46px;
 }
 
 .marquee {
   position: absolute;
   border: 1px solid var(--sel);
   background: var(--selSoft);
-  pointer-events: none
+  pointer-events: none;
 }
 
 /* transient top-center notice */
@@ -407,7 +407,7 @@ textarea:focus {
   color: var(--inkInv);
   padding: 5px 12px;
   border-radius: 4px;
-  z-index: 5
+  z-index: 5;
 }
 
 /* ── top bar + menu ───────────────────────────────────────────────────── */
@@ -419,25 +419,25 @@ textarea:focus {
   gap: 12px;
   padding: 7px 14px;
   border-bottom: 1px solid var(--edge);
-  background: var(--pane)
+  background: var(--pane);
 }
 
 .top-brand {
   font-family: var(--mono);
   font-size: 13px;
-  font-weight: 600
+  font-weight: 600;
 }
 
 .top-doc {
   font-family: var(--mono);
   font-size: 11.5px;
-  color: var(--dim)
+  color: var(--dim);
 }
 
 .top-zoom {
   font-family: var(--mono);
   font-size: 10.5px;
-  color: var(--faint)
+  color: var(--faint);
 }
 
 /* natto-style split add control, pushed right */
@@ -446,13 +446,13 @@ textarea:focus {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 10px
+  gap: 10px;
 }
 
 .top-eval {
   gap: 3px;
   font-family: var(--mono);
-  font-size: 11.5px
+  font-size: 11.5px;
 }
 
 .menu-sect {
@@ -461,11 +461,11 @@ textarea:focus {
   font-size: 9.5px;
   color: var(--faint);
   text-transform: uppercase;
-  letter-spacing: .06em
+  letter-spacing: 0.06em;
 }
 
 .menu-keys {
-  padding: 2px 12px 4px
+  padding: 2px 12px 4px;
 }
 
 .menu-key {
@@ -474,7 +474,7 @@ textarea:focus {
   gap: 12px;
   font-family: var(--mono);
   font-size: 10px;
-  line-height: 1.9
+  line-height: 1.9;
 }
 
 /* ── wires ────────────────────────────────────────────────────────────── */
@@ -485,34 +485,36 @@ textarea:focus {
   left: 0;
   top: 0;
   overflow: visible;
-  pointer-events: none
+  pointer-events: none;
 }
 
 .wire-g {
   pointer-events: auto;
-  transition: opacity .25s ease
+  transition: opacity 0.25s ease;
 }
 
 .wire-g.dimmed {
-  opacity: 0.18
+  opacity: 0.18;
 }
 
 .wire-hit {
-  cursor: pointer
+  cursor: pointer;
 }
 
 .wire-path {
-  transition: stroke .35s ease, stroke-width .35s ease
+  transition:
+    stroke 0.35s ease,
+    stroke-width 0.35s ease;
 }
 
 .wire-fo {
   overflow: visible;
-  pointer-events: none
+  pointer-events: none;
 }
 
 .wire-badge-row {
   display: flex;
-  justify-content: center
+  justify-content: center;
 }
 
 /* hovered-wire live sample; .broken = missing export (#5) */
@@ -523,13 +525,13 @@ textarea:focus {
   border-radius: 3px;
   white-space: nowrap;
   background: var(--ink);
-  color: var(--inkInv)
+  color: var(--inkInv);
 }
 
 .wire-badge.broken {
   background: var(--badSoft);
   color: var(--bad);
-  border: 1px solid var(--bad)
+  border: 1px solid var(--bad);
 }
 
 /* cross-language pill on a py↔js wire */
@@ -540,7 +542,7 @@ textarea:focus {
   border-radius: 8px;
   background: var(--pane);
   border: 1px solid var(--edge);
-  color: var(--dim)
+  color: var(--dim);
 }
 
 /* ── code node body ───────────────────────────────────────────────────── */
@@ -548,7 +550,7 @@ textarea:focus {
 .code-col {
   display: flex;
   flex-direction: column;
-  min-height: 0
+  min-height: 0;
 }
 
 .code-edit {
@@ -560,7 +562,7 @@ textarea:focus {
   font-size: 12.5px;
   line-height: 19px;
   color: var(--ink);
-  cursor: text
+  cursor: text;
 }
 
 /* divider hit area is 7px (DIVIDER in CodeNodeBody.tsx); the visible line is 1px, centred */
@@ -570,13 +572,13 @@ textarea:focus {
   cursor: row-resize;
   display: flex;
   align-items: center;
-  touch-action: none
+  touch-action: none;
 }
 
 .code-divline {
   height: 1px;
   width: 100%;
-  background: var(--edge)
+  background: var(--edge);
 }
 
 .code-face {
@@ -584,7 +586,7 @@ textarea:focus {
   min-height: 0;
   overflow: auto;
   background: var(--paneSoft);
-  border-radius: 0 0 var(--radius) var(--radius)
+  border-radius: 0 0 var(--radius) var(--radius);
 }
 
 .code-foot {
@@ -593,7 +595,7 @@ textarea:focus {
   background: var(--paneSoft);
   border-radius: 0 0 var(--radius) var(--radius);
   max-height: 120px;
-  overflow: auto
+  overflow: auto;
 }
 
 .code-err {
@@ -603,7 +605,7 @@ textarea:focus {
   color: var(--bad);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  user-select: text
+  user-select: text;
 }
 
 .code-prev {
@@ -614,14 +616,14 @@ textarea:focus {
   display: flex;
   gap: 8px;
   align-items: baseline;
-  user-select: text
+  user-select: text;
 }
 
 .code-prev-v {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   flex: 1;
-  min-width: 0
+  min-width: 0;
 }
 
 /* tiny value-kind chip (obj, arr(n), str…) */
@@ -631,7 +633,7 @@ textarea:focus {
   flex: none;
   background: var(--bg);
   border-radius: 3px;
-  padding: 1px 4px
+  padding: 1px 4px;
 }
 
 /* ── editor rail ──────────────────────────────────────────────────────── */
@@ -642,7 +644,7 @@ textarea:focus {
   background: var(--pane);
   display: flex;
   flex-direction: column;
-  min-height: 0
+  min-height: 0;
 }
 
 /* collapsed rail: a slim clickable tab with a vertical label */
@@ -655,11 +657,11 @@ textarea:focus {
   flex-direction: column;
   align-items: center;
   padding-top: 10px;
-  gap: 8px
+  gap: 8px;
 }
 
 .rail-vlbl {
-  writing-mode: vertical-rl
+  writing-mode: vertical-rl;
 }
 
 /* invisible left-edge drag handle: resize, double-click resets (#17) */
@@ -670,7 +672,7 @@ textarea:focus {
   bottom: 0;
   width: 7px;
   cursor: col-resize;
-  z-index: 5
+  z-index: 5;
 }
 
 .rail-head {
@@ -678,30 +680,30 @@ textarea:focus {
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border-bottom: 1px solid var(--edge)
+  border-bottom: 1px solid var(--edge);
 }
 
 .rail-title {
   font-family: var(--mono);
   font-size: 12.5px;
-  font-weight: 600
+  font-weight: 600;
 }
 
 .rail-title.empty {
-  color: var(--faint)
+  color: var(--faint);
 }
 
 .rail-none {
   padding: 12px;
   font-size: 11.5px;
   color: var(--faint);
-  font-style: italic
+  font-style: italic;
 }
 
 /* per-node footnote under the editor */
 .rail-note {
   border-top: 1px dashed var(--edge);
-  padding: 7px 12px
+  padding: 7px 12px;
 }
 
 /* prose block for non-code nodes */
@@ -709,41 +711,41 @@ textarea:focus {
   padding: 12px;
   font-size: 12px;
   color: var(--dim);
-  line-height: 1.65
+  line-height: 1.65;
 }
 
 .rail-scope {
   border-top: 1px solid var(--edge);
-  padding: 9px 12px
+  padding: 9px 12px;
 }
 
 .rail-scope-h {
   font-size: 10px;
   color: var(--faint);
-  margin-bottom: 5px
+  margin-bottom: 5px;
 }
 
 .rail-scope-row {
   display: flex;
   gap: 7px;
   align-items: baseline;
-  margin-bottom: 3px
+  margin-bottom: 3px;
 }
 
 .rail-scope-name {
   font-family: var(--mono);
-  font-size: 11px
+  font-size: 11px;
 }
 
 .rail-scope-src {
   font-size: 10px;
-  color: var(--faint)
+  color: var(--faint);
 }
 
 .rail-scope-none {
   font-size: 10.5px;
   color: var(--faint);
-  font-style: italic
+  font-style: italic;
 }
 
 /* ── node settings popover ────────────────────────────────────────────── */
@@ -754,7 +756,7 @@ textarea:focus {
   width: 196px;
   z-index: 30;
   font-family: var(--mono);
-  padding: 4px 0 6px
+  padding: 4px 0 6px;
 }
 
 .nset-sect {
@@ -762,49 +764,49 @@ textarea:focus {
   font-size: 9.5px;
   color: var(--faint);
   text-transform: uppercase;
-  letter-spacing: .06em
+  letter-spacing: 0.06em;
 }
 
 .nset-row {
   padding: 4px 10px;
-  cursor: pointer
+  cursor: pointer;
 }
 
 .nset-row:hover {
-  background: var(--headBg)
+  background: var(--headBg);
 }
 
 .nset-row.on,
 .nset-row.on:hover {
-  background: var(--selSoft)
+  background: var(--selSoft);
 }
 
 .nset-lbl {
   font-size: 11px;
-  color: var(--ink)
+  color: var(--ink);
 }
 
 .nset-row.on .nset-lbl {
-  font-weight: 600
+  font-weight: 600;
 }
 
 .nset-hint {
   font-size: 9.5px;
-  color: var(--dim)
+  color: var(--dim);
 }
 
 /* ── value table ──────────────────────────────────────────────────────── */
 
 .vtable-wrap {
   overflow: auto;
-  border-radius: 0 0 var(--radius) var(--radius)
+  border-radius: 0 0 var(--radius) var(--radius);
 }
 
 .vtable {
   width: 100%;
   border-collapse: collapse;
   font-family: var(--mono);
-  font-size: 11px
+  font-size: 11px;
 }
 
 .vtable th {
@@ -815,7 +817,7 @@ textarea:focus {
   padding: 5px 9px;
   color: var(--dim);
   font-weight: 500;
-  white-space: nowrap
+  white-space: nowrap;
 }
 
 .vtable td {
@@ -824,30 +826,30 @@ textarea:focus {
   color: var(--ink);
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis
+  text-overflow: ellipsis;
 }
 
 .vtable td.vmax {
-  max-width: 130px
+  max-width: 130px;
 }
 
 .vtable tr {
-  cursor: default
+  cursor: default;
 }
 
 .vtable tr.click {
-  cursor: pointer
+  cursor: pointer;
 }
 
 .vtable tr.sel {
-  background: var(--selSoft)
+  background: var(--selSoft);
 }
 
 .vtable-more {
   padding: 3px 8px;
   font-family: var(--mono);
   font-size: 9.5px;
-  color: var(--faint)
+  color: var(--faint);
 }
 
 /* ── built-in node bodies (source / state / import / text / image) ────── */
@@ -858,11 +860,11 @@ textarea:focus {
   font-family: var(--mono);
   font-size: 11px;
   display: grid;
-  gap: 6px
+  gap: 6px;
 }
 
 .bipane.tight {
-  gap: 5px
+  gap: 5px;
 }
 
 /* one-line text input (state initial value, import spec) */
@@ -876,7 +878,7 @@ textarea:focus {
   color: var(--ink);
   outline: none;
   width: 100%;
-  box-sizing: border-box
+  box-sizing: border-box;
 }
 
 /* waiting/placeholder line; .bad = load/render failure */
@@ -884,59 +886,59 @@ textarea:focus {
   padding: 8px 10px;
   font-family: var(--mono);
   font-size: 10.5px;
-  color: var(--faint)
+  color: var(--faint);
 }
 
 .bihint.bad {
-  color: var(--bad)
+  color: var(--bad);
 }
 
 .birow {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  min-width: 0
+  min-width: 0;
 }
 
 .birow-sb {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px
+  gap: 8px;
 }
 
 .bierr {
   font-size: 10px;
-  color: var(--bad)
+  color: var(--bad);
 }
 
 .bikind {
   font-size: 9.5px;
-  color: var(--faint)
+  color: var(--faint);
 }
 
 .bival {
   font-size: 10.5px;
-  color: var(--ink)
+  color: var(--ink);
 }
 
 .bival.unset {
-  color: var(--faint)
+  color: var(--faint);
 }
 
 .bitoggle {
   font-size: 10.5px;
-  color: var(--dim)
+  color: var(--dim);
 }
 
 .bistatus {
   font-size: 10px;
   max-width: 130px;
-  text-align: right
+  text-align: right;
 }
 
 .text-pane {
-  padding: 8px
+  padding: 8px;
 }
 
 .text-ta {
@@ -953,20 +955,20 @@ textarea:focus {
   width: 100%;
   min-height: 64px;
   box-sizing: border-box;
-  display: block
+  display: block;
 }
 
 .img-fit {
   display: block;
   width: 100%;
   border-radius: 0 0 4px 4px;
-  pointer-events: none
+  pointer-events: none;
 }
 
 .canvas-wrap {
   position: relative;
   border-radius: 0 0 4px 4px;
-  overflow: hidden
+  overflow: hidden;
 }
 
 /* aspect-ratio and image-rendering follow the renderer, inline */
@@ -975,7 +977,7 @@ textarea:focus {
   width: 100%;
   height: auto;
   cursor: crosshair;
-  background: var(--dark)
+  background: var(--dark);
 }
 
 .canvas-hint {
@@ -988,11 +990,11 @@ textarea:focus {
   font-size: 10.5px;
   color: var(--canvasHint);
   pointer-events: none;
-  text-align: center
+  text-align: center;
 }
 
 .canvas-hint.bad {
-  color: var(--bad)
+  color: var(--bad);
 }
 
 /* ── value faces (render output) ──────────────────────────────────────── */
@@ -1001,7 +1003,7 @@ textarea:focus {
   padding: 8px 12px;
   overflow: auto;
   font-size: 12px;
-  user-select: text
+  user-select: text;
 }
 
 .face-text {
@@ -1012,14 +1014,14 @@ textarea:focus {
   line-height: 1.5;
   color: var(--ink);
   white-space: pre-wrap;
-  user-select: text
+  user-select: text;
 }
 
 .face-empty {
   padding: 8px 12px;
   font-family: var(--mono);
   font-size: 10.5px;
-  color: var(--faint)
+  color: var(--faint);
 }
 
 /* ── motion ───────────────────────────────────────────────────────────── */
@@ -1028,14 +1030,14 @@ textarea:focus {
   @keyframes spawn {
     from {
       opacity: 0;
-      transform: scale(.96);
+      transform: scale(0.96);
     }
   }
 
   @keyframes fadein {
     from {
       opacity: 0;
-      transform: translateY(-3px) scale(.98);
+      transform: translateY(-3px) scale(0.98);
     }
   }
 
@@ -1047,18 +1049,18 @@ textarea:focus {
   }
 
   .ncard {
-    animation: spawn .14s ease-out
+    animation: spawn 0.14s ease-out;
   }
 
   .popover {
-    animation: fadein .1s ease-out
+    animation: fadein 0.1s ease-out;
   }
 
   .rail {
-    animation: slidein .15s ease-out
+    animation: slidein 0.15s ease-out;
   }
 
   .dimmable {
-    transition: opacity .25s ease
+    transition: opacity 0.25s ease;
   }
 }

@@ -31,44 +31,24 @@
       "name": "screen",
       "x": 756,
       "y": 54,
-      "ins": [
-        "render"
-      ]
+      "ins": ["render"]
     }
   },
   "edges": [
     {
       "id": "e1",
-      "from": [
-        "count",
-        "→"
-      ],
-      "to": [
-        "walkers",
-        "count"
-      ]
+      "from": ["count", "→"],
+      "to": ["walkers", "count"]
     },
     {
       "id": "e2",
-      "from": [
-        "field",
-        "→"
-      ],
-      "to": [
-        "walkers",
-        "field"
-      ]
+      "from": ["field", "→"],
+      "to": ["walkers", "field"]
     },
     {
       "id": "e3",
-      "from": [
-        "walkers",
-        "→"
-      ],
-      "to": [
-        "cvs",
-        "render"
-      ]
+      "from": ["walkers", "→"],
+      "to": ["cvs", "render"]
     }
   ]
 }

@@ -16,9 +16,7 @@
       "x": 432,
       "y": 54,
       "kind": "table",
-      "ins": [
-        "rows"
-      ]
+      "ins": ["rows"]
     },
     "url": {
       "id": "url",
@@ -35,44 +33,24 @@
       "x": 828,
       "y": 90,
       "kind": "image",
-      "ins": [
-        "url"
-      ]
+      "ins": ["url"]
     }
   },
   "edges": [
     {
       "id": "a1",
-      "from": [
-        "arts",
-        "→"
-      ],
-      "to": [
-        "tbl",
-        "rows"
-      ]
+      "from": ["arts", "→"],
+      "to": ["tbl", "rows"]
     },
     {
       "id": "a2",
-      "from": [
-        "tbl",
-        "→"
-      ],
-      "to": [
-        "url",
-        "artwork"
-      ]
+      "from": ["tbl", "→"],
+      "to": ["url", "artwork"]
     },
     {
       "id": "a3",
-      "from": [
-        "url",
-        "→"
-      ],
-      "to": [
-        "img",
-        "url"
-      ]
+      "from": ["url", "→"],
+      "to": ["img", "url"]
     }
   ]
 }

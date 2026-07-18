@@ -6,7 +6,8 @@
 export type Lang = "js" | "py" | "ui" | "canvas";
 
 /** UI built-in sub-kinds (sources, and fixed-input built-ins). */
-export type UiKind = "tick" | "pointer" | "table" | "image" | "import" | "text" | "state";
+export type UiKind =
+  "tick" | "pointer" | "table" | "image" | "import" | "text" | "state";
 
 /** js nodes: how the editor value compiles. undefined = auto (infer from syntax). */
 export type ValueMode = "auto" | "expr" | "body" | "text";

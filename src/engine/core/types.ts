@@ -46,7 +46,11 @@ export interface LanguageAdapter {
   /** Compile into a runnable (may throw on syntax errors → error result),
    *  or declare the node static. `mode` is the node's editor-value setting,
    *  passed through opaquely — the core never interprets it. */
-  instantiate(code: string, inputNames: string[], mode?: ValueMode): Executable | StaticResult;
+  instantiate(
+    code: string,
+    inputNames: string[],
+    mode?: ValueMode,
+  ): Executable | StaticResult;
 }
 
 /** Built-in node kinds (table, image, later canvas/tick/pointer) implement the

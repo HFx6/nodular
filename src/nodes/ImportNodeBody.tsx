@@ -12,14 +12,22 @@ type Status = { k: "idle" | "loading" | "ok" | "err"; msg: string };
 export function ImportNodeBody({ node: n }: { node: GraphNode }) {
   const spec = (n.code ?? "").trim();
   const useDefault = n.useDefault ?? true;
-  const [status, setStatus] = useState<Status>({ k: "idle", msg: "package or url" });
+  const [status, setStatus] = useState<Status>({
+    k: "idle",
+    msg: "package or url",
+  });
   const latest = useRef(0);
 
   useEffect(() => {
-    if (!spec) { setStatus({ k: "idle", msg: "package or url" }); return; }
+    if (!spec) {
+      setStatus({ k: "idle", msg: "package or url" });
+      return;
+    }
     const token = ++latest.current;
     const t = setTimeout(() => {
-      const url = /^(https?:|\.|\/)/.test(spec) ? spec : `https://esm.sh/${spec}`;
+      const url = /^(https?:|\.|\/)/.test(spec)
+        ? spec
+        : `https://esm.sh/${spec}`;
       setStatus({ k: "loading", msg: "loading…" });
       import(/* @vite-ignore */ url).then(
         (mod) => {
@@ -28,33 +36,50 @@ export function ImportNodeBody({ node: n }: { node: GraphNode }) {
           // unwraps `default` off Module-tagged values on "→" (right for
           // js-module nodes), but in namespace mode this node's value IS the
           // namespace — untag it so it crosses the wire whole.
-          emitValue(n.id, useDefault ? (mod as { default?: unknown }).default : { ...mod });
-          setStatus({ k: "ok", msg: useDefault ? "loaded · default" : "loaded · namespace" });
+          emitValue(
+            n.id,
+            useDefault ? (mod as { default?: unknown }).default : { ...mod },
+          );
+          setStatus({
+            k: "ok",
+            msg: useDefault ? "loaded · default" : "loaded · namespace",
+          });
         },
         (err) => {
           if (token !== latest.current) return;
-          setStatus({ k: "err", msg: err instanceof Error ? err.message : String(err) });
+          setStatus({
+            k: "err",
+            msg: err instanceof Error ? err.message : String(err),
+          });
         },
       );
     }, 350);
     return () => clearTimeout(t);
   }, [spec, useDefault, n.id]);
 
-  const color = status.k === "err" ? C.bad : status.k === "ok" ? C.ink : C.faint;
+  const color =
+    status.k === "err" ? C.bad : status.k === "ok" ? C.ink : C.faint;
 
   return (
     <div className="bipane">
-      <input className="biput"
+      <input
+        className="biput"
         value={n.code ?? ""}
         placeholder="lodash-es, uuid@9, https://…"
         spellCheck={false}
-        onChange={(e) => useGraphStore.getState().updateCode(n.id, e.target.value)}
+        onChange={(e) =>
+          useGraphStore.getState().updateCode(n.id, e.target.value)
+        }
         onPointerDown={(e) => e.stopPropagation()}
       />
       <div className="birow-sb">
         <span
           className="ctrl bitoggle"
-          onClick={(e) => { e.stopPropagation(); useGraphStore.getState().toggleUseDefault(n.id); }}>
+          onClick={(e) => {
+            e.stopPropagation();
+            useGraphStore.getState().toggleUseDefault(n.id);
+          }}
+        >
           {useDefault ? "default ▾" : "namespace ▾"}
         </span>
         <span className="bistatus trunc" style={{ color }}>

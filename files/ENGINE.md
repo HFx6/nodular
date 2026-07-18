@@ -4,24 +4,24 @@ Technical spec: architecture, execution model, language adapters, surfaces, plat
 
 ## Stack
 
-| Layer | Choice | Why |
-|---|---|---|
-| UI framework | React 19 + TypeScript + Vite | |
-| Graph canvas | **Bespoke** (decided): absolutely-positioned pane divs + hand-drawn SVG wires + one CSS view transform for pan/zoom | natto's approach, validated by our own mockups (~60 lines for pan/zoom/snap/wiring/collapse). ReactFlow was evaluated and covers ~80%, but its friction lands on nodular's signature interactions — see rationale below |
-| Code editing | **CodeMirror 6**, one real instance per pane | Chosen over Monaco: Monaco's global reference model resists many-instances-on-one-surface (our exact case), forces inline styling (no CSS vars), and adds a 2–5MB / 1–3s load; CodeMirror inits in <100ms, themes are plain CSS, and it's what natto/Observable/Replit use. Highlighting for every language via Lezer/tree-sitter grammars; deeper intelligence via LSP-over-worker (shares the kernel infra). Trade: no free TS IntelliSense — recovered by running a TS language server as one more worker kernel, which suits a polyglot tool where TS isn't privileged |
-| State | Zustand for the graph doc; runtime state owned by the engine, outside React | Engine ticks must never re-render chrome |
-| JS transform | esbuild-wasm `transform()` only | Per-node TS/JSX strip. Single-file transform is the robust subset; in-browser `build()` needs a fragile CDN-resolver plugin stack we deliberately avoid |
-| JS export inference | es-module-lexer | ~4KB, microsecond scans on keystroke |
-| JS module loading | Blob-URL ES modules + import map → esm.sh | The browser is the bundler; npm via CDN |
-| Kernels | One Web Worker per language, lazy-loaded | Isolation, kill-ability, main thread stays responsive |
-| Python | Pyodide | Best JS FFI, micropip, numpy/pandas/matplotlib |
-| Lua | wasmoon | Tiny, fast startup, trivial env injection |
-| Ruby | ruby.wasm + Prism for parsing | Official CRuby build |
-| Sandboxed JS | quickjs-emscripten | Strict mode for untrusted/shared graphs |
-| C/C++/Rust | Precompiled `.wasm` upload (v1) | Exports section gives port inference for free; in-browser clang later if ever |
-| Persistence | Plain JSON doc; IndexedDB + `.nodular` export; Supabase for sync | Flat id-keyed maps + per-node code strings = CRDT-friendly |
-| Collab (phased) | Yjs (+ y-codemirror.next, Awareness) | Node code as Y.Text gets collaborative CodeMirror editing with cursors for free |
-| Media interchange | OffscreenCanvas, ImageBitmap, VideoFrame, transferables; Comlink candidate for kernel RPC | Zero-copy frames across workers |
+| Layer               | Choice                                                                                                              | Why                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| UI framework        | React 19 + TypeScript + Vite                                                                                        |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Graph canvas        | **Bespoke** (decided): absolutely-positioned pane divs + hand-drawn SVG wires + one CSS view transform for pan/zoom | natto's approach, validated by our own mockups (~60 lines for pan/zoom/snap/wiring/collapse). ReactFlow was evaluated and covers ~80%, but its friction lands on nodular's signature interactions — see rationale below                                                                                                                                                                                                                                                                                                                                                    |
+| Code editing        | **CodeMirror 6**, one real instance per pane                                                                        | Chosen over Monaco: Monaco's global reference model resists many-instances-on-one-surface (our exact case), forces inline styling (no CSS vars), and adds a 2–5MB / 1–3s load; CodeMirror inits in <100ms, themes are plain CSS, and it's what natto/Observable/Replit use. Highlighting for every language via Lezer/tree-sitter grammars; deeper intelligence via LSP-over-worker (shares the kernel infra). Trade: no free TS IntelliSense — recovered by running a TS language server as one more worker kernel, which suits a polyglot tool where TS isn't privileged |
+| State               | Zustand for the graph doc; runtime state owned by the engine, outside React                                         | Engine ticks must never re-render chrome                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| JS transform        | esbuild-wasm `transform()` only                                                                                     | Per-node TS/JSX strip. Single-file transform is the robust subset; in-browser `build()` needs a fragile CDN-resolver plugin stack we deliberately avoid                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| JS export inference | es-module-lexer                                                                                                     | ~4KB, microsecond scans on keystroke                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| JS module loading   | Blob-URL ES modules + import map → esm.sh                                                                           | The browser is the bundler; npm via CDN                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Kernels             | One Web Worker per language, lazy-loaded                                                                            | Isolation, kill-ability, main thread stays responsive                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Python              | Pyodide                                                                                                             | Best JS FFI, micropip, numpy/pandas/matplotlib                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Lua                 | wasmoon                                                                                                             | Tiny, fast startup, trivial env injection                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Ruby                | ruby.wasm + Prism for parsing                                                                                       | Official CRuby build                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Sandboxed JS        | quickjs-emscripten                                                                                                  | Strict mode for untrusted/shared graphs                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| C/C++/Rust          | Precompiled `.wasm` upload (v1)                                                                                     | Exports section gives port inference for free; in-browser clang later if ever                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Persistence         | Plain JSON doc; IndexedDB + `.nodular` export; Supabase for sync                                                    | Flat id-keyed maps + per-node code strings = CRDT-friendly                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Collab (phased)     | Yjs (+ y-codemirror.next, Awareness)                                                                                | Node code as Y.Text gets collaborative CodeMirror editing with cursors for free                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Media interchange   | OffscreenCanvas, ImageBitmap, VideoFrame, transferables; Comlink candidate for kernel RPC                           | Zero-copy frames across workers                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 
 ### Why these and not others
 
@@ -34,7 +34,7 @@ One language-agnostic engine; one adapter file per language. The engine (dirty p
 
 ```ts
 interface LanguageAdapter {
-  id: 'js-expr' | 'js-module' | 'python' | 'lua' | 'ruby' | 'wasm';
+  id: "js-expr" | "js-module" | "python" | "lua" | "ruby" | "wasm";
 
   // Parse code → declared surface (drives handles + validation)
   inferInterface(code: string): { outputs: Port[]; freeInputs: string[] };
@@ -43,13 +43,13 @@ interface LanguageAdapter {
   instantiate(code: string, ctx: KernelContext): Promise<Executable>;
 
   marshal: {
-    toHost(v: LangValue): HostValue;      // e.g. PyProxy → JS
+    toHost(v: LangValue): HostValue; // e.g. PyProxy → JS
     fromHost(v: HostValue): LangValue;
-    wrapFn(fn: LangFn): AsyncHostFn;      // cross-language calls become async
-    canTransfer(v: unknown): boolean;     // ImageBitmap/ArrayBuffer fast path
+    wrapFn(fn: LangFn): AsyncHostFn; // cross-language calls become async
+    canTransfer(v: unknown): boolean; // ImageBitmap/ArrayBuffer fast path
   };
 
-  typeSurface(outputs: Port[]): PortTypeInfo[];  // best-effort, per language
+  typeSurface(outputs: Port[]): PortTypeInfo[]; // best-effort, per language
 }
 ```
 
@@ -79,20 +79,26 @@ Every node, built-in or code, implements:
 
 ```ts
 interface NodeDefinition {
-  interface(config): { inputs: Port[]; outputs: Port[]; derives?: DerivationMap };
+  interface(config): {
+    inputs: Port[];
+    outputs: Port[];
+    derives?: DerivationMap;
+  };
   create(ctx: CreateContext): NodeInstance;
 }
 
 interface NodeInstance {
   setup?(host: HTMLElement | null, ctx: NodeContext): void | Promise<void>; // built-ins mount DOM here
-  update(inputs: Record<string, unknown>, ctx: NodeContext):
-    Record<string, unknown> | void | Promise<Record<string, unknown> | void>;
+  update(
+    inputs: Record<string, unknown>,
+    ctx: NodeContext,
+  ): Record<string, unknown> | void | Promise<Record<string, unknown> | void>;
   teardown?(): void;
 }
 
 interface NodeContext {
-  signal: AbortSignal;                       // aborted when superseded/removed
-  emit(port: string, value: unknown): void;  // push sources (emulators, inputs)
+  signal: AbortSignal; // aborted when superseded/removed
+  emit(port: string, value: unknown): void; // push sources (emulators, inputs)
 }
 ```
 
@@ -146,16 +152,16 @@ Other built-ins follow the same pattern in a few lines each: input/slider/button
 
 ## Languages
 
-| Language | Runtime / adapter | Export inference | Input injection | Load cost | Tier |
-|---|---|---|---|---|---|
-| JS (expressions) | js-expr: `new Function` | n/a (single value out) | function arg | ~0 | 1 — launch |
-| JS/TS/JSX (modules) | js-module: blob-URL modules (+esbuild transform) | es-module-lexer | generated import prelude | ~0 | 1 — launch |
-| Python | Pyodide (worker) | `ast.parse` in-kernel | globals dict | heavy, cached | 1 — launch |
-| Lua | wasmoon (worker) | return table / luaparse | env table | tiny | 2 |
-| Ruby | ruby.wasm (worker) | Prism | binding locals | medium | 2 |
-| WASM (C/C++/Rust artifacts) | direct instantiate (worker) | exports section | imports object | per module | 2 |
-| Sandboxed JS | quickjs-emscripten | lexer | env object | small | 3 — shared-graph mode |
-| C# / .NET | dotnet-wasm | reflection | interop | very heavy | backlog |
+| Language                    | Runtime / adapter                                | Export inference        | Input injection          | Load cost     | Tier                  |
+| --------------------------- | ------------------------------------------------ | ----------------------- | ------------------------ | ------------- | --------------------- |
+| JS (expressions)            | js-expr: `new Function`                          | n/a (single value out)  | function arg             | ~0            | 1 — launch            |
+| JS/TS/JSX (modules)         | js-module: blob-URL modules (+esbuild transform) | es-module-lexer         | generated import prelude | ~0            | 1 — launch            |
+| Python                      | Pyodide (worker)                                 | `ast.parse` in-kernel   | globals dict             | heavy, cached | 1 — launch            |
+| Lua                         | wasmoon (worker)                                 | return table / luaparse | env table                | tiny          | 2                     |
+| Ruby                        | ruby.wasm (worker)                               | Prism                   | binding locals           | medium        | 2                     |
+| WASM (C/C++/Rust artifacts) | direct instantiate (worker)                      | exports section         | imports object           | per module    | 2                     |
+| Sandboxed JS                | quickjs-emscripten                               | lexer                   | env object               | small         | 3 — shared-graph mode |
+| C# / .NET                   | dotnet-wasm                                      | reflection              | interop                  | very heavy    | backlog               |
 
 Cross-language rule shown in UI: data crosses freely (cloned/transferred), functions cross as async, DOM/canvas crosses as a render-function connection or frame stream. Every code node additionally carries the implicit `result` port (last-expression value; see Legibility mechanisms), which is what simple display/consumer nodes wire to by default.
 
@@ -163,15 +169,15 @@ Cross-language rule shown in UI: data crosses freely (cloned/transferred), funct
 
 Desktop, mid-tier laptop:
 
-| Thing | Budget |
-|---|---|
-| App shell interactive | < 1.5s (kernels and esbuild all lazy) |
-| esbuild-wasm init | lazy on first JS-node edit, in a worker |
-| Keystroke → handles update | < 16ms (lexer is µs; debounce transform ~150ms) |
-| Edit → downstream re-eval, 50-node graph of trivial nodes | < 50ms |
-| Stream throughput (emulator at 60fps → canvas) | no main-thread jank; transferable frames, coalesce to latest |
-| Pyodide first load | seconds cold; inline progress on the node, service-worker cached, instant after |
-| wasmoon first load | < 500ms |
+| Thing                                                     | Budget                                                                          |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| App shell interactive                                     | < 1.5s (kernels and esbuild all lazy)                                           |
+| esbuild-wasm init                                         | lazy on first JS-node edit, in a worker                                         |
+| Keystroke → handles update                                | < 16ms (lexer is µs; debounce transform ~150ms)                                 |
+| Edit → downstream re-eval, 50-node graph of trivial nodes | < 50ms                                                                          |
+| Stream throughput (emulator at 60fps → canvas)            | no main-thread jank; transferable frames, coalesce to latest                    |
+| Pyodide first load                                        | seconds cold; inline progress on the node, service-worker cached, instant after |
+| wasmoon first load                                        | < 500ms                                                                         |
 
 Tactics: heavy work in workers; pane components memoized so engine ticks never re-render chrome; DOM hosts mounted once and never re-created by React (ref-stable); inspectors sample at rAF, not per emit; graph ops are O(dirty subgraph); the whole board pans/zooms as one transform so navigation never touches pane internals.
 

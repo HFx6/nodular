@@ -15,7 +15,8 @@ export interface Rect {
 
 export function outsOf(n: GraphNode): ExportInfo[] {
   // built-ins declare fixed named outputs in the doc (state's "set"); code nodes infer them
-  if (n.lang === "ui" || n.lang === "canvas") return (n.outs ?? []).map((name) => ({ name, fn: true }));
+  if (n.lang === "ui" || n.lang === "canvas")
+    return (n.outs ?? []).map((name) => ({ name, fn: true }));
   return outsFor(n);
 }
 
@@ -23,7 +24,9 @@ export function inputsOf(n: GraphNode, edges: Edge[]): string[] {
   if (n.ins) return n.ins;
   if (n.lang === "canvas") return [];
   const seen: string[] = [];
-  edges.forEach((e) => { if (e.to[0] === n.id && !seen.includes(e.to[1])) seen.push(e.to[1]); });
+  edges.forEach((e) => {
+    if (e.to[0] === n.id && !seen.includes(e.to[1])) seen.push(e.to[1]);
+  });
   return seen;
 }
 
@@ -62,7 +65,12 @@ export function minNodeWidth(n: GraphNode): number {
 
 /** The node's board-space rectangle: doc width, height from measured › doc › estimate. */
 export function nodeRect(n: GraphNode, sizes: SizeMap, edges: Edge[]): Rect {
-  return { x: n.x, y: n.y, w: n.w, h: sizes[n.id]?.h ?? n.h ?? estimateHeight(n, edges) };
+  return {
+    x: n.x,
+    y: n.y,
+    w: n.w,
+    h: sizes[n.id]?.h ?? n.h ?? estimateHeight(n, edges),
+  };
 }
 
 export interface PortPoint {
@@ -71,7 +79,12 @@ export interface PortPoint {
   missing?: boolean;
 }
 
-export function portPos(n: GraphNode, port: string, side: "in" | "out", edges: Edge[]): PortPoint {
+export function portPos(
+  n: GraphNode,
+  port: string,
+  side: "in" | "out",
+  edges: Edge[],
+): PortPoint {
   if (n.min) return { x: side === "in" ? n.x : n.x + n.w, y: n.y + HEAD / 2 };
   if (side === "out") {
     if (port === "→") return { x: n.x + n.w, y: n.y + HEAD / 2 };
@@ -88,7 +101,10 @@ export function portPos(n: GraphNode, port: string, side: "in" | "out", edges: E
 /** The plain horizontal-tangent cubic bezier: control points pushed sideways by
  *  a min-38 / 42%-of-span offset. Used for clear routes and as the router's
  *  fallback. */
-export function directBezier(a: { x: number; y: number }, b: { x: number; y: number }): string {
+export function directBezier(
+  a: { x: number; y: number },
+  b: { x: number; y: number },
+): string {
   const dx = Math.max(38, Math.abs(b.x - a.x) * 0.42);
   return `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}`;
 }
@@ -100,12 +116,22 @@ export interface WireGeometry {
   d: string;
 }
 
-export function wireGeometry(e: Edge, nodes: NodeMap, edges: Edge[]): WireGeometry | null {
-  const s = nodes[e.from[0]], d = nodes[e.to[0]];
+export function wireGeometry(
+  e: Edge,
+  nodes: NodeMap,
+  edges: Edge[],
+): WireGeometry | null {
+  const s = nodes[e.from[0]],
+    d = nodes[e.to[0]];
   if (!s || !d) return null;
   const a = portPos(s, e.from[1], "out", edges);
   const b = portPos(d, e.to[1], "in", edges);
   let broken = !!a.missing;
-  if (e.from[1] !== "→" && (s.lang === "js" || s.lang === "py") && !outsOf(s).some((o) => o.name === e.from[1])) broken = true;
+  if (
+    e.from[1] !== "→" &&
+    (s.lang === "js" || s.lang === "py") &&
+    !outsOf(s).some((o) => o.name === e.from[1])
+  )
+    broken = true;
   return { a, b, broken, d: directBezier(a, b) };
 }

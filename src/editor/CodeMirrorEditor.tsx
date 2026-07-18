@@ -21,7 +21,14 @@ interface CodeMirrorEditorProps {
   onChange: (code: string) => void;
 }
 
-export function CodeMirrorEditor({ code, lang, variant, readOnly = false, height, onChange }: CodeMirrorEditorProps) {
+export function CodeMirrorEditor({
+  code,
+  lang,
+  variant,
+  readOnly = false,
+  height,
+  onChange,
+}: CodeMirrorEditorProps) {
   const host = useRef<HTMLDivElement>(null);
   const view = useRef<EditorView | null>(null);
   const readOnlyComp = useRef(new Compartment());
@@ -63,7 +70,10 @@ export function CodeMirrorEditor({ code, lang, variant, readOnly = false, height
     // the in-node pane opens with big top-level blocks collapsed (#6)
     if (variant === "pane") foldLargeTopLevel(v);
     view.current = v;
-    return () => { v.destroy(); view.current = null; };
+    return () => {
+      v.destroy();
+      view.current = null;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- code/readOnly sync in their own effects
   }, [lang, variant]);
 
@@ -78,7 +88,11 @@ export function CodeMirrorEditor({ code, lang, variant, readOnly = false, height
   }, [code]);
 
   useEffect(() => {
-    view.current?.dispatch({ effects: readOnlyComp.current.reconfigure(EditorState.readOnly.of(readOnly)) });
+    view.current?.dispatch({
+      effects: readOnlyComp.current.reconfigure(
+        EditorState.readOnly.of(readOnly),
+      ),
+    });
   }, [readOnly]);
 
   // re-bound the height when it changes; the theme keeps the scroller overflow: auto
@@ -93,8 +107,13 @@ export function CodeMirrorEditor({ code, lang, variant, readOnly = false, height
       // the host must be full-height when the editor is told to fill it — a
       // plain auto-height block makes the editor's `height: 100%` resolve to
       // nothing and the code clips unscrollably under the region's overflow
-      style={variant === "rail" ? { flex: 1, minHeight: 0, overflow: "hidden" }
-        : height === "fill" ? { height: "100%", minHeight: 0 } : undefined}
+      style={
+        variant === "rail"
+          ? { flex: 1, minHeight: 0, overflow: "hidden" }
+          : height === "fill"
+            ? { height: "100%", minHeight: 0 }
+            : undefined
+      }
       // focus fallback: if the browser's native mousedown→focus chain was
       // swallowed anywhere upstream, explicitly hand focus to the editor
       onClick={() => {

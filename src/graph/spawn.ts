@@ -11,16 +11,41 @@
 
 import type { GraphNode, Lang, NodeMap, UiKind } from "../types";
 
-export type SpawnKind = "eval" | "import" | "text" | "state" | "table" | "image" | "canvas";
+export type SpawnKind =
+  "eval" | "import" | "text" | "state" | "table" | "image" | "canvas";
 
-export const SPAWN_KINDS: Array<{ kind: SpawnKind; label: string; toast: string }> = [
+export const SPAWN_KINDS: Array<{
+  kind: SpawnKind;
+  label: string;
+  toast: string;
+}> = [
   { kind: "eval", label: "eval node", toast: "new node — start typing" },
-  { kind: "import", label: "import node", toast: "import node — type a package name or url" },
-  { kind: "text", label: "text node", toast: "text node — its value is the text" },
-  { kind: "state", label: "state node", toast: "state node — value out, set() out" },
-  { kind: "table", label: "table node (row picker)", toast: "table node — wire rows in, click a row to emit it" },
+  {
+    kind: "import",
+    label: "import node",
+    toast: "import node — type a package name or url",
+  },
+  {
+    kind: "text",
+    label: "text node",
+    toast: "text node — its value is the text",
+  },
+  {
+    kind: "state",
+    label: "state node",
+    toast: "state node — value out, set() out",
+  },
+  {
+    kind: "table",
+    label: "table node (row picker)",
+    toast: "table node — wire rows in, click a row to emit it",
+  },
   { kind: "image", label: "image node", toast: "image node — wire a url in" },
-  { kind: "canvas", label: "canvas node", toast: "canvas node — wire a render function in" },
+  {
+    kind: "canvas",
+    label: "canvas node",
+    toast: "canvas node — wire a render function in",
+  },
 ];
 
 /** Default width for a node the doc doesn't size — well above minNodeWidth so
@@ -28,7 +53,8 @@ export const SPAWN_KINDS: Array<{ kind: SpawnKind; label: string; toast: string 
  *  Shared by spawnNode and doc loading (example docs ship unsized). */
 export function defaultWidth(lang: Lang, kind?: UiKind): number {
   if (lang === "canvas") return 310;
-  if (lang === "ui") return kind === "table" ? 320 : kind === "image" ? 260 : 360;
+  if (lang === "ui")
+    return kind === "table" ? 320 : kind === "image" ? 260 : 360;
   return 360;
 }
 
@@ -42,22 +68,77 @@ export function fillNodeWidths<T extends { nodes: NodeMap }>(doc: T): T {
 }
 
 /** Default doc node for a palette kind, at board coords (grid-snap is the store's job). */
-export function spawnNode(id: string, at: { x: number; y: number }, kind: SpawnKind): GraphNode {
+export function spawnNode(
+  id: string,
+  at: { x: number; y: number },
+  kind: SpawnKind,
+): GraphNode {
   const base = { id, x: at.x, y: at.y };
   switch (kind) {
     case "import":
-      return { ...base, w: defaultWidth("ui", kind), lang: "ui", kind, name: "import", ins: [], useDefault: true };
+      return {
+        ...base,
+        w: defaultWidth("ui", kind),
+        lang: "ui",
+        kind,
+        name: "import",
+        ins: [],
+        useDefault: true,
+      };
     case "text":
-      return { ...base, w: defaultWidth("ui", kind), lang: "ui", kind, name: "text", ins: [], code: "" };
+      return {
+        ...base,
+        w: defaultWidth("ui", kind),
+        lang: "ui",
+        kind,
+        name: "text",
+        ins: [],
+        code: "",
+      };
     case "state":
-      return { ...base, w: defaultWidth("ui", kind), lang: "ui", kind, name: "state", ins: [], outs: ["set"], code: "" };
+      return {
+        ...base,
+        w: defaultWidth("ui", kind),
+        lang: "ui",
+        kind,
+        name: "state",
+        ins: [],
+        outs: ["set"],
+        code: "",
+      };
     case "table":
-      return { ...base, w: defaultWidth("ui", kind), lang: "ui", kind, name: "table", ins: ["rows"] };
+      return {
+        ...base,
+        w: defaultWidth("ui", kind),
+        lang: "ui",
+        kind,
+        name: "table",
+        ins: ["rows"],
+      };
     case "image":
-      return { ...base, w: defaultWidth("ui", kind), lang: "ui", kind, name: "image", ins: ["url"] };
+      return {
+        ...base,
+        w: defaultWidth("ui", kind),
+        lang: "ui",
+        kind,
+        name: "image",
+        ins: ["url"],
+      };
     case "canvas":
-      return { ...base, w: defaultWidth("canvas"), lang: "canvas", name: "canvas", ins: ["render"] };
+      return {
+        ...base,
+        w: defaultWidth("canvas"),
+        lang: "canvas",
+        name: "canvas",
+        ins: ["render"],
+      };
     case "eval":
-      return { ...base, w: defaultWidth("js"), lang: "js", name: id, code: "1 + 1" };
+      return {
+        ...base,
+        w: defaultWidth("js"),
+        lang: "js",
+        name: id,
+        code: "1 + 1",
+      };
   }
 }

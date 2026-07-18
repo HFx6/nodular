@@ -4,7 +4,11 @@ import type { Edge } from "../../types";
 
 /** Seeds plus everything reachable along from→to edges. `stop` nodes are
  *  neither entered nor expanded through (manual nodes barrier the flush). */
-export function downstreamClosure(seeds: Iterable<string>, edges: Edge[], stop?: (id: string) => boolean): Set<string> {
+export function downstreamClosure(
+  seeds: Iterable<string>,
+  edges: Edge[],
+  stop?: (id: string) => boolean,
+): Set<string> {
   const out = new Set<string>(seeds);
   const queue = [...out];
   while (queue.length) {
@@ -21,10 +25,15 @@ export function downstreamClosure(seeds: Iterable<string>, edges: Edge[], stop?:
 
 /** Kahn topological order of `work`, considering only edges inside it.
  *  Nodes on a cycle never reach in-degree 0 and come back as `cyclic`. */
-export function kahnTopo(work: Set<string>, edges: Edge[]): { order: string[]; cyclic: string[] } {
+export function kahnTopo(
+  work: Set<string>,
+  edges: Edge[],
+): { order: string[]; cyclic: string[] } {
   const indeg = new Map<string, number>();
   for (const id of work) indeg.set(id, 0);
-  const rel = edges.filter((e) => work.has(e.from[0]) && work.has(e.to[0]) && e.from[0] !== e.to[0]);
+  const rel = edges.filter(
+    (e) => work.has(e.from[0]) && work.has(e.to[0]) && e.from[0] !== e.to[0],
+  );
   for (const e of rel) indeg.set(e.to[0], indeg.get(e.to[0])! + 1);
   const queue = [...work].filter((id) => indeg.get(id) === 0);
   const order: string[] = [];

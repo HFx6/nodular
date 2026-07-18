@@ -43,11 +43,11 @@ Planned differentiators:
 
 ## Node families
 
-| Family | What | Examples |
-|---|---|---|
-| Code nodes | User-authored modules, per language | JS/TS, Python, Lua, Ruby, precompiled WASM |
-| Built-ins | Pre-made DOM/host nodes on the same contract | sources: tick, keys, pointer; controls: text input, button, slider; sinks: canvas/screen, text output; plus video, image, file drop, fetch |
-| Structural | Graph-level utilities | comment/frame, subgraph, value probe |
+| Family     | What                                         | Examples                                                                                                                                   |
+| ---------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Code nodes | User-authored modules, per language          | JS/TS, Python, Lua, Ruby, precompiled WASM                                                                                                 |
+| Built-ins  | Pre-made DOM/host nodes on the same contract | sources: tick, keys, pointer; controls: text input, button, slider; sinks: canvas/screen, text output; plus video, image, file drop, fetch |
+| Structural | Graph-level utilities                        | comment/frame, subgraph, value probe                                                                                                       |
 
 Built-ins are dual-direction where sensible (a slider is both a source of its value and a sink for it). Rich surfaces are strict sinks: the canvas has inputs only (frames, or a render function - the surface handoff happens underneath). Interaction comes from separate source built-ins (`keys`, `pointer`) that reference a surface by setting rather than by wire, so drawing apps and playable emulators are ordinary acyclic graphs where every arrow points into the screen.
 

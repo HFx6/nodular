@@ -12,7 +12,12 @@ interface ValueTableProps {
  *  the first few object rows; non-object rows render as a single value column.
  *  Shared by the table built-in (row click emits) and the table render mode
  *  (row click calls the value's onRowClick). */
-export function ValueTable({ rows, maxHeight, selIdx = -1, onRowClick }: ValueTableProps) {
+export function ValueTable({
+  rows,
+  maxHeight,
+  selIdx = -1,
+  onRowClick,
+}: ValueTableProps) {
   const cols: string[] = [];
   for (const r of rows.slice(0, 5)) {
     if (r && typeof r === "object" && !Array.isArray(r)) {
@@ -36,8 +41,11 @@ export function ValueTable({ rows, maxHeight, selIdx = -1, onRowClick }: ValueTa
         )}
         <tbody>
           {shown.map((r, i) => (
-            <tr key={i} onClick={() => onRowClick?.(r, i)}
-              className={`${onRowClick ? "click" : ""}${i === selIdx ? " sel" : ""}`}>
+            <tr
+              key={i}
+              onClick={() => onRowClick?.(r, i)}
+              className={`${onRowClick ? "click" : ""}${i === selIdx ? " sel" : ""}`}
+            >
               {cols.length > 0 ? (
                 cols.map((c) => (
                   <td key={c} className="vmax">
@@ -52,9 +60,7 @@ export function ValueTable({ rows, maxHeight, selIdx = -1, onRowClick }: ValueTa
         </tbody>
       </table>
       {rows.length > MAX_ROWS && (
-        <div className="vtable-more">
-          + {rows.length - MAX_ROWS} more
-        </div>
+        <div className="vtable-more">+ {rows.length - MAX_ROWS} more</div>
       )}
     </div>
   );

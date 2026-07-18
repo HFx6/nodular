@@ -7,7 +7,14 @@
 
 import { create } from "zustand";
 import { temporal } from "zundo";
-import type { ArmState, Edge, NodeMap, PortRef, RenderMode, ValueMode } from "../types";
+import type {
+  ArmState,
+  Edge,
+  NodeMap,
+  PortRef,
+  RenderMode,
+  ValueMode,
+} from "../types";
 import { GRID } from "../theme";
 import { newId } from "./ids";
 import { fillNodeWidths, spawnNode, type SpawnKind } from "./spawn";
@@ -85,14 +92,18 @@ export const useGraphStore = create<GraphStore>()(
       arm: null,
 
       updateCode: (id, code) =>
-        set((s) => (s.nodes[id] && s.nodes[id].code !== code
-          ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, code } } }
-          : s)),
+        set((s) =>
+          s.nodes[id] && s.nodes[id].code !== code
+            ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, code } } }
+            : s,
+        ),
 
       moveNode: (id, x, y) =>
-        set((s) => (s.nodes[id] && (s.nodes[id].x !== x || s.nodes[id].y !== y)
-          ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, x, y } } }
-          : s)),
+        set((s) =>
+          s.nodes[id] && (s.nodes[id].x !== x || s.nodes[id].y !== y)
+            ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, x, y } } }
+            : s,
+        ),
 
       moveNodes: (entries) =>
         set((s) => {
@@ -100,19 +111,29 @@ export const useGraphStore = create<GraphStore>()(
           const nodes = { ...s.nodes };
           for (const { id, x, y } of entries) {
             const n = nodes[id];
-            if (n && (n.x !== x || n.y !== y)) { nodes[id] = { ...n, x, y }; changed = true; }
+            if (n && (n.x !== x || n.y !== y)) {
+              nodes[id] = { ...n, x, y };
+              changed = true;
+            }
           }
           return changed ? { nodes } : s;
         }),
 
       tidy: () =>
         set((s) => {
-          const pos = layeredLayout(s.nodes, s.edges, sizeStore.getState().sizes);
+          const pos = layeredLayout(
+            s.nodes,
+            s.edges,
+            sizeStore.getState().sizes,
+          );
           let changed = false;
           const nodes = { ...s.nodes };
           for (const id in pos) {
             const n = nodes[id];
-            if (n && (n.x !== pos[id]!.x || n.y !== pos[id]!.y)) { nodes[id] = { ...n, x: pos[id]!.x, y: pos[id]!.y }; changed = true; }
+            if (n && (n.x !== pos[id]!.x || n.y !== pos[id]!.y)) {
+              nodes[id] = { ...n, x: pos[id]!.x, y: pos[id]!.y };
+              changed = true;
+            }
           }
           return changed ? { nodes } : s;
         }),
@@ -130,7 +151,12 @@ export const useGraphStore = create<GraphStore>()(
         set((s) => {
           const n = s.nodes[id];
           if (!n || (n.w === w && n.h === h)) return s;
-          return { nodes: { ...s.nodes, [id]: { ...n, w, ...(h !== undefined ? { h } : {}) } } };
+          return {
+            nodes: {
+              ...s.nodes,
+              [id]: { ...n, w, ...(h !== undefined ? { h } : {}) },
+            },
+          };
         }),
 
       deleteNodes: (ids) => {
@@ -141,7 +167,9 @@ export const useGraphStore = create<GraphStore>()(
           for (const id of ids) delete nodes[id];
           return {
             nodes,
-            edges: s.edges.filter((e) => !gone.has(e.from[0]) && !gone.has(e.to[0])),
+            edges: s.edges.filter(
+              (e) => !gone.has(e.from[0]) && !gone.has(e.to[0]),
+            ),
             sel: s.sel.filter((id) => !gone.has(id)),
             arm: s.arm && gone.has(s.arm.id) ? null : s.arm,
           };
@@ -149,41 +177,88 @@ export const useGraphStore = create<GraphStore>()(
       },
 
       toggleMin: (id) =>
-        set((s) => (s.nodes[id] ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, min: !s.nodes[id]!.min } } } : s)),
+        set((s) =>
+          s.nodes[id]
+            ? {
+                nodes: {
+                  ...s.nodes,
+                  [id]: { ...s.nodes[id]!, min: !s.nodes[id]!.min },
+                },
+              }
+            : s,
+        ),
 
       toggleManual: (id) =>
-        set((s) => (s.nodes[id] ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, manual: !s.nodes[id]!.manual } } } : s)),
+        set((s) =>
+          s.nodes[id]
+            ? {
+                nodes: {
+                  ...s.nodes,
+                  [id]: { ...s.nodes[id]!, manual: !s.nodes[id]!.manual },
+                },
+              }
+            : s,
+        ),
 
       toggleUseDefault: (id) =>
-        set((s) => (s.nodes[id] ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, useDefault: !s.nodes[id]!.useDefault } } } : s)),
+        set((s) =>
+          s.nodes[id]
+            ? {
+                nodes: {
+                  ...s.nodes,
+                  [id]: {
+                    ...s.nodes[id]!,
+                    useDefault: !s.nodes[id]!.useDefault,
+                  },
+                },
+              }
+            : s,
+        ),
 
       setValueMode: (id, m) =>
-        set((s) => (s.nodes[id] && s.nodes[id].valueMode !== m
-          ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, valueMode: m } } }
-          : s)),
+        set((s) =>
+          s.nodes[id] && s.nodes[id].valueMode !== m
+            ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, valueMode: m } } }
+            : s,
+        ),
 
       setRenderMode: (id, m) =>
-        set((s) => (s.nodes[id] && s.nodes[id].renderMode !== m
-          ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, renderMode: m } } }
-          : s)),
+        set((s) =>
+          s.nodes[id] && s.nodes[id].renderMode !== m
+            ? {
+                nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, renderMode: m } },
+              }
+            : s,
+        ),
 
       setSplit: (id, split) =>
-        set((s) => (s.nodes[id] && s.nodes[id].split !== split
-          ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, split } } }
-          : s)),
+        set((s) =>
+          s.nodes[id] && s.nodes[id].split !== split
+            ? { nodes: { ...s.nodes, [id]: { ...s.nodes[id]!, split } } }
+            : s,
+        ),
 
       connect: (from, to) =>
         set((s) => ({
-          edges: [...s.edges.filter((x) => !(x.to[0] === to[0] && x.to[1] === to[1])),
-            { id: newId("e"), from, to }],
+          edges: [
+            ...s.edges.filter((x) => !(x.to[0] === to[0] && x.to[1] === to[1])),
+            { id: newId("e"), from, to },
+          ],
         })),
 
-      setDoc: (doc) => set({ nodes: doc.nodes, edges: doc.edges, sel: [], arm: null }),
+      setDoc: (doc) =>
+        set({ nodes: doc.nodes, edges: doc.edges, sel: [], arm: null }),
 
       select: (id, additive) =>
-        set((s) => additive
-          ? { sel: s.sel.includes(id) ? s.sel.filter((x) => x !== id) : [...s.sel, id] }
-          : { sel: [id] }),
+        set((s) =>
+          additive
+            ? {
+                sel: s.sel.includes(id)
+                  ? s.sel.filter((x) => x !== id)
+                  : [...s.sel, id],
+              }
+            : { sel: [id] },
+        ),
       setSelection: (ids) => set({ sel: ids }),
       clearSelection: () => set({ sel: [] }),
 
@@ -191,14 +266,18 @@ export const useGraphStore = create<GraphStore>()(
       dropIn: (id, port) => {
         const a = get().arm;
         if (!a) return { ok: false };
-        if (a.id === id) { set({ arm: null }); return { ok: false }; }
+        if (a.id === id) {
+          set({ arm: null });
+          return { ok: false };
+        }
         const name = port || (a.port === "→" ? a.id : a.port);
         get().connect([a.id, a.port], [id, name]);
         set({ arm: null });
         return { ok: true, name };
       },
       disarm: () => set({ arm: null }),
-      setArmDrag: (p) => set((s) => (s.arm ? { arm: { ...s.arm, drag: p } } : s)),
+      setArmDrag: (p) =>
+        set((s) => (s.arm ? { arm: { ...s.arm, drag: p } } : s)),
     }),
     {
       partialize: (s) => ({ nodes: s.nodes, edges: s.edges }),

@@ -5,7 +5,14 @@ import { registerAdapter, registerBuiltin } from "./core/registry";
 import { startEngine } from "./core/engine";
 import { jsAdapter } from "./adapters/js";
 import { pyAdapter } from "./adapters/py";
-import { canvasDef, imageDef, importDef, stateDef, tableDef, textDef } from "./builtins";
+import {
+  canvasDef,
+  imageDef,
+  importDef,
+  stateDef,
+  tableDef,
+  textDef,
+} from "./builtins";
 
 export function bootEngine(): void {
   registerAdapter("js", jsAdapter);

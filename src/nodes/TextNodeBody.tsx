@@ -13,11 +13,14 @@ export function TextNodeBody({ node: n }: { node: GraphNode }) {
 
   return (
     <div className="text-pane">
-      <textarea className="text-ta"
+      <textarea
+        className="text-ta"
         value={n.code ?? ""}
         placeholder="text…"
         spellCheck={false}
-        onChange={(e) => useGraphStore.getState().updateCode(n.id, e.target.value)}
+        onChange={(e) =>
+          useGraphStore.getState().updateCode(n.id, e.target.value)
+        }
         onPointerDown={(e) => e.stopPropagation()}
       />
     </div>
