@@ -13,12 +13,15 @@ import { newId } from "./ids";
 import { spawnNode, type SpawnKind } from "./spawn";
 import { layeredLayout } from "./layout";
 import { sizeStore } from "./sizeStore";
-import { INITIAL_EDGES, INITIAL_NODES } from "./initialGraph";
+import walkers from "../examples/walkers.nodular.json";
 
 export interface GraphDoc {
   nodes: NodeMap;
   edges: Edge[];
 }
+
+/** The walkers demo doubles as the seed doc a fresh canvas opens with. */
+export const SEED_DOC = walkers as unknown as GraphDoc;
 
 export interface DropResult {
   ok: boolean;
@@ -76,8 +79,8 @@ function coalesce<A extends unknown[]>(fn: (...args: A) => void, ms: number) {
 export const useGraphStore = create<GraphStore>()(
   temporal(
     (set, get) => ({
-      nodes: INITIAL_NODES,
-      edges: INITIAL_EDGES,
+      nodes: SEED_DOC.nodes,
+      edges: SEED_DOC.edges,
       sel: ["count"],
       arm: null,
 
@@ -172,7 +175,7 @@ export const useGraphStore = create<GraphStore>()(
       connect: (from, to) =>
         set((s) => ({
           edges: [...s.edges.filter((x) => !(x.to[0] === to[0] && x.to[1] === to[1])),
-            { id: newId("e"), from, to, sample: "…first value pending" }],
+            { id: newId("e"), from, to }],
         })),
 
       setDoc: (doc) => set({ nodes: doc.nodes, edges: doc.edges, sel: [], arm: null }),

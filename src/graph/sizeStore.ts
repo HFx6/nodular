@@ -36,3 +36,15 @@ export function dropSize(id: string): void {
 }
 
 export const useSizes = (): SizeMap => useStore(sizeStore, (s) => s.sizes);
+
+/** Resolves once every id has a measured size — or after `timeout` ms, so a
+ *  node that never mounts can't wedge the caller. */
+export function whenMeasured(ids: string[], timeout = 800): Promise<void> {
+  const ready = () => ids.every((id) => sizeStore.getState().sizes[id]);
+  if (ready()) return Promise.resolve();
+  return new Promise((resolve) => {
+    const done = () => { unsub(); clearTimeout(t); resolve(); };
+    const unsub = sizeStore.subscribe(() => { if (ready()) done(); });
+    const t = setTimeout(done, timeout);
+  });
+}

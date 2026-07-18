@@ -59,7 +59,6 @@ export interface Edge {
   id: string;
   from: PortRef;
   to: PortRef;
-  sample: string;
   stream?: boolean;
   xlang?: string;
 }

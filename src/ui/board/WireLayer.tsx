@@ -3,16 +3,23 @@ import { useStore } from "zustand";
 import { C, MONO } from "../../theme";
 import { portPos, wireGeometry } from "../../graph/geometry";
 import { routeWire } from "../../graph/routing";
-import { resultsStore } from "../../engine/core/resultsStore";
+import { preview, resultsStore } from "../../engine/core/resultsStore";
+import { portValue } from "../../engine/core/engine";
 import type { ArmState, Edge, NodeMap } from "../../types";
 
-/** Live runtime sample for a value-port edge: the source's current result,
- *  read at render time (hover already re-renders). Falls back to the doc's
- *  static sample text when the engine has nothing yet. */
-function liveSample(e: Edge): string | null {
-  if (e.from[1] !== "→") return null;
-  const r = resultsStore.getState().results[e.from[0]];
-  return r?.v != null ? (r.k ? `${r.v} · ${r.k}` : r.v) : null;
+/** Live badge for a hovered wire: what's currently crossing it, previewed as
+ *  `value · kind` (obj, arr(n), str, fn…), read at render time (hover already
+ *  re-renders). "→" edges reuse the node's published result; named-export
+ *  edges read their export off the raw value. Before anything has flowed the
+ *  badge reads "pending" (or "error" when the source failed). */
+function liveSample(e: Edge): string {
+  const s = resultsStore.getState();
+  const [id, port] = e.from;
+  const r = port === "→"
+    ? s.results[id]
+    : id in s.raws ? preview(portValue(s.raws[id], port)) : undefined;
+  if (r?.v == null) return s.results[id]?.why ? "error" : "pending";
+  return r.k ? `${r.v} · ${r.k}` : r.v;
 }
 
 /** True for ~450ms after `dep` changes identity (skipping the initial value).
@@ -135,7 +142,7 @@ export function WireLabels({ nodes, edges, hot }: { nodes: NodeMap; edges: Edge[
                 <span style={{ fontFamily: MONO, fontSize: 10, padding: "2px 7px", borderRadius: 3, whiteSpace: "nowrap",
                   background: g.broken ? C.badSoft : C.ink, color: g.broken ? C.bad : "#f2f1ec",
                   border: g.broken ? `1px solid ${C.bad}` : "none" }}>
-                  {g.broken ? `missing export "${e.from[1]}"` : liveSample(e) ?? e.sample}
+                  {g.broken ? `missing export "${e.from[1]}"` : liveSample(e)}
                 </span>
               </div>
             </foreignObject>

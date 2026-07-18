@@ -10,6 +10,11 @@ export function GlobalStyles() {
          matter what specificity/injection order the CM theme ends up with */
       .cm-content, .cm-content * { user-select: text !important; -webkit-user-select: text !important; }
       .ctrl{color:${C.faint}; font-size:11px; cursor:pointer; line-height:1; padding:5px; margin:-5px} .ctrl:hover{color:${C.ink}}
+      /* paper dropdown chrome, shared by the top menu, node palette and node
+         settings — position/size stay inline at the call site */
+      .popover{position:absolute; z-index:20; background:${C.pane}; border:1px solid ${C.edge}; border-radius:4px; box-shadow:0 4px 14px rgba(40,40,36,.12)}
+      .popitem{padding:5px 12px; font-family:${MONO}; font-size:11.5px; color:${C.ink}; cursor:pointer}
+      .popitem:hover{background:${C.headBg}}
       /* port labels: darker than wires + a paper chip so a wire running
          underneath can't swallow them (#4) */
       .olabel{position:absolute; left:100%; padding-left:7px; height:${ROW}px; display:flex; align-items:center; gap:4px;

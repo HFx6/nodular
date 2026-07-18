@@ -43,8 +43,7 @@ export function NodeSettings({ node: n, onClose }: { node: GraphNode; onClose: (
 
   return (
     <div ref={root} className="popover" onPointerDown={(e) => e.stopPropagation()}
-      style={{ position: "absolute", top: 30, right: 6, width: 196, zIndex: 30, fontFamily: MONO,
-        background: C.pane, border: `1px solid ${C.edge}`, borderRadius: 4, boxShadow: "0 4px 14px rgba(40,40,36,.12)", padding: "4px 0 6px" }}>
+      style={{ top: 30, right: 6, width: 196, zIndex: 30, fontFamily: MONO, padding: "4px 0 6px" }}>
       <Section title="editor value" />
       {VALUE_MODES.map(({ m, label, hint }) => (
         <Row key={m} label={label} hint={hint} on={valueMode === m}

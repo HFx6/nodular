@@ -103,7 +103,7 @@ async function flush(): Promise<void> {
  *  otherwise it is the node's whole value. A named port reads that export off the
  *  value. Generic on value shape — the core never learns what a "module" is, so
  *  js-module exports and (later) Python defs flow through the same path. */
-function portValue(value: unknown, port: string): unknown {
+export function portValue(value: unknown, port: string): unknown {
   if (value == null) return undefined;
   if ((value as Record<symbol, unknown>)[PORTS]) return (value as Record<string, unknown>)[port];
   const isNs = (value as Record<symbol, unknown>)[Symbol.toStringTag] === "Module";

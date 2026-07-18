@@ -38,11 +38,11 @@ export function editorExtensions(lang: string, variant: "pane" | "rail"): Extens
   const key = `${lang}:${variant}`;
   let ext = cache.get(key);
   if (!ext) {
-    // the pane wraps long lines to the node's width (mockup); the rail keeps
-    // them straight and scrolls horizontally, like a real editor
+    // both variants wrap long lines: the pane to the node's width, the rail to
+    // its panel width — nothing ever scrolls horizontally
     ext = variant === "pane"
       ? [langs[lang] ?? [], base, codeFolding(), EditorView.lineWrapping, paperThemePane]
-      : [langs[lang] ?? [], base, railExtras, lang === "js" ? jsLinter : [], paperThemeRail];
+      : [langs[lang] ?? [], base, railExtras, EditorView.lineWrapping, lang === "js" ? jsLinter : [], paperThemeRail];
     cache.set(key, ext);
   }
   return ext;

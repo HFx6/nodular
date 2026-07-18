@@ -1,4 +1,5 @@
 import { memo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { IconAdjustments, IconArrowDownRight, IconChevronDown, IconMinus, IconPlayerPlay, IconX } from "@tabler/icons-react";
 import { C, HEAD, MONO, ROW } from "../theme";
 import { inputsOf, outsOf } from "../graph/geometry";
 import { useNodeResult } from "../engine/core/resultsStore";
@@ -14,24 +15,9 @@ import { TextNodeBody } from "./TextNodeBody";
 import { StateNodeBody } from "./StateNodeBody";
 import { NodeSettings } from "./NodeSettings";
 
-/** 12px header icons (#4): thin strokes in currentColor, so the .ctrl class's
- *  dim→ink hover swap applies — same style as the resize grip below. */
-function RunIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" style={{ display: "block" }}>
-      <path d="M 4 2.4 L 9.4 6 L 4 9.6 Z" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function SlidersIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" style={{ display: "block" }}>
-      <path d="M 3 1.5 V 10.5 M 6 1.5 V 10.5 M 9 1.5 V 10.5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" fill="none" />
-      <path d="M 1.6 4 H 4.4 M 4.6 7.6 H 7.4 M 7.6 3.2 H 10.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" fill="none" />
-    </svg>
-  );
-}
+// header icons are tabler at 12px with thin strokes, in currentColor so the
+// .ctrl class's dim→ink hover swap applies
+const icon = { size: 12, stroke: 1.5, style: { display: "block" } } as const;
 
 interface NodeCardProps {
   node: GraphNode;
@@ -89,10 +75,10 @@ function NodeCardImpl({ node: n, edges, selected: seld, arm, actions, dimmed, on
       }}
         style={{ display: "flex", alignItems: "center", gap: 8, height: HEAD, padding: "0 8px 0 10px", background: C.headBg,
           borderBottom: n.min ? "none" : `1px solid ${C.edge}`, borderRadius: n.min ? 4 : "4px 4px 0 0", cursor: "grab" }}>
-        <span className="ctrl" title="delete node" style={{ fontSize: 12 }}
-          onClick={(e) => { e.stopPropagation(); actions.onDelete(n.id); }}>×</span>
-        <span className="ctrl" title="minimize" style={{ fontSize: 13 }}
-          onClick={(e) => { e.stopPropagation(); actions.onToggleMin(n.id); }}>–</span>
+        <span className="ctrl" title="delete node"
+          onClick={(e) => { e.stopPropagation(); actions.onDelete(n.id); }}><IconX {...icon} /></span>
+        <span className="ctrl" title="minimize"
+          onClick={(e) => { e.stopPropagation(); actions.onToggleMin(n.id); }}><IconMinus {...icon} /></span>
         {/* the title never shrinks or ellipsizes — minNodeWidth clamps resizes
             so the header always has room for every item at full length */}
         <span title={isCode ? "double-click to open the editor" : undefined}
@@ -102,18 +88,18 @@ function NodeCardImpl({ node: n, edges, selected: seld, arm, actions, dimmed, on
         </span>
         {hasSettings && (
           <span className="ctrl" title="node settings"
-            onClick={(e) => { e.stopPropagation(); setSettingsOpen((o) => !o); }}><SlidersIcon /></span>
+            onClick={(e) => { e.stopPropagation(); setSettingsOpen((o) => !o); }}><IconAdjustments {...icon} /></span>
         )}
         {isCode && (
           <span className="hctl" title={n.manual ? "manual — click to run automatically" : "auto — click for manual"}
             onClick={(e) => { e.stopPropagation(); actions.onToggleMode(n.id); }}
-            style={{ fontFamily: MONO, fontSize: 9.5, color: C.dim, cursor: "pointer", lineHeight: 1.4, whiteSpace: "nowrap" }}>
-            {n.manual ? "manual" : "auto"} ▾
+            style={{ display: "flex", alignItems: "center", gap: 1, fontFamily: MONO, fontSize: 9.5, color: C.dim, cursor: "pointer", lineHeight: 1.4, whiteSpace: "nowrap" }}>
+            {n.manual ? "manual" : "auto"} <IconChevronDown size={9} stroke={1.75} />
           </span>
         )}
         {isCode && (
           <span className="ctrl" title="run now"
-            onClick={(e) => { e.stopPropagation(); actions.onRunOnce(n.id); }}><RunIcon /></span>
+            onClick={(e) => { e.stopPropagation(); actions.onRunOnce(n.id); }}><IconPlayerPlay {...icon} /></span>
         )}
         {n.lang !== "canvas" && (
           <span className="ctrl" title="this node's value"
@@ -170,9 +156,7 @@ function NodeCardImpl({ node: n, edges, selected: seld, arm, actions, dimmed, on
         onPointerDown={(e) => { if (e.button !== 0) return; e.stopPropagation(); onResizeStart(e, n.id); }}
         style={{ position: "absolute", right: -2, bottom: -2, width: 12, height: 12, cursor: "nwse-resize",
           opacity: seld ? 1 : 0, transition: "opacity .12s" }}>
-        <svg width="12" height="12" style={{ display: "block" }}>
-          <path d="M 10 4 L 4 10 M 10 8 L 8 10" stroke={C.faint} strokeWidth="1.4" strokeLinecap="round" fill="none" />
-        </svg>
+        <IconArrowDownRight size={12} stroke={1.5} color={C.faint} style={{ display: "block" }} />
       </div>
     </div>
   );

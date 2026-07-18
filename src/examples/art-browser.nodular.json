@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "nodes": {
+    "arts": {
+      "id": "arts",
+      "lang": "js",
+      "name": "artworks",
+      "x": 54,
+      "y": 90,
+      "w": 324,
+      "code": "const r = await fetch(\n  \"https://api.artic.edu/api/v1/artworks?fields=id,title,image_id,artist_title&limit=20\",\n);\nconst j = await r.json();\nj.data;"
+    },
+    "tbl": {
+      "id": "tbl",
+      "lang": "ui",
+      "name": "table",
+      "x": 432,
+      "y": 54,
+      "w": 342,
+      "kind": "table",
+      "ins": [
+        "rows"
+      ]
+    },
+    "url": {
+      "id": "url",
+      "lang": "js",
+      "name": "image url",
+      "x": 432,
+      "y": 396,
+      "w": 342,
+      "code": "artwork &&\n  `https://www.artic.edu/iiif/2/${artwork.image_id}/full/400,/0/default.jpg`;"
+    },
+    "img": {
+      "id": "img",
+      "lang": "ui",
+      "name": "image",
+      "x": 828,
+      "y": 90,
+      "w": 306,
+      "kind": "image",
+      "ins": [
+        "url"
+      ]
+    }
+  },
+  "edges": [
+    {
+      "id": "a1",
+      "from": [
+        "arts",
+        "→"
+      ],
+      "to": [
+        "tbl",
+        "rows"
+      ]
+    },
+    {
+      "id": "a2",
+      "from": [
+        "tbl",
+        "→"
+      ],
+      "to": [
+        "url",
+        "artwork"
+      ]
+    },
+    {
+      "id": "a3",
+      "from": [
+        "url",
+        "→"
+      ],
+      "to": [
+        "img",
+        "url"
+      ]
+    }
+  ]
+}

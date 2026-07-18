@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "nodes": {
+    "lib": {
+      "id": "lib",
+      "lang": "ui",
+      "name": "nanoid",
+      "x": 108,
+      "y": 126,
+      "w": 300,
+      "kind": "import",
+      "ins": [],
+      "code": "nanoid",
+      "useDefault": false
+    },
+    "id": {
+      "id": "id",
+      "lang": "js",
+      "name": "id",
+      "x": 492,
+      "y": 126,
+      "w": 264,
+      "code": "nanoid.nanoid();"
+    }
+  },
+  "edges": [
+    {
+      "id": "n1",
+      "from": [
+        "lib",
+        "→"
+      ],
+      "to": [
+        "id",
+        "nanoid"
+      ]
+    }
+  ]
+}

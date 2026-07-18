@@ -2,6 +2,7 @@
 // closes on click-outside, Escape, or after an action.
 
 import { useEffect, useRef, useState } from "react";
+import { IconMenu2 } from "@tabler/icons-react";
 import { C, MONO } from "../theme";
 import { EXAMPLES, type Example } from "../examples";
 
@@ -27,14 +28,7 @@ const SHORTCUTS: Array<[string, string]> = [
 ];
 
 function Item({ label, onPick }: { label: string; onPick: () => void }) {
-  return (
-    <div onClick={onPick}
-      style={{ padding: "5px 12px", fontFamily: MONO, fontSize: 11.5, color: C.ink, cursor: "pointer" }}
-      onMouseEnter={(e) => (e.currentTarget.style.background = C.headBg)}
-      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
-      {label}
-    </div>
-  );
+  return <div className="popitem" onClick={onPick}>{label}</div>;
 }
 
 function Section({ title }: { title: string }) {
@@ -65,10 +59,11 @@ export function Menu(actions: MenuActions) {
 
   return (
     <div ref={root} style={{ position: "relative" }}>
-      <span className="ctrl" style={{ fontSize: 13, letterSpacing: "1px" }} onClick={() => setOpen((o) => !o)}>≡</span>
+      <span className="ctrl" style={{ display: "flex" }} onClick={() => setOpen((o) => !o)}>
+        <IconMenu2 size={15} stroke={1.75} />
+      </span>
       {open && (
-        <div className="popover" style={{ position: "absolute", top: "calc(100% + 9px)", left: -8, minWidth: 190, zIndex: 20,
-          background: C.pane, border: `1px solid ${C.edge}`, borderRadius: 4, boxShadow: "0 4px 14px rgba(40,40,36,.12)", paddingBottom: 6 }}>
+        <div className="popover" style={{ top: "calc(100% + 9px)", left: -8, minWidth: 190, paddingBottom: 6 }}>
           <Section title="file" />
           <Item label="reset canvas" onPick={pick(actions.onReset)} />
           <Item label="export .nodular" onPick={pick(actions.onExport)} />

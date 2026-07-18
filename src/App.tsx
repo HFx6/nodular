@@ -11,11 +11,10 @@ import { C, SANS, ZOOM_MAX, ZOOM_MIN } from "./theme";
 import type { View } from "./types";
 import { useToast } from "./hooks/useToast";
 import { useGraph } from "./graph/useGraph";
-import { clearHistory, useGraphStore } from "./graph/store";
+import { clearHistory, SEED_DOC, useGraphStore } from "./graph/store";
 import { nodeRect } from "./graph/geometry";
-import { sizeStore } from "./graph/sizeStore";
+import { sizeStore, whenMeasured } from "./graph/sizeStore";
 import type { GraphDoc } from "./graph/store";
-import { INITIAL_EDGES, INITIAL_NODES } from "./graph/initialGraph";
 import { SPAWN_KINDS, type SpawnKind } from "./graph/spawn";
 import { clearSaved } from "./persist/autosave";
 import { exportFile, importFile } from "./persist/file";
@@ -89,20 +88,38 @@ export default function App() {
     tweenView({ k, x: r.width / 2 - ((minX + maxX) / 2) * k, y: r.height / 2 - ((minY + maxY) / 2) * k });
   };
 
-  // load a doc: prettify its js first, auto-arrange it (estimated heights —
-  // nodes aren't measured yet), then make the tidied layout the clean history
-  // baseline and frame it
+  // opening the rail narrows the board — pan so the edited node lands in the
+  // centre of the board area that will remain visible (#6)
+  const centerNode = (id: string) => {
+    const r = boardRef.current?.getBoundingClientRect();
+    const st = useGraphStore.getState();
+    const n = st.nodes[id];
+    if (!r || !n) return;
+    const railOpenW = Math.min(railW, Math.round(window.innerWidth * 0.7));
+    const nextW = r.width + (rail ? railOpenW : 24) - railOpenW;
+    const rc = nodeRect(n, sizeStore.getState().sizes, st.edges);
+    const k = viewNow.current.k;
+    tweenView({ k, x: nextW / 2 - (rc.x + rc.w / 2) * k, y: r.height / 2 - (rc.y + rc.h / 2) * k });
+  };
+
+  // load a doc: prettify its js first, auto-arrange with estimated heights so
+  // it frames sanely at once, then — heights are content-driven and only exist
+  // after render — re-run the layout against measured sizes and make THAT the
+  // clean history baseline
   const loadDoc = async (doc: GraphDoc) => {
     const formatted = await formatDoc(doc);
     const st = useGraphStore.getState();
     st.setDoc(formatted);
     st.tidy();
+    fitView();
+    await whenMeasured(Object.keys(formatted.nodes));
+    useGraphStore.getState().tidy();
     clearHistory();
     fitView();
   };
   const tidy = () => { useGraphStore.getState().tidy(); fitView(); say("tidied layout"); };
   const menu: MenuActions = {
-    onReset: () => { void loadDoc({ nodes: INITIAL_NODES, edges: INITIAL_EDGES }); void clearSaved(); say("canvas reset"); },
+    onReset: () => { void loadDoc(SEED_DOC); void clearSaved(); say("canvas reset"); },
     onLoadExample: (ex) => void ex.load()
       .then((doc) => loadDoc(doc))
       .then(() => say(ex.toast))
@@ -135,7 +152,7 @@ export default function App() {
         <Board boardRef={boardRef} nodes={nodes} edges={edges} sel={sel} arm={arm} note={note}
           view={view} setView={setView} actions={actions} notify={say}
           placing={placing} onPlace={onPlace} onCancelPlace={() => setPlacing(null)}
-          onOpenRail={(id) => { actions.onSelect(id); setRail(true); }} />
+          onOpenRail={(id) => { actions.onSelect(id); setRail(true); centerNode(id); }} />
         <EditorRail open={rail} onToggle={setRail} node={nodes[primary]} nodes={nodes} edges={edges} sel={primary}
           width={railW} onWidthChange={setRailW} onCodeChange={actions.onCodeChange} />
       </div>

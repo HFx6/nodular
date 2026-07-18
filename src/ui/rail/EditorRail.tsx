@@ -1,4 +1,5 @@
 import type { PointerEvent as ReactPointerEvent } from "react";
+import { IconChevronsLeft, IconChevronsRight } from "@tabler/icons-react";
 import { C, MONO } from "../../theme";
 import { CodeMirrorEditor } from "../../editor/CodeMirrorEditor";
 import { formatCode } from "../../editor/format";
@@ -45,7 +46,7 @@ export function EditorRail({ open, onToggle, node: selNode, nodes, edges, sel, w
     return (
       <div onClick={() => onToggle(true)}
         style={{ width: 24, borderLeft: `1px solid ${C.edge}`, background: C.pane, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 10, gap: 8 }}>
-        <span style={{ fontSize: 11, color: C.dim }}>«</span>
+        <IconChevronsLeft size={13} stroke={1.5} color={C.dim} />
         <span style={{ fontFamily: MONO, fontSize: 10, color: C.faint, writingMode: "vertical-rl" }}>editor</span>
       </div>
     );
@@ -62,7 +63,7 @@ export function EditorRail({ open, onToggle, node: selNode, nodes, edges, sel, w
         <ResizeHandle onWidthChange={onWidthChange} />
         <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderBottom: `1px solid ${C.edge}` }}>
           <span style={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600, color: C.faint }}>editor</span>
-          <span className="ctrl" style={{ marginLeft: "auto", fontSize: 12 }} onClick={() => onToggle(false)}>»</span>
+          <span className="ctrl" style={{ marginLeft: "auto", display: "flex" }} onClick={() => onToggle(false)}><IconChevronsRight size={13} stroke={1.5} /></span>
         </div>
         <div style={{ padding: 12, fontSize: 11.5, color: C.faint, fontStyle: "italic" }}>select a node</div>
       </div>
@@ -81,7 +82,7 @@ export function EditorRail({ open, onToggle, node: selNode, nodes, edges, sel, w
               if (out != null && out !== selNode!.code) onCodeChange(selNode!.id, out);
             })}>fmt</span>
         )}
-        <span className="ctrl" style={{ fontSize: 12 }} onClick={() => onToggle(false)}>»</span>
+        <span className="ctrl" style={{ display: "flex" }} onClick={() => onToggle(false)}><IconChevronsRight size={13} stroke={1.5} /></span>
       </div>
       {isCode ? (
         <>

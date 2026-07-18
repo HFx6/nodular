@@ -17,12 +17,17 @@ interface ResultsState {
    *  reference, not memory. Mutation of a published value won't re-render
    *  (ref equality), same as engine memoization. */
   values: Record<string, unknown>;
+  /** whole node values by id, before "→" extraction — module namespaces and
+   *  ports records keep their named exports, so wire badges can preview what
+   *  a named-export edge carries. Same reference-not-memory argument. */
+  raws: Record<string, unknown>;
 }
 
 export const resultsStore = createStore<ResultsState>()(() => ({
   results: {},
   nodeInputs: {},
   values: {},
+  raws: {},
 }));
 
 export function publishResult(id: string, res: NodeResult): void {
@@ -36,10 +41,12 @@ export function publishInputs(id: string, inputs: Record<string, unknown>): void
 }
 
 export function publishValue(id: string, v: unknown): void {
+  const raw = v;
   // ports records cross as their "→" value (consistent with preview)
   if (v != null && (v as Record<symbol, unknown>)[PORTS]) v = (v as Record<string, unknown>)["→"];
-  if (Object.is(resultsStore.getState().values[id], v)) return;
-  resultsStore.setState((s) => ({ values: { ...s.values, [id]: v } }));
+  const cur = resultsStore.getState();
+  if (Object.is(cur.values[id], v) && Object.is(cur.raws[id], raw)) return;
+  resultsStore.setState((s) => ({ values: { ...s.values, [id]: v }, raws: { ...s.raws, [id]: raw } }));
 }
 
 export function removeNodeResults(id: string): void {
@@ -47,10 +54,12 @@ export function removeNodeResults(id: string): void {
     const results = { ...s.results };
     const nodeInputs = { ...s.nodeInputs };
     const values = { ...s.values };
+    const raws = { ...s.raws };
     delete results[id];
     delete nodeInputs[id];
     delete values[id];
-    return { results, nodeInputs, values };
+    delete raws[id];
+    return { results, nodeInputs, values, raws };
   });
 }
 
