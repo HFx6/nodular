@@ -33,6 +33,11 @@ const META: Record<string, { name?: string; toast?: string; order?: number }> =
       name: "NES emulator",
       toast: "loaded NES — click canvas, arrows + z/x + enter/space",
     },
+    gba: {
+      order: 4,
+      name: "GBA emulator",
+      toast: "loaded GBA — 16MB ROM fetch, then arrows + z/x + a/s + enter",
+    },
   };
 
 const dropIns = import.meta.glob<unknown>("./*.nodular.json", {
