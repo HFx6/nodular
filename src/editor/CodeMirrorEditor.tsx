@@ -67,8 +67,14 @@ export function CodeMirrorEditor({
       }),
     });
     applyHeight(v, heightRef.current);
-    // the in-node pane opens with big top-level blocks collapsed (#6)
-    if (variant === "pane") foldLargeTopLevel(v);
+    // the in-node pane opens with big top-level blocks collapsed (#6), always
+    // pinned to the first line — folding mid-measure can otherwise leave the
+    // peek parked a few px down. A scrollIntoView effect is honoured on CM's
+    // next measure (a raw scrollTop write gets clobbered by that measure).
+    if (variant === "pane") {
+      foldLargeTopLevel(v);
+      v.dispatch({ effects: EditorView.scrollIntoView(0, { y: "start" }) });
+    }
     view.current = v;
     return () => {
       v.destroy();

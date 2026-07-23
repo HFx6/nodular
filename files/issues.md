@@ -1,23 +1,9 @@
-1. Cannot read properties of undefined (reading 'releaseAll') - on tone synth
+1. I think the dot grid looks better than the lines - or maybe some other pattern?
 
-2. also the weather one the right now doesn't output to anything
+2. we should remember users current pan and zoom so on refresh it doesnt reset or change their location
 
-3. loading graphs there's a slight lag delay in it, nothing is gracefully loaded
+3. we need to update the styling for both the UI frame and the nodes. its too white and hard to read. text looks off and things dont look or feel clean.
 
-4. the old canvass persist across projects loaded
+we should think about this 2 ways 1: come up with some visual demos of a node graph as is and what works for our type of content
 
-5. the canvases are quite stale, always the same colors and text is blurry AF
-
-6. when things load but are awaiting data e.g. tables or images they are auto arranged but then they grow taller and then things are not auto arranged again properly
-
-7. as we have more demos we have some issues with the menu, its getting too long and cramped instead of elegent
-
-8. the starting thing should be similar to the natto or even blender with a slphas screen and demos to choose from and an about
-
-9. images need a loading spinner etc same with tables
-
-10. it always says walker.nodular on the title
-
-11. the walkers demo i think is broken
-
-12. clikcing the zoom on the top right should set zoom to 100 and remove it from drop down
+2: come up with something crazy, like maybe the design is s sanki chart looking thing? https://gemini.google.com/share/5e329df56ec3

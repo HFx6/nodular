@@ -11,14 +11,10 @@ import { ZOOM_MAX, ZOOM_MIN } from "./theme";
 import type { View } from "./types";
 import { useToast } from "./hooks/useToast";
 import { useGraph } from "./graph/useGraph";
-import {
-  clearHistory,
-  SEED_DOC,
-  tidySilently,
-  useGraphStore,
-} from "./graph/store";
+import { clearHistory, SEED_DOC, useGraphStore } from "./graph/store";
 import { nodeRect } from "./graph/geometry";
-import { sizeStore, whenGrown, whenMeasured } from "./graph/sizeStore";
+import { publishZoom } from "./graph/lodStore";
+import { sizeStore } from "./graph/sizeStore";
 import { resetEngine } from "./engine/core/engine";
 import type { GraphDoc } from "./graph/store";
 import { SPAWN_KINDS, type SpawnKind } from "./graph/spawn";
@@ -31,11 +27,6 @@ import { TopBar } from "./ui/TopBar";
 import { Board } from "./ui/board/Board";
 import { useBoardKeys } from "./ui/board/useBoardInput";
 import { EditorRail } from "./ui/rail/EditorRail";
-
-/** How long after a load the board keeps re-arranging itself as late data
- *  resizes cards (#6). Long enough for a cold fetch, short enough that it is
- *  over before the user starts editing. */
-const REFLOW_MS = 8000;
 
 /** SEED_DOC is the walkers demo, so a fresh canvas carries its name (#10). */
 const SEED_NAME = "walkers.nodular";
@@ -70,6 +61,7 @@ export default function App() {
   const viewNow = useRef(view);
   useEffect(() => {
     viewNow.current = view;
+    publishZoom(view.k); // drives the zoomed-out LOD swap (read-only; never writes view)
   }, [view]);
   const viewAnim = useRef(0);
   const tweenView = (target: View) => {
@@ -137,18 +129,6 @@ export default function App() {
     });
   };
 
-  // frame the graph on first mount — the saved doc hydrates before render, but
-  // card heights are content-driven and only exist once the cards have measured
-  const didInitialFit = useRef(false);
-  useEffect(() => {
-    if (didInitialFit.current) return;
-    didInitialFit.current = true;
-    void whenMeasured(Object.keys(useGraphStore.getState().nodes)).then(
-      fitView,
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   // opening the rail narrows the board — pan so the edited node lands in the
   // centre of the board area that will remain visible (#6)
   const centerNode = (id: string) => {
@@ -167,40 +147,24 @@ export default function App() {
     });
   };
 
-  // load a doc: prettify its js first, auto-arrange with estimated heights so
-  // it frames sanely at once, then — heights are content-driven and only exist
-  // after render — re-run the layout against measured sizes and make THAT the
-  // clean history baseline. Finally keep watching for a short while: a node fed
-  // by a fetch is laid out empty and grows when its data lands (#6).
+  // load a doc: prettify its js first, then auto-arrange once. Node heights are
+  // now computed deterministically from the doc (editor/metrics.ts) and applied
+  // before render, so the single estimate-driven layout IS the final layout —
+  // there's nothing to re-measure and no second pass to jump the board. The
+  // camera never moves on load (the Center button is the manual framing tool).
   const loadSeq = useRef(0);
   const loadDoc = async (doc: GraphDoc) => {
     const seq = ++loadSeq.current;
     const formatted = await formatDoc(doc);
+    if (seq !== loadSeq.current) return; // superseded by a newer load
     const st = useGraphStore.getState();
     st.setDoc(formatted);
     resetEngine(); // reused node ids must not inherit the old doc's state (#4)
     st.tidy();
-    fitView();
-    await whenMeasured(Object.keys(formatted.nodes));
-    if (seq !== loadSeq.current) return; // superseded by a newer load
-    useGraphStore.getState().tidy();
     clearHistory();
-    fitView();
-    // Re-flow on every settled growth for REFLOW_MS. Bounded rather than
-    // permanent: past the opening moments, a card growing is the user's own
-    // edit, and re-arranging the board under them would be hostile.
-    const until = performance.now() + REFLOW_MS;
-    while (seq === loadSeq.current) {
-      const left = until - performance.now();
-      if (left <= 0 || !(await whenGrown(left))) break;
-      if (seq !== loadSeq.current) return;
-      tidySilently();
-      fitView();
-    }
   };
   const tidy = () => {
     useGraphStore.getState().tidy();
-    fitView();
     say("tidied layout");
   };
   const menu: MenuActions = {

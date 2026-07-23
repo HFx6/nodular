@@ -17,24 +17,29 @@ export function ImageNodeBody({ node: n }: { node: GraphNode }) {
     setLoaded(false);
   }, [src]);
 
+  // the body reserves a fixed-aspect box from frame one; the image letterboxes
+  // inside it (object-fit: contain) so the node never resizes when the url loads
+  const box = { aspectRatio: String(n.aspect ?? 1.5) };
   if (!src || broken) {
     const wired = !!inputs && "url" in inputs;
     return (
-      <Waiting
-        bad={broken}
-        busy={!broken && wired}
-        msg={
-          broken
-            ? "couldn't load image"
-            : wired
-              ? "url · waiting for a url"
-              : "url · waiting for an image url"
-        }
-      />
+      <div className="img-box" style={box}>
+        <Waiting
+          bad={broken}
+          busy={!broken && wired}
+          msg={
+            broken
+              ? "couldn't load image"
+              : wired
+                ? "url · waiting for a url"
+                : "url · waiting for an image url"
+          }
+        />
+      </div>
     );
   }
   return (
-    <>
+    <div className="img-box" style={box}>
       {!loaded && <Waiting busy msg="url · loading" />}
       <img
         className="img-fit"
@@ -46,6 +51,6 @@ export function ImageNodeBody({ node: n }: { node: GraphNode }) {
         onLoad={() => setLoaded(true)}
         onError={() => setBroken(true)}
       />
-    </>
+    </div>
   );
 }

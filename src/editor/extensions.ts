@@ -25,7 +25,7 @@ import { python } from "@codemirror/lang-python";
 import { paperHighlight, paperThemePane, paperThemeRail } from "./cmTheme";
 import { jsLinter } from "./lint";
 
-const langs: Record<string, Extension> = {
+export const langs: Record<string, Extension> = {
   js: javascript(),
   py: python(),
 };
@@ -79,19 +79,32 @@ export function editorExtensions(
   return ext;
 }
 
-/** Collapse top-level blocks (functions, classes) spanning `minLines`+ lines,
- *  so a big module reads as a summary in the in-node pane; click a `…` to
- *  expand. Short snippets are left untouched. */
-export function foldLargeTopLevel(view: EditorView, minLines = 8): void {
-  const { state } = view;
+/** The fold ranges the in-node pane opens with: top-level blocks (functions,
+ *  classes) spanning `minLines`+ lines. Pure over an EditorState, so the same
+ *  rule drives both the live editor (foldLargeTopLevel) and the deterministic
+ *  height calculation in editor/metrics.ts — the two must never disagree. */
+export function paneFoldRanges(
+  state: EditorState,
+  minLines = 8,
+): { from: number; to: number }[] {
   const tree = ensureSyntaxTree(state, state.doc.length, 80);
-  if (!tree) return;
-  const effects = [];
+  if (!tree) return [];
+  const ranges: { from: number; to: number }[] = [];
   for (let ch = tree.topNode.firstChild; ch; ch = ch.nextSibling) {
     const start = state.doc.lineAt(ch.from);
     if (state.doc.lineAt(ch.to).number - start.number + 1 < minLines) continue;
     const range = foldable(state, start.from, start.to);
-    if (range) effects.push(foldEffect.of(range));
+    if (range) ranges.push(range);
   }
+  return ranges;
+}
+
+/** Collapse top-level blocks (functions, classes) spanning `minLines`+ lines,
+ *  so a big module reads as a summary in the in-node pane; click a `…` to
+ *  expand. Short snippets are left untouched. */
+export function foldLargeTopLevel(view: EditorView, minLines = 8): void {
+  const effects = paneFoldRanges(view.state, minLines).map((r) =>
+    foldEffect.of(r),
+  );
   if (effects.length) view.dispatch({ effects });
 }

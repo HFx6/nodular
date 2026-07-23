@@ -1,6 +1,7 @@
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useRef } from "react";
 import { HEAD } from "../theme";
+import { FACE_H, paneEditorH } from "../editor/metrics";
 import { CodeMirrorEditor } from "../editor/CodeMirrorEditor";
 import { useNodeValue } from "../engine/core/resultsStore";
 import { useGraphStore } from "../graph/store";
@@ -44,15 +45,23 @@ export function CodeNodeBody({
     !isError && n.renderMode && n.renderMode !== "default"
       ? n.renderMode
       : undefined;
-  const showFooter = !face && (res?.v != null || isError);
+  // default-mode code nodes always reserve the value footer (a fixed strip that
+  // is empty until the engine produces a value) — so the card never grows when
+  // the result lands seconds after load.
+  const showFooter = !face;
 
   const split = Math.min(1, Math.max(0, n.split ?? 0.5));
   // fixed node height → the body fills it; the -1 absorbs the header's border
   const total = n.h ? n.h - HEAD - 1 : undefined;
+  // auto (unfixed) node → the editor region is sized deterministically from the
+  // code + width, computed BEFORE CodeMirror renders, so it mounts at its final
+  // size. Faced auto nodes reserve a fixed value region under it.
+  const autoEditorH =
+    total === undefined ? paneEditorH(n.code ?? "", n.lang, n.w) : undefined;
   const editorRegionH =
     face && total !== undefined
       ? Math.round((total - DIVIDER) * split)
-      : undefined;
+      : autoEditorH;
   const valueRegionH =
     face && total !== undefined ? total - DIVIDER - editorRegionH! : undefined;
 
@@ -138,13 +147,13 @@ export function CodeNodeBody({
             style={
               valueRegionH !== undefined
                 ? { height: valueRegionH, flex: "none" }
-                : { maxHeight: 216 }
+                : { height: FACE_H, flex: "none" }
             }
           >
             <ValueFace
               value={rawValue}
               mode={face}
-              maxHeight={valueRegionH ?? 216}
+              maxHeight={valueRegionH ?? FACE_H}
             />
           </div>
         </>

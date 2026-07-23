@@ -22,6 +22,9 @@ import {
 } from "@tabler/icons-react";
 import { C, HEAD, ROW } from "../theme";
 import { inputsOf, outsOf } from "../graph/geometry";
+import { codeBodyH } from "../editor/metrics";
+import { useLod } from "../graph/lodStore";
+import { NodeLodSkeleton } from "./NodeLodSkeleton";
 import { useNodeResult } from "../engine/core/resultsStore";
 import type { ArmState, Edge, GraphNode } from "../types";
 import type { NodeActions } from "../graph/useGraph";
@@ -98,8 +101,32 @@ function NodeCardImpl({
   const lastHeadDown = useRef(0);
   const isCode = n.lang !== "canvas" && n.lang !== "ui";
   const hasSettings = isCode;
+  // LOD + offscreen culling apply to the DOM-heavy bodies whose height we can
+  // compute deterministically from the doc: code editors and data tables. They
+  // get a fixed-size holder so the browser can skip (cull / LOD-swap) them with
+  // zero layout shift. Canvas (native aspect unknown until the renderer
+  // connects), images (own aspect box) and the light bodies (textarea/divs)
+  // render live and un-culled.
+  const isTable = n.lang === "ui" && n.kind === "table";
+  const lodEligible = !n.min && (isCode || isTable);
+  const lod = useLod(lodEligible);
   const ins = inputsOf(n, edges);
   const outs = outsOf(n);
+  // deterministic reserved height for the holder (matches the body's own
+  // computed size, and estimateHeight, so nothing ever grows or shifts). Faced
+  // = a render mode is set (reserve the value region regardless of engine state
+  // so an error/late value can't change the box).
+  const faced = isCode && !!n.renderMode && n.renderMode !== "default";
+  const bodyH = !lodEligible
+    ? undefined
+    : n.h
+      ? n.h - HEAD - 1
+      : isTable
+        ? 216
+        : codeBodyH(n.code ?? "", n.lang, n.w, faced);
+  // port-count floor: keep the body at least as tall as its port stack so a
+  // node with many ports doesn't render shorter than the layout reserved for it
+  const portFloor = 16 + Math.max(ins.length, outs.length) * ROW;
   return (
     <div
       ref={(el) => registerRef(n.id, el)}
@@ -292,27 +319,45 @@ function NodeCardImpl({
           </span>
         ))}
 
-      {/* family body */}
-      {!n.min &&
-        (n.lang === "canvas" ? (
-          <CanvasNodeBody node={n} />
-        ) : n.lang === "ui" ? (
-          n.kind === "table" ? (
-            <TableNodeBody node={n} />
-          ) : n.kind === "image" ? (
-            <ImageNodeBody node={n} />
-          ) : n.kind === "import" ? (
-            <ImportNodeBody node={n} />
-          ) : n.kind === "text" ? (
-            <TextNodeBody node={n} />
-          ) : n.kind === "state" ? (
-            <StateNodeBody node={n} />
+      {/* family body — LOD-eligible bodies (code / table) sit in a fixed-size
+          holder so the browser can cull them off-screen or skip them at LOD
+          (a skeleton paints over them) with zero layout shift; other bodies
+          render bare. */}
+      {!n.min && (
+        <div
+          className={
+            !lodEligible
+              ? undefined
+              : lod
+                ? "node-body-holder lod"
+                : "node-body-holder"
+          }
+          style={
+            lodEligible ? { height: bodyH, minHeight: portFloor } : undefined
+          }
+        >
+          {n.lang === "canvas" ? (
+            <CanvasNodeBody node={n} />
+          ) : n.lang === "ui" ? (
+            n.kind === "table" ? (
+              <TableNodeBody node={n} />
+            ) : n.kind === "image" ? (
+              <ImageNodeBody node={n} />
+            ) : n.kind === "import" ? (
+              <ImportNodeBody node={n} />
+            ) : n.kind === "text" ? (
+              <TextNodeBody node={n} />
+            ) : n.kind === "state" ? (
+              <StateNodeBody node={n} />
+            ) : (
+              <SourceNodeBody node={n} />
+            )
           ) : (
-            <SourceNodeBody node={n} />
-          )
-        ) : (
-          <CodeNodeBody node={n} result={res} actions={actions} />
-        ))}
+            <CodeNodeBody node={n} result={res} actions={actions} />
+          )}
+        </div>
+      )}
+      {lodEligible && <NodeLodSkeleton node={n} on={lod} />}
 
       {/* resize grip */}
       <div

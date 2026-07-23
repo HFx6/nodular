@@ -245,6 +245,88 @@ textarea:focus {
   box-shadow: 0 0 0 3px var(--selSoft);
 }
 
+/* Body render management. The holder carries an explicit height (set inline
+   from the node's deterministic body size), so content-visibility: auto can
+   skip layout+paint of off-screen bodies (viewport culling) — and .lod can
+   skip them when zoomed out — with zero layout shift: the box is the same
+   height whether or not its contents render. A NodeLodSkeleton paints over the
+   skipped body at LOD. */
+.node-body-holder {
+  content-visibility: auto;
+  transition: opacity 150ms ease;
+}
+/* entering LOD: the body fades out, then content-visibility flips to hidden at
+   the end of the fade (allow-discrete) so steady-state zoomed-out still skips
+   it. Leaving LOD: content-visibility returns to auto immediately and the body
+   fades back in — a crossfade against the skeleton, which fades the opposite
+   way. */
+.node-body-holder.lod {
+  opacity: 0;
+  content-visibility: hidden;
+  transition:
+    opacity 150ms ease,
+    content-visibility 150ms allow-discrete;
+}
+
+/* minimap skeletons: static, cheap, shaped like the content. Painted over the
+   (skipped) body, below the header; never intercept pointer events. */
+.node-lod {
+  position: absolute;
+  inset: var(--head) 0 0 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms ease; /* crossfades against the body (GPU-only) */
+}
+.node-lod.on {
+  opacity: 1;
+}
+/* code skeleton: mirrors the pane editor's metrics — 10/12 padding, one 19px
+   row per visual (wrapped) line, no gutter (the pane has none). Height is the
+   editor region's real height so bars never spill into the footer/face below. */
+.lod-code {
+  box-sizing: border-box; /* height is the editor region's border-box, like .code-edit */
+  padding: 10px 12px;
+  overflow: hidden;
+}
+.lod-row {
+  height: 19px;
+  display: flex;
+  align-items: center;
+}
+.lod-line {
+  height: 7px;
+  border-radius: 2px;
+  background: var(--edge);
+  max-width: 100%;
+}
+/* footer / value-face placeholders — the same strips the real body reserves,
+   so the skeleton's silhouette matches (an empty footer, or a value region) */
+.lod-foot {
+  height: 28px;
+  border-top: 1px solid var(--edge);
+  background: var(--paneSoft);
+}
+.lod-face {
+  border-top: 1px solid var(--edge);
+  background: var(--paneSoft);
+}
+/* table skeleton: a header bar + 1px rules on the real ~19px row rhythm */
+.lod-thead {
+  height: 24px;
+  background: var(--headBg);
+  border-bottom: 1px solid var(--edge);
+}
+.lod-rows {
+  height: 100%;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 18px,
+    var(--edge) 18px 19px
+  );
+  opacity: 0.6;
+}
+
 /* header grammar (Observable canvases): kind-tab · name chip left; × · – ·
    settings · mode · run clustered right, the → value port last (it must stay
    on the edge for wire anchoring) */
@@ -652,27 +734,35 @@ textarea:focus {
   border-radius: 0 0 var(--radius) var(--radius);
 }
 
+/* value footer: a fixed strip reserved up front (empty until the engine
+   produces a value) so a default-mode code node never grows when its result
+   lands — errors scroll inside it */
 .code-foot {
   flex: none;
   border-top: 1px solid var(--edge);
   background: var(--paneSoft);
   border-radius: 0 0 var(--radius) var(--radius);
-  max-height: 120px;
-  overflow: auto;
+  height: 28px;
+  overflow: hidden; /* the one-line preview must never show a scrollbar */
 }
 
 .code-err {
-  padding: 7px 12px;
+  padding: 6px 12px;
   font-family: var(--mono);
   font-size: 11px;
   color: var(--bad);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   user-select: text;
+  /* a long error is the one thing that may scroll — inside its own box, so the
+     footer strip itself stays a fixed height */
+  height: 100%;
+  box-sizing: border-box;
+  overflow: auto;
 }
 
 .code-prev {
-  padding: 7px 12px;
+  padding: 6px 12px;
   font-family: var(--mono);
   font-size: 11.5px;
   color: var(--ink);
@@ -1057,11 +1147,46 @@ textarea:focus {
   display: block;
 }
 
+/* image sink reserves a fixed-aspect box up front; the image letterboxes inside
+   it so the node never resizes when the url loads (waiting state centers over
+   the same box) */
+.img-box {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0 0 4px 4px;
+  background: var(--dark);
+}
+.img-box > .bihint {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
 .img-fit {
   display: block;
   width: 100%;
+  height: 100%;
+  object-fit: contain;
   border-radius: 0 0 4px 4px;
   pointer-events: none;
+}
+
+/* table sink reserves a fixed-height box so an empty/loading table claims the
+   same space it will fill once rows arrive */
+.table-box {
+  position: relative;
+}
+.table-box > .bihint {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+.table-box > .vtable-wrap {
+  height: 100%;
 }
 
 .canvas-wrap {

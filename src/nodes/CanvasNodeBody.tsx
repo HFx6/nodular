@@ -5,6 +5,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { useNodeInputs } from "../engine/core/resultsStore";
+import { zoomNow } from "../graph/lodStore";
 import type { GraphNode } from "../types";
 
 /** What a canvas hands its renderer every animation frame. The surface owns
@@ -72,14 +73,43 @@ export function CanvasNodeBody({ node: n }: { node: GraphNode }) {
     if (!cvs || !fn) return;
     const ctx = cvs.getContext("2d");
     if (!ctx) return;
+
+    // pause the draw loop entirely when the canvas is panned fully off-screen —
+    // for the emulators the draw loop *is* the game, so it freezes and resumes
+    // in place. IO uses painted geometry, so it's correct under the board zoom.
+    let visible = true;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        visible = e.isIntersecting;
+      },
+      { threshold: 0 },
+    );
+    io.observe(cvs);
+
     let raf = 0;
     const t0 = performance.now();
     let last = t0;
     const loop = (now: number) => {
+      if (!visible) {
+        // keep the clock advancing so dt doesn't spike on resume, but do no work
+        last = now;
+        raf = requestAnimationFrame(loop);
+        return;
+      }
       // a declared size fixes the backing store; otherwise it follows the
-      // element's CSS size (width: 100%, aspect from the node)
-      const w = native ? nativeW! : Math.max(1, Math.round(cvs.clientWidth));
-      const h = native ? nativeH! : Math.max(1, Math.round(cvs.clientHeight));
+      // element's CSS size scaled to how many pixels it actually occupies on
+      // screen — zoomed out, a canvas draws at a fraction of the resolution.
+      // Quantised to 1/4 steps so wheel zoom doesn't reallocate every frame.
+      const scale = native
+        ? 1
+        : Math.max(0.25, Math.ceil(zoomNow.k * 4) / 4) *
+          (window.devicePixelRatio || 1);
+      const w = native
+        ? nativeW!
+        : Math.max(1, Math.round(cvs.clientWidth * scale));
+      const h = native
+        ? nativeH!
+        : Math.max(1, Math.round(cvs.clientHeight * scale));
       if (cvs.width !== w) cvs.width = w;
       if (cvs.height !== h) cvs.height = h;
       try {
@@ -98,7 +128,10 @@ export function CanvasNodeBody({ node: n }: { node: GraphNode }) {
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      io.disconnect();
+    };
   }, [fn, native, nativeW, nativeH]);
 
   const onMove = (e: ReactPointerEvent<HTMLCanvasElement>) => {

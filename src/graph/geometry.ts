@@ -1,7 +1,8 @@
 // Pure spatial model of the graph doc: which ports a node has, where they sit,
 // and the bezier path of each edge. No React, no side effects.
 
-import { HEAD, PANE_MAX_H, ROW } from "../theme";
+import { HEAD, ROW } from "../theme";
+import { codeBodyH } from "../editor/metrics";
 import { outsFor } from "../engine/inference";
 import type { Edge, ExportInfo, GraphNode, NodeMap } from "../types";
 import type { SizeMap } from "./sizeStore";
@@ -37,14 +38,20 @@ export function estimateHeight(n: GraphNode, edges: Edge[]): number {
   const ports = Math.max(inputsOf(n, edges).length, outsOf(n).length);
   const portBlock = HEAD + 16 + ports * ROW;
   if (n.lang === "js" || n.lang === "py") {
-    // auto-height pane: 19px lines + 10px vertical padding ×2, capped at the
-    // editor's scroll threshold. Folding can render shorter than this — an
-    // overestimate spaces the first frame loosely; the measured tidy tightens it.
-    const lines = (n.code ?? "").split("\n").length;
-    const editor = HEAD + 1 + 20 + Math.min(lines * 19, PANE_MAX_H);
-    return Math.max(portBlock, n.h ?? editor);
+    // the same deterministic body height the card actually renders (metrics.ts),
+    // so the layout reserves exactly the space the node occupies — no reflow.
+    const faced = !!n.renderMode && n.renderMode !== "default";
+    const body = codeBodyH(n.code ?? "", n.lang, n.w, faced);
+    return Math.max(portBlock, n.h ?? HEAD + 1 + body);
   }
-  if (n.lang === "canvas") return Math.max(portBlock, n.h ?? 180);
+  // media/data bodies reserve a fixed box up front (matching the DOM), so the
+  // estimate equals the real reserved height and nothing shifts after paint.
+  if (n.lang === "canvas")
+    return Math.max(portBlock, n.h ?? HEAD + n.w / (n.aspect ?? 1.5));
+  if (n.lang === "ui" && n.kind === "image")
+    return Math.max(portBlock, n.h ?? HEAD + n.w / (n.aspect ?? 1.5));
+  if (n.lang === "ui" && n.kind === "table")
+    return Math.max(portBlock, n.h ?? HEAD + 1 + 216);
   return Math.max(portBlock, 60);
 }
 
