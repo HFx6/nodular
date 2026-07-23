@@ -55,7 +55,12 @@ export function estimateHeight(n: GraphNode, edges: Edge[]): number {
  *  the right cluster × – (⚙ mode-pill run-pill for code) →, 6px gaps. */
 export function minNodeWidth(n: GraphNode): number {
   const isCode = n.lang !== "canvas" && n.lang !== "ui";
-  const kind = n.lang === "canvas" ? "canvas" : n.lang === "ui" ? (n.kind ?? "source") : n.lang;
+  const kind =
+    n.lang === "canvas"
+      ? "canvas"
+      : n.lang === "ui"
+        ? (n.kind ?? "source")
+        : n.lang;
   const tab = 30 + Math.ceil(kind.length * 6);
   const title = Math.ceil(n.name.length * 7) + 10;
   // padding + tab + title + × – + → + gaps (measured generously)

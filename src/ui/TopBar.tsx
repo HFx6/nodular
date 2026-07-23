@@ -9,8 +9,11 @@ import { Menu, type MenuActions } from "./Menu";
 
 interface TopBarProps {
   zoom: number;
+  /** filename of the doc currently on the board (#10) */
+  doc: string;
   onAdd: (kind: SpawnKind) => void;
   onCenter: () => void;
+  onZoomReset: () => void;
   menu: MenuActions;
 }
 
@@ -76,17 +79,31 @@ function AddButton({ onAdd }: { onAdd: (kind: SpawnKind) => void }) {
 }
 
 /** Top bar — only things that do things. */
-export function TopBar({ zoom, onAdd, onCenter, menu }: TopBarProps) {
+export function TopBar({
+  zoom,
+  doc,
+  onAdd,
+  onCenter,
+  onZoomReset,
+  menu,
+}: TopBarProps) {
   return (
     <div className="topbar">
       <Menu {...menu} />
       <span className="top-brand">nodular</span>
-      <span className="top-doc">walkers.nodular</span>
+      <span className="top-doc">{doc}</span>
       <AddButton onAdd={onAdd} />
       <span className="ctrl frow" title="center graph" onClick={onCenter}>
         <IconFocusCentered size={13} stroke={1.75} />
       </span>
-      <span className="top-zoom">{Math.round(zoom * 100)}%</span>
+      {/* the readout is the reset: clicking it returns the view to 100% (#12) */}
+      <span
+        className="top-zoom"
+        title="reset zoom to 100%"
+        onClick={onZoomReset}
+      >
+        {Math.round(zoom * 100)}%
+      </span>
     </div>
   );
 }

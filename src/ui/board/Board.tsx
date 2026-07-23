@@ -91,6 +91,9 @@ export function Board({
   onCancelPlace,
   onOpenRail,
 }: BoardProps) {
+  // doc generation — part of every card's key, so loading a doc that reuses a
+  // node id remounts the body instead of handing it the old one's state (#4)
+  const gen = useGraphStore((s) => s.gen);
   const [hot, setHot] = useState<string | null>(null);
   // after 3s of hovering one edge, it takes focus: everything else dims and
   // only the two connected nodes stay normal (#3)
@@ -550,7 +553,7 @@ export function Board({
         />
         {Object.values(nodes).map((n) => (
           <NodeCard
-            key={n.id}
+            key={`${gen}:${n.id}`}
             node={n}
             edges={edges}
             selected={sel.includes(n.id)}

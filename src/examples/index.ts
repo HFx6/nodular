@@ -38,6 +38,26 @@ const META: Record<string, { name?: string; toast?: string; order?: number }> =
       name: "GBA emulator",
       toast: "loaded GBA — 16MB ROM fetch, then arrows + z/x + a/s + enter",
     },
+    "block-cipher": {
+      order: 5,
+      name: "block cipher (AES-PCBC)",
+      toast: "loaded PCBC — every block, ⊕, and cipher box is a node",
+    },
+    weather: {
+      order: 6,
+      name: "weather dashboard",
+      toast: "loaded weather — type a city, click a day",
+    },
+    github: {
+      order: 7,
+      name: "GitHub repo explorer",
+      toast: "loaded GitHub — type owner/repo, click a contributor",
+    },
+    "tone-synth": {
+      order: 8,
+      name: "Tone.js synth",
+      toast: "loaded synth — play a–k, sharps on w e t y u",
+    },
   };
 
 const dropIns = import.meta.glob<unknown>("./*.nodular.json", {

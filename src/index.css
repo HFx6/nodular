@@ -487,11 +487,17 @@ textarea:focus {
   color: var(--dim);
 }
 
+/* also the zoom reset — clicking it returns the view to 100% (#12) */
 .top-zoom {
   font-family: var(--sans);
   letter-spacing: var(--track);
   font-size: 10.5px;
   color: var(--faint);
+  cursor: pointer;
+}
+
+.top-zoom:hover {
+  color: var(--ink);
 }
 
 /* natto-style split add control, pushed right */
@@ -954,6 +960,36 @@ textarea:focus {
 
 .bihint.bad {
   color: var(--bad);
+}
+
+/* waiting line with a spinner ahead of it (#9) — a sink whose input hasn't
+   arrived yet is loading, not empty, and should say so */
+.bihint.wait {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.spinner {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--edge);
+  border-top-color: var(--dim);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2.4s;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
 }
 
 .birow {

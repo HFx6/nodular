@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "nodes": {
+    "lib": {
+      "id": "lib",
+      "lang": "ui",
+      "name": "tone",
+      "x": 54,
+      "y": 54,
+      "kind": "import",
+      "ins": [],
+      "code": "tone",
+      "useDefault": false
+    },
+    "synth": {
+      "id": "synth",
+      "lang": "js",
+      "name": "polysynth",
+      "x": 54,
+      "y": 234,
+      "code": "const s = new tone.PolySynth(tone.Synth, {\n  oscillator: { type: \"triangle\" },\n  envelope: { attack: 0.02, decay: 0.15, sustain: 0.4, release: 0.6 },\n}).toDestination();\ns.volume.value = -8;\ns;"
+    },
+    "keys": {
+      "id": "keys",
+      "lang": "js",
+      "name": "keyboard",
+      "x": 486,
+      "y": 54,
+      "code": "// computer keyboard -> notes; the canvas draws the piano and lights held keys\nconst KEYS = [\n  [\"a\", \"C4\"], [\"w\", \"C#4\"], [\"s\", \"D4\"], [\"e\", \"D#4\"], [\"d\", \"E4\"],\n  [\"f\", \"F4\"], [\"t\", \"F#4\"], [\"g\", \"G4\"], [\"y\", \"G#4\"], [\"h\", \"A4\"],\n  [\"u\", \"A#4\"], [\"j\", \"B4\"], [\"k\", \"C5\"],\n];\nconst NOTE = Object.fromEntries(KEYS);\nconst active = new Set();\n\n// re-eval guard so edits don't stack listeners (same trick as the NES demo).\n// It runs before this eval's own inputs are checked, so it must tolerate a\n// previous run that never got a synth (the import resolves a beat later).\nif (globalThis.__synthCleanup) globalThis.__synthCleanup();\nif (!synth || !tone) return \"waiting for tone.js…\";\nconst down = (e) => {\n  const n = NOTE[e.key];\n  if (!n || e.repeat || e.metaKey || e.ctrlKey) return;\n  if (tone.getContext().state !== \"running\") tone.start();\n  synth.triggerAttack(n);\n  active.add(n);\n};\nconst up = (e) => {\n  const n = NOTE[e.key];\n  if (!n) return;\n  synth.triggerRelease(n);\n  active.delete(n);\n};\nwindow.addEventListener(\"keydown\", down);\nwindow.addEventListener(\"keyup\", up);\nglobalThis.__synthCleanup = () => {\n  window.removeEventListener(\"keydown\", down);\n  window.removeEventListener(\"keyup\", up);\n  synth?.releaseAll?.();\n};\n\nconst draw = (ctx, { width: w, height: h }) => {\n  ctx.fillStyle = \"#242331\";\n  ctx.fillRect(0, 0, w, h);\n  ctx.font = \"10px monospace\";\n  const whites = KEYS.filter(([, n]) => !n.includes(\"#\"));\n  const ww = w / whites.length;\n  const xs = {};\n  whites.forEach(([, n], i) => (xs[n] = i * ww));\n  for (const [k, n] of whites) {\n    ctx.fillStyle = active.has(n) ? \"#d9a13f\" : \"#d9d7eb\";\n    ctx.fillRect(xs[n] + 1, 6, ww - 2, h - 12);\n    ctx.fillStyle = \"#242331\";\n    ctx.fillText(k, xs[n] + ww / 2 - 3, h - 14);\n  }\n  for (const [k, n] of KEYS) {\n    if (!n.includes(\"#\")) continue;\n    const x = xs[n.replace(\"#\", \"\")] + ww * 0.65;\n    ctx.fillStyle = active.has(n) ? \"#d9a13f\" : \"#141320\";\n    ctx.fillRect(x, 6, ww * 0.7, (h - 12) * 0.58);\n    ctx.fillStyle = \"#d9d7eb\";\n    ctx.fillText(k, x + ww * 0.35 - 3, (h - 12) * 0.45);\n  }\n};\ndraw;"
+    },
+    "cvs": {
+      "id": "cvs",
+      "lang": "canvas",
+      "name": "piano",
+      "x": 918,
+      "y": 54,
+      "ins": ["render"],
+      "aspect": 2.6
+    }
+  },
+  "edges": [
+    {
+      "id": "t1",
+      "from": ["lib", "→"],
+      "to": ["synth", "tone"]
+    },
+    {
+      "id": "t2",
+      "from": ["lib", "→"],
+      "to": ["keys", "tone"]
+    },
+    {
+      "id": "t3",
+      "from": ["synth", "→"],
+      "to": ["keys", "synth"]
+    },
+    {
+      "id": "t4",
+      "from": ["keys", "→"],
+      "to": ["cvs", "render"]
+    }
+  ]
+}

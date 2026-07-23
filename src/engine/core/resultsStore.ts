@@ -72,6 +72,13 @@ export function removeNodeResults(id: string): void {
   });
 }
 
+/** Drop every published result — the engine calls this when a whole new doc
+ *  replaces the old one, so a node id reused by the incoming doc can't inherit
+ *  the previous doc's value (#4). */
+export function clearResults(): void {
+  resultsStore.setState({ results: {}, nodeInputs: {}, values: {}, raws: {} });
+}
+
 export function useNodeResult(id: string): NodeResult | undefined {
   return useStore(resultsStore, (s) => s.results[id]);
 }

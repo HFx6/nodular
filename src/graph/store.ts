@@ -41,6 +41,9 @@ export interface GraphStore extends GraphDoc {
   /** ordered selection; last element is the primary node */
   sel: string[];
   arm: ArmState | null;
+  /** bumped on every setDoc — node cards key off it so a node id reused by the
+   *  incoming doc remounts rather than inheriting the old body's DOM state (#4) */
+  gen: number;
 
   // document mutations (tracked in history)
   updateCode: (id: string, code: string) => void;
@@ -90,6 +93,7 @@ export const useGraphStore = create<GraphStore>()(
       edges: SEED_DOC.edges,
       sel: ["count"],
       arm: null,
+      gen: 0,
 
       updateCode: (id, code) =>
         set((s) =>
@@ -247,7 +251,13 @@ export const useGraphStore = create<GraphStore>()(
         })),
 
       setDoc: (doc) =>
-        set({ nodes: doc.nodes, edges: doc.edges, sel: [], arm: null }),
+        set((s) => ({
+          nodes: doc.nodes,
+          edges: doc.edges,
+          sel: [],
+          arm: null,
+          gen: s.gen + 1,
+        })),
 
       select: (id, additive) =>
         set((s) =>
@@ -294,3 +304,12 @@ export const redo = () => useGraphStore.temporal.getState().redo();
 export const pauseHistory = () => useGraphStore.temporal.getState().pause();
 export const resumeHistory = () => useGraphStore.temporal.getState().resume();
 export const clearHistory = () => useGraphStore.temporal.getState().clear();
+
+/** Re-run the auto-layout without leaving an undo entry. The post-load reflow
+ *  (#6) is the loader finishing its job as late-arriving data resizes cards —
+ *  not a user action, and not something ctrl+z should step back through. */
+export const tidySilently = () => {
+  pauseHistory();
+  useGraphStore.getState().tidy();
+  resumeHistory();
+};

@@ -143,297 +143,139 @@
       "name": "screen",
       "x": 1340,
       "y": 40,
-      "ins": [
-        "render"
-      ]
+      "ins": ["render"]
     }
   },
   "edges": [
     {
       "id": "ge1",
-      "from": [
-        "arm",
-        "ARMCoreArm"
-      ],
-      "to": [
-        "core",
-        "ARMCoreArm"
-      ]
+      "from": ["arm", "ARMCoreArm"],
+      "to": ["core", "ARMCoreArm"]
     },
     {
       "id": "ge2",
-      "from": [
-        "thumb",
-        "ARMCoreThumb"
-      ],
-      "to": [
-        "core",
-        "ARMCoreThumb"
-      ]
+      "from": ["thumb", "ARMCoreThumb"],
+      "to": ["core", "ARMCoreThumb"]
     },
     {
       "id": "ge3",
-      "from": [
-        "memory",
-        "MemoryView"
-      ],
-      "to": [
-        "savedata",
-        "MemoryView"
-      ]
+      "from": ["memory", "MemoryView"],
+      "to": ["savedata", "MemoryView"]
     },
     {
       "id": "ge4",
-      "from": [
-        "memory",
-        "MemoryBlock"
-      ],
-      "to": [
-        "irq",
-        "MemoryBlock"
-      ]
+      "from": ["memory", "MemoryBlock"],
+      "to": ["irq", "MemoryBlock"]
     },
     {
       "id": "ge5",
-      "from": [
-        "memory",
-        "MemoryBlock"
-      ],
-      "to": [
-        "mmu",
-        "MemoryBlock"
-      ]
+      "from": ["memory", "MemoryBlock"],
+      "to": ["mmu", "MemoryBlock"]
     },
     {
       "id": "ge6",
-      "from": [
-        "memory",
-        "ROMView"
-      ],
-      "to": [
-        "mmu",
-        "ROMView"
-      ]
+      "from": ["memory", "ROMView"],
+      "to": ["mmu", "ROMView"]
     },
     {
       "id": "ge7",
-      "from": [
-        "memory",
-        "BIOSView"
-      ],
-      "to": [
-        "mmu",
-        "BIOSView"
-      ]
+      "from": ["memory", "BIOSView"],
+      "to": ["mmu", "BIOSView"]
     },
     {
       "id": "ge8",
-      "from": [
-        "memory",
-        "BadMemory"
-      ],
-      "to": [
-        "mmu",
-        "BadMemory"
-      ]
+      "from": ["memory", "BadMemory"],
+      "to": ["mmu", "BadMemory"]
     },
     {
       "id": "ge9",
-      "from": [
-        "savedata",
-        "SRAMSavedata"
-      ],
-      "to": [
-        "mmu",
-        "SRAMSavedata"
-      ]
+      "from": ["savedata", "SRAMSavedata"],
+      "to": ["mmu", "SRAMSavedata"]
     },
     {
       "id": "ge10",
-      "from": [
-        "savedata",
-        "FlashSavedata"
-      ],
-      "to": [
-        "mmu",
-        "FlashSavedata"
-      ]
+      "from": ["savedata", "FlashSavedata"],
+      "to": ["mmu", "FlashSavedata"]
     },
     {
       "id": "ge11",
-      "from": [
-        "savedata",
-        "EEPROMSavedata"
-      ],
-      "to": [
-        "mmu",
-        "EEPROMSavedata"
-      ]
+      "from": ["savedata", "EEPROMSavedata"],
+      "to": ["mmu", "EEPROMSavedata"]
     },
     {
       "id": "ge12",
-      "from": [
-        "gpio",
-        "GameBoyAdvanceGPIO"
-      ],
-      "to": [
-        "mmu",
-        "GameBoyAdvanceGPIO"
-      ]
+      "from": ["gpio", "GameBoyAdvanceGPIO"],
+      "to": ["mmu", "GameBoyAdvanceGPIO"]
     },
     {
       "id": "ge13",
-      "from": [
-        "util",
-        "Serializer"
-      ],
-      "to": [
-        "mmu",
-        "Serializer"
-      ]
+      "from": ["util", "Serializer"],
+      "to": ["mmu", "Serializer"]
     },
     {
       "id": "ge14",
-      "from": [
-        "util",
-        "Serializer"
-      ],
-      "to": [
-        "io",
-        "Serializer"
-      ]
+      "from": ["util", "Serializer"],
+      "to": ["io", "Serializer"]
     },
     {
       "id": "ge15",
-      "from": [
-        "util",
-        "hex"
-      ],
-      "to": [
-        "sio",
-        "hex"
-      ]
+      "from": ["util", "hex"],
+      "to": ["sio", "hex"]
     },
     {
       "id": "ge16",
-      "from": [
-        "videosw",
-        "GameBoyAdvanceSoftwareRenderer"
-      ],
-      "to": [
-        "video",
-        "GameBoyAdvanceSoftwareRenderer"
-      ]
+      "from": ["videosw", "GameBoyAdvanceSoftwareRenderer"],
+      "to": ["video", "GameBoyAdvanceSoftwareRenderer"]
     },
     {
       "id": "ge17",
-      "from": [
-        "core",
-        "ARMCore"
-      ],
-      "to": [
-        "gba",
-        "ARMCore"
-      ]
+      "from": ["core", "ARMCore"],
+      "to": ["gba", "ARMCore"]
     },
     {
       "id": "ge18",
-      "from": [
-        "mmu",
-        "GameBoyAdvanceMMU"
-      ],
-      "to": [
-        "gba",
-        "GameBoyAdvanceMMU"
-      ]
+      "from": ["mmu", "GameBoyAdvanceMMU"],
+      "to": ["gba", "GameBoyAdvanceMMU"]
     },
     {
       "id": "ge19",
-      "from": [
-        "irq",
-        "GameBoyAdvanceInterruptHandler"
-      ],
-      "to": [
-        "gba",
-        "GameBoyAdvanceInterruptHandler"
-      ]
+      "from": ["irq", "GameBoyAdvanceInterruptHandler"],
+      "to": ["gba", "GameBoyAdvanceInterruptHandler"]
     },
     {
       "id": "ge20",
-      "from": [
-        "io",
-        "GameBoyAdvanceIO"
-      ],
-      "to": [
-        "gba",
-        "GameBoyAdvanceIO"
-      ]
+      "from": ["io", "GameBoyAdvanceIO"],
+      "to": ["gba", "GameBoyAdvanceIO"]
     },
     {
       "id": "ge21",
-      "from": [
-        "audio",
-        "GameBoyAdvanceAudio"
-      ],
-      "to": [
-        "gba",
-        "GameBoyAdvanceAudio"
-      ]
+      "from": ["audio", "GameBoyAdvanceAudio"],
+      "to": ["gba", "GameBoyAdvanceAudio"]
     },
     {
       "id": "ge22",
-      "from": [
-        "video",
-        "GameBoyAdvanceVideo"
-      ],
-      "to": [
-        "gba",
-        "GameBoyAdvanceVideo"
-      ]
+      "from": ["video", "GameBoyAdvanceVideo"],
+      "to": ["gba", "GameBoyAdvanceVideo"]
     },
     {
       "id": "ge23",
-      "from": [
-        "keypad",
-        "GameBoyAdvanceKeypad"
-      ],
-      "to": [
-        "gba",
-        "GameBoyAdvanceKeypad"
-      ]
+      "from": ["keypad", "GameBoyAdvanceKeypad"],
+      "to": ["gba", "GameBoyAdvanceKeypad"]
     },
     {
       "id": "ge24",
-      "from": [
-        "sio",
-        "GameBoyAdvanceSIO"
-      ],
-      "to": [
-        "gba",
-        "GameBoyAdvanceSIO"
-      ]
+      "from": ["sio", "GameBoyAdvanceSIO"],
+      "to": ["gba", "GameBoyAdvanceSIO"]
     },
     {
       "id": "ge25",
-      "from": [
-        "gba",
-        "GameBoyAdvance"
-      ],
-      "to": [
-        "loadgba",
-        "GameBoyAdvance"
-      ]
+      "from": ["gba", "GameBoyAdvance"],
+      "to": ["loadgba", "GameBoyAdvance"]
     },
     {
       "id": "ge26",
-      "from": [
-        "loadgba",
-        "→"
-      ],
-      "to": [
-        "screen",
-        "render"
-      ]
+      "from": ["loadgba", "→"],
+      "to": ["screen", "render"]
     }
   ]
 }

@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "nodes": {
+    "repo": {
+      "id": "repo",
+      "lang": "ui",
+      "name": "owner/repo",
+      "x": 54,
+      "y": 54,
+      "kind": "text",
+      "ins": [],
+      "code": "facebook/react"
+    },
+    "info": {
+      "id": "info",
+      "lang": "js",
+      "name": "repo info",
+      "x": 54,
+      "y": 216,
+      "code": "const r = await fetch(`https://api.github.com/repos/${repo.trim()}`);\nconst j = await r.json();\nj.full_name\n  ? {\n      repo: j.full_name,\n      stars: j.stargazers_count,\n      forks: j.forks_count,\n      \"open issues\": j.open_issues_count,\n      language: j.language,\n      description: j.description,\n    }\n  : j.message;"
+    },
+    "contribs": {
+      "id": "contribs",
+      "lang": "js",
+      "name": "contributors",
+      "x": 486,
+      "y": 54,
+      "code": "const r = await fetch(\n  `https://api.github.com/repos/${repo.trim()}/contributors?per_page=15`,\n);\nconst j = await r.json();\nArray.isArray(j)\n  ? j.map((c) => ({ login: c.login, commits: c.contributions }))\n  : j.message;"
+    },
+    "tbl": {
+      "id": "tbl",
+      "lang": "ui",
+      "name": "top contributors",
+      "x": 918,
+      "y": 54,
+      "kind": "table",
+      "ins": ["rows"]
+    },
+    "avatar": {
+      "id": "avatar",
+      "lang": "js",
+      "name": "avatar url",
+      "x": 918,
+      "y": 414,
+      "code": "person && `https://github.com/${person.login}.png?size=400`;"
+    },
+    "img": {
+      "id": "img",
+      "lang": "ui",
+      "name": "avatar",
+      "x": 1296,
+      "y": 306,
+      "kind": "image",
+      "ins": ["url"]
+    },
+    "pulse": {
+      "id": "pulse",
+      "lang": "js",
+      "name": "commit pulse",
+      "x": 486,
+      "y": 342,
+      "code": "// /stats endpoints return 202 while GitHub computes them — the canvas says so\nconst r = await fetch(\n  `https://api.github.com/repos/${repo.trim()}/stats/participation`,\n);\nconst weeks = r.status === 200 ? (await r.json()).all : null;\nconst draw = (ctx, { width: w, height: h }) => {\n  ctx.fillStyle = \"#242331\";\n  ctx.fillRect(0, 0, w, h);\n  ctx.font = \"10px monospace\";\n  if (!weeks) {\n    ctx.fillStyle = \"#8b89a0\";\n    ctx.fillText(\"stats warming up — nudge the repo name to retry\", 10, h / 2);\n    return;\n  }\n  const max = Math.max(...weeks, 1);\n  const bw = w / weeks.length;\n  ctx.fillStyle = \"#d9a13f\";\n  weeks.forEach((v, i) => {\n    const bh = (v / max) * (h - 30);\n    ctx.fillRect(i * bw + 1, h - 8 - bh, Math.max(1, bw - 2), bh);\n  });\n  ctx.fillStyle = \"#8b89a0\";\n  ctx.fillText(`commits / week — last year, peak ${max}`, 8, 13);\n};\ndraw;"
+    },
+    "cvs": {
+      "id": "cvs",
+      "lang": "canvas",
+      "name": "activity",
+      "x": 486,
+      "y": 648,
+      "ins": ["render"],
+      "aspect": 2.4
+    }
+  },
+  "edges": [
+    {
+      "id": "g1",
+      "from": ["repo", "→"],
+      "to": ["info", "repo"]
+    },
+    {
+      "id": "g2",
+      "from": ["repo", "→"],
+      "to": ["contribs", "repo"]
+    },
+    {
+      "id": "g3",
+      "from": ["contribs", "→"],
+      "to": ["tbl", "rows"]
+    },
+    {
+      "id": "g4",
+      "from": ["tbl", "→"],
+      "to": ["avatar", "person"]
+    },
+    {
+      "id": "g5",
+      "from": ["avatar", "→"],
+      "to": ["img", "url"]
+    },
+    {
+      "id": "g6",
+      "from": ["repo", "→"],
+      "to": ["pulse", "repo"]
+    },
+    {
+      "id": "g7",
+      "from": ["pulse", "→"],
+      "to": ["cvs", "render"]
+    }
+  ]
+}

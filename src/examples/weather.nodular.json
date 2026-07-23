@@ -1,0 +1,129 @@
+{
+  "version": 1,
+  "nodes": {
+    "city": {
+      "id": "city",
+      "lang": "ui",
+      "name": "city",
+      "x": 54,
+      "y": 54,
+      "kind": "text",
+      "ins": [],
+      "code": "Tokyo"
+    },
+    "geo": {
+      "id": "geo",
+      "lang": "js",
+      "name": "geocode",
+      "x": 54,
+      "y": 216,
+      "code": "const r = await fetch(\n  `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`,\n);\nconst g = (await r.json()).results?.[0];\ng && { name: g.name, country: g.country, lat: g.latitude, lon: g.longitude };"
+    },
+    "fc": {
+      "id": "fc",
+      "lang": "js",
+      "name": "forecast",
+      "x": 54,
+      "y": 432,
+      "code": "place &&\n  (await (\n    await fetch(\n      `https://api.open-meteo.com/v1/forecast?latitude=${place.lat}&longitude=${place.lon}` +\n        \"&current=temperature_2m,apparent_temperature,wind_speed_10m,weather_code\" +\n        \"&hourly=temperature_2m\" +\n        \"&daily=temperature_2m_max,temperature_2m_min,weather_code\" +\n        \"&forecast_days=7&timezone=auto\",\n    )\n  ).json());"
+    },
+    "wmo": {
+      "id": "wmo",
+      "lang": "js",
+      "name": "weather codes",
+      "x": 486,
+      "y": 594,
+      "code": "// WMO weather codes -> words, shared by the current + daily nodes\n({\n  0: \"clear\",\n  1: \"mostly clear\",\n  2: \"partly cloudy\",\n  3: \"overcast\",\n  45: \"fog\",\n  48: \"rime fog\",\n  51: \"light drizzle\",\n  53: \"drizzle\",\n  55: \"dense drizzle\",\n  61: \"light rain\",\n  63: \"rain\",\n  65: \"heavy rain\",\n  71: \"light snow\",\n  73: \"snow\",\n  75: \"heavy snow\",\n  80: \"showers\",\n  81: \"showers\",\n  82: \"violent showers\",\n  95: \"thunderstorm\",\n  96: \"thunderstorm + hail\",\n  99: \"thunderstorm + hail\",\n});"
+    },
+    "now": {
+      "id": "now",
+      "lang": "js",
+      "name": "right now",
+      "x": 486,
+      "y": 54,
+      "code": "// one row, rendered as a table (⚙ → render output) so the node shows\n// conditions instead of a one-line object preview\nconst c = fc?.current;\nc && [\n  {\n    temp: `${c.temperature_2m}°C`,\n    feels: `${c.apparent_temperature}°C`,\n    wind: `${c.wind_speed_10m} km/h`,\n    sky: wmo[c.weather_code] ?? `code ${c.weather_code}`,\n  },\n];\n",
+      "renderMode": "table"
+    },
+    "days": {
+      "id": "days",
+      "lang": "js",
+      "name": "daily rows",
+      "x": 486,
+      "y": 306,
+      "code": "const d = fc?.daily;\nd &&\n  d.time.map((t, i) => ({\n    day: t,\n    high: d.temperature_2m_max[i],\n    low: d.temperature_2m_min[i],\n    sky: wmo[d.weather_code[i]] ?? d.weather_code[i],\n  }));"
+    },
+    "tbl": {
+      "id": "tbl",
+      "lang": "ui",
+      "name": "week",
+      "x": 918,
+      "y": 306,
+      "kind": "table",
+      "ins": ["rows"]
+    },
+    "chart": {
+      "id": "chart",
+      "lang": "js",
+      "name": "temp chart",
+      "x": 918,
+      "y": 54,
+      "code": "// 48h hourly temperature sparkline\nconst draw = (ctx, { width: w, height: h }) => {\n  ctx.fillStyle = \"#242331\";\n  ctx.fillRect(0, 0, w, h);\n  const t = fc?.hourly?.temperature_2m?.slice(0, 48);\n  ctx.font = \"10px monospace\";\n  if (!t || t.length < 2) {\n    ctx.fillStyle = \"#8b89a0\";\n    ctx.fillText(\"waiting for forecast…\", 10, h / 2);\n    return;\n  }\n  const lo = Math.min(...t);\n  const hi = Math.max(...t);\n  const y = (v) => h - 16 - ((v - lo) / (hi - lo || 1)) * (h - 34);\n  ctx.strokeStyle = \"#d9a13f\";\n  ctx.lineWidth = 1.5;\n  ctx.beginPath();\n  t.forEach((v, i) => {\n    const x = 6 + (i / (t.length - 1)) * (w - 12);\n    i ? ctx.lineTo(x, y(v)) : ctx.moveTo(x, y(v));\n  });\n  ctx.stroke();\n  ctx.fillStyle = \"#8b89a0\";\n  ctx.fillText(`next 48h · ${lo}° … ${hi}°`, 8, 13);\n};\ndraw;"
+    },
+    "cvs": {
+      "id": "cvs",
+      "lang": "canvas",
+      "name": "sparkline",
+      "x": 1332,
+      "y": 54,
+      "ins": ["render"],
+      "aspect": 2.2
+    }
+  },
+  "edges": [
+    {
+      "id": "w1",
+      "from": ["city", "→"],
+      "to": ["geo", "city"]
+    },
+    {
+      "id": "w2",
+      "from": ["geo", "→"],
+      "to": ["fc", "place"]
+    },
+    {
+      "id": "w3",
+      "from": ["fc", "→"],
+      "to": ["now", "fc"]
+    },
+    {
+      "id": "w4",
+      "from": ["wmo", "→"],
+      "to": ["now", "wmo"]
+    },
+    {
+      "id": "w5",
+      "from": ["fc", "→"],
+      "to": ["days", "fc"]
+    },
+    {
+      "id": "w6",
+      "from": ["wmo", "→"],
+      "to": ["days", "wmo"]
+    },
+    {
+      "id": "w7",
+      "from": ["days", "→"],
+      "to": ["tbl", "rows"]
+    },
+    {
+      "id": "w8",
+      "from": ["fc", "→"],
+      "to": ["chart", "fc"]
+    },
+    {
+      "id": "w9",
+      "from": ["chart", "→"],
+      "to": ["cvs", "render"]
+    }
+  ]
+}

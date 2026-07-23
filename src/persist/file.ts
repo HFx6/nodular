@@ -2,6 +2,7 @@
 // (PROJECT.md: local-first, files export without an account).
 
 import { clearHistory, useGraphStore, type GraphDoc } from "../graph/store";
+import { resetEngine } from "../engine/core/engine";
 import { fillNodeWidths } from "../graph/spawn";
 
 const VERSION = 1;
@@ -64,6 +65,7 @@ export async function importFile(file: File): Promise<boolean> {
     const doc = parseDoc(JSON.parse(await file.text()));
     if (!doc) return false;
     useGraphStore.getState().setDoc(doc);
+    resetEngine(); // a new doc, not an edit — reused ids must not inherit state (#4)
     clearHistory();
     return true;
   } catch {

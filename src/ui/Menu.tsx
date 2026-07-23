@@ -11,7 +11,6 @@ export interface MenuActions {
   onTidy: () => void;
   onExport: () => void;
   onImport: (file: File) => void;
-  onZoomReset: () => void;
   onToggleRail: () => void;
 }
 
@@ -87,7 +86,6 @@ export function Menu(actions: MenuActions) {
           <Section title="arrange" />
           <Item label="auto-arrange  ⇧L" onPick={pick(actions.onTidy)} />
           <Section title="view" />
-          <Item label="zoom 100%" onPick={pick(actions.onZoomReset)} />
           <Item
             label="toggle editor rail"
             onPick={pick(actions.onToggleRail)}

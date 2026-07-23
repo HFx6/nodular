@@ -1,0 +1,375 @@
+{
+  "version": 1,
+  "nodes": {
+    "aes": {
+      "id": "aes",
+      "lang": "js",
+      "name": "AES-128 core",
+      "x": 54,
+      "y": 54,
+      "code": "// AES-128, the FIPS-197 block cipher itself — every encrypt/decrypt box in\n// the diagram calls encryptBlock/decryptBlock on one 16-byte block.\nconst SBOX = new Uint8Array(256);\nconst INV = new Uint8Array(256);\n{\n  let p = 1;\n  let q = 1;\n  do {\n    p ^= ((p << 1) ^ (p & 0x80 ? 0x1b : 0)) & 255;\n    q = (q ^ (q << 1)) & 255;\n    q = (q ^ (q << 2)) & 255;\n    q = (q ^ (q << 4)) & 255;\n    if (q & 0x80) q ^= 0x09;\n    const rot = (x, s) => ((x << s) | (x >> (8 - s))) & 255;\n    SBOX[p] = q ^ rot(q, 1) ^ rot(q, 2) ^ rot(q, 3) ^ rot(q, 4) ^ 0x63;\n  } while (p !== 1);\n  SBOX[0] = 0x63;\n  for (let i = 0; i < 256; i++) INV[SBOX[i]] = i;\n}\n\nconst xtime = (x) => ((x << 1) ^ (x & 0x80 ? 0x1b : 0)) & 255;\nconst mul = (x, y) => {\n  let r = 0;\n  for (; y; y >>= 1) {\n    if (y & 1) r ^= x;\n    x = xtime(x);\n  }\n  return r;\n};\n\nconst expandKey = (key) => {\n  const w = new Uint8Array(176);\n  w.set(key);\n  let rcon = 1;\n  for (let i = 16; i < 176; i += 4) {\n    let t = [w[i - 4], w[i - 3], w[i - 2], w[i - 1]];\n    if (i % 16 === 0) {\n      t = [SBOX[t[1]] ^ rcon, SBOX[t[2]], SBOX[t[3]], SBOX[t[0]]];\n      rcon = xtime(rcon);\n    }\n    for (let j = 0; j < 4; j++) w[i + j] = w[i - 16 + j] ^ t[j];\n  }\n  return w;\n};\n\nconst addKey = (s, w, r) => {\n  for (let i = 0; i < 16; i++) s[i] ^= w[r * 16 + i];\n};\n// state is column-major: flat index 4*col + row; dir 1 = ShiftRows, -1 = inverse\nconst shift = (s, dir) => {\n  const t = s.slice();\n  for (let c = 0; c < 4; c++)\n    for (let r = 0; r < 4; r++) s[4 * c + r] = t[4 * ((c + dir * r + 4) & 3) + r];\n};\nconst mix = (s, m) => {\n  for (let c = 0; c < 4; c++) {\n    const a = s.slice(4 * c, 4 * c + 4);\n    for (let r = 0; r < 4; r++)\n      s[4 * c + r] =\n        mul(a[r], m[0]) ^\n        mul(a[(r + 1) & 3], m[1]) ^\n        mul(a[(r + 2) & 3], m[2]) ^\n        mul(a[(r + 3) & 3], m[3]);\n  }\n};\n\nconst encryptBlock = (w, block) => {\n  const s = Uint8Array.from(block);\n  addKey(s, w, 0);\n  for (let r = 1; r <= 10; r++) {\n    for (let i = 0; i < 16; i++) s[i] = SBOX[s[i]];\n    shift(s, 1);\n    if (r < 10) mix(s, [2, 3, 1, 1]);\n    addKey(s, w, r);\n  }\n  return s;\n};\nconst decryptBlock = (w, block) => {\n  const s = Uint8Array.from(block);\n  addKey(s, w, 10);\n  for (let r = 9; r >= 0; r--) {\n    shift(s, -1);\n    for (let i = 0; i < 16; i++) s[i] = INV[s[i]];\n    addKey(s, w, r);\n    if (r > 0) mix(s, [14, 11, 13, 9]);\n  }\n  return s;\n};\n\n({ expandKey, encryptBlock, decryptBlock });",
+      "min": true
+    },
+    "cipher": {
+      "id": "cipher",
+      "lang": "js",
+      "name": "keyed cipher",
+      "x": 54,
+      "y": 108,
+      "code": "// one key schedule, shared by every box — the diagram's Key → [block cipher]\nconst fromHex = (h) => Uint8Array.from(h.split(\" \"), (x) => parseInt(x, 16));\nconst toHex = (b) => [...b].map((x) => x.toString(16).padStart(2, \"0\")).join(\" \");\nconst w = aes.expandKey(new TextEncoder().encode((key + \" \".repeat(16)).slice(0, 16)));\n({\n  enc: (hex) => toHex(aes.encryptBlock(w, fromHex(hex))),\n  dec: (hex) => toHex(aes.decryptBlock(w, fromHex(hex))),\n});",
+      "min": true
+    },
+    "blocks": {
+      "id": "blocks",
+      "lang": "js",
+      "name": "split blocks",
+      "x": 54,
+      "y": 162,
+      "code": "// pad to 48 bytes, split into three 16-byte hex blocks\nconst padded = (msg + \" \".repeat(48)).slice(0, 48);\n[0, 1, 2].map((i) =>\n  [...new TextEncoder().encode(padded.slice(i * 16, i * 16 + 16))]\n    .map((x) => x.toString(16).padStart(2, \"0\"))\n    .join(\" \"),\n);",
+      "min": true
+    },
+    "key": {
+      "id": "key",
+      "lang": "ui",
+      "name": "key (16 bytes)",
+      "x": 54,
+      "y": 234,
+      "kind": "text",
+      "ins": [],
+      "code": "YELLOW SUBMARINE"
+    },
+    "msg": {
+      "id": "msg",
+      "lang": "ui",
+      "name": "plaintext",
+      "x": 54,
+      "y": 396,
+      "kind": "text",
+      "ins": [],
+      "code": "we strike the bridge at dawn. bring the key."
+    },
+    "iv": {
+      "id": "iv",
+      "lang": "js",
+      "name": "IV",
+      "x": 54,
+      "y": 558,
+      "code": "\"1f 8b 3c 5a 99 02 4d e6 71 b0 c4 17 2e 88 d3 6a\";"
+    },
+    "p1": {
+      "id": "p1",
+      "lang": "js",
+      "name": "plaintext 1",
+      "x": 594,
+      "y": 54,
+      "code": "blocks[0];"
+    },
+    "p2": {
+      "id": "p2",
+      "lang": "js",
+      "name": "plaintext 2",
+      "x": 1026,
+      "y": 54,
+      "code": "blocks[1];"
+    },
+    "p3": {
+      "id": "p3",
+      "lang": "js",
+      "name": "plaintext 3",
+      "x": 1458,
+      "y": 54,
+      "code": "blocks[2];"
+    },
+    "x1": {
+      "id": "x1",
+      "lang": "js",
+      "name": "⊕ iv",
+      "x": 594,
+      "y": 216,
+      "code": "const X = (...hs) => {\n  const bs = hs.map((h) => h.split(\" \").map((x) => parseInt(x, 16)));\n  return bs[0]\n    .map((v, i) => bs.slice(1).reduce((a, b) => a ^ b[i], v))\n    .map((x) => x.toString(16).padStart(2, \"0\"))\n    .join(\" \");\n};\nX(p1, iv);"
+    },
+    "x2": {
+      "id": "x2",
+      "lang": "js",
+      "name": "⊕ p1 ⊕ c1",
+      "x": 1026,
+      "y": 216,
+      "code": "const X = (...hs) => {\n  const bs = hs.map((h) => h.split(\" \").map((x) => parseInt(x, 16)));\n  return bs[0]\n    .map((v, i) => bs.slice(1).reduce((a, b) => a ^ b[i], v))\n    .map((x) => x.toString(16).padStart(2, \"0\"))\n    .join(\" \");\n};\nX(p2, p1, c1);"
+    },
+    "x3": {
+      "id": "x3",
+      "lang": "js",
+      "name": "⊕ p2 ⊕ c2",
+      "x": 1458,
+      "y": 216,
+      "code": "const X = (...hs) => {\n  const bs = hs.map((h) => h.split(\" \").map((x) => parseInt(x, 16)));\n  return bs[0]\n    .map((v, i) => bs.slice(1).reduce((a, b) => a ^ b[i], v))\n    .map((x) => x.toString(16).padStart(2, \"0\"))\n    .join(\" \");\n};\nX(p3, p2, c2);"
+    },
+    "c1": {
+      "id": "c1",
+      "lang": "js",
+      "name": "encrypt 1",
+      "x": 594,
+      "y": 468,
+      "code": "cipher.enc(x1);"
+    },
+    "c2": {
+      "id": "c2",
+      "lang": "js",
+      "name": "encrypt 2",
+      "x": 1026,
+      "y": 468,
+      "code": "cipher.enc(x2);"
+    },
+    "c3": {
+      "id": "c3",
+      "lang": "js",
+      "name": "encrypt 3",
+      "x": 1458,
+      "y": 468,
+      "code": "cipher.enc(x3);"
+    },
+    "d1": {
+      "id": "d1",
+      "lang": "js",
+      "name": "decrypt 1",
+      "x": 594,
+      "y": 720,
+      "code": "cipher.dec(c1);"
+    },
+    "d2": {
+      "id": "d2",
+      "lang": "js",
+      "name": "decrypt 2",
+      "x": 1026,
+      "y": 720,
+      "code": "cipher.dec(c2);"
+    },
+    "d3": {
+      "id": "d3",
+      "lang": "js",
+      "name": "decrypt 3",
+      "x": 1458,
+      "y": 720,
+      "code": "cipher.dec(c3);"
+    },
+    "u1": {
+      "id": "u1",
+      "lang": "js",
+      "name": "⊕ iv → p1",
+      "x": 594,
+      "y": 900,
+      "code": "const X = (...hs) => {\n  const bs = hs.map((h) => h.split(\" \").map((x) => parseInt(x, 16)));\n  return bs[0]\n    .map((v, i) => bs.slice(1).reduce((a, b) => a ^ b[i], v))\n    .map((x) => x.toString(16).padStart(2, \"0\"))\n    .join(\" \");\n};\nX(d1, iv);"
+    },
+    "u2": {
+      "id": "u2",
+      "lang": "js",
+      "name": "⊕ p1 ⊕ c1 → p2",
+      "x": 1026,
+      "y": 900,
+      "code": "const X = (...hs) => {\n  const bs = hs.map((h) => h.split(\" \").map((x) => parseInt(x, 16)));\n  return bs[0]\n    .map((v, i) => bs.slice(1).reduce((a, b) => a ^ b[i], v))\n    .map((x) => x.toString(16).padStart(2, \"0\"))\n    .join(\" \");\n};\nX(d2, u1, c1);"
+    },
+    "u3": {
+      "id": "u3",
+      "lang": "js",
+      "name": "⊕ p2 ⊕ c2 → p3",
+      "x": 1458,
+      "y": 900,
+      "code": "const X = (...hs) => {\n  const bs = hs.map((h) => h.split(\" \").map((x) => parseInt(x, 16)));\n  return bs[0]\n    .map((v, i) => bs.slice(1).reduce((a, b) => a ^ b[i], v))\n    .map((x) => x.toString(16).padStart(2, \"0\"))\n    .join(\" \");\n};\nX(d3, u2, c2);"
+    },
+    "out": {
+      "id": "out",
+      "lang": "js",
+      "name": "recovered",
+      "x": 1026,
+      "y": 1188,
+      "code": "// stitch the recovered blocks back into text\nconst bytes = [u1, u2, u3].join(\" \").split(\" \").map((x) => parseInt(x, 16));\nnew TextDecoder().decode(Uint8Array.from(bytes)).trimEnd();"
+    }
+  },
+  "edges": [
+    {
+      "id": "b1",
+      "from": ["aes", "→"],
+      "to": ["cipher", "aes"]
+    },
+    {
+      "id": "b2",
+      "from": ["key", "→"],
+      "to": ["cipher", "key"]
+    },
+    {
+      "id": "b3",
+      "from": ["msg", "→"],
+      "to": ["blocks", "msg"]
+    },
+    {
+      "id": "b4",
+      "from": ["blocks", "→"],
+      "to": ["p1", "blocks"]
+    },
+    {
+      "id": "b5",
+      "from": ["blocks", "→"],
+      "to": ["p2", "blocks"]
+    },
+    {
+      "id": "b6",
+      "from": ["blocks", "→"],
+      "to": ["p3", "blocks"]
+    },
+    {
+      "id": "b7",
+      "from": ["p1", "→"],
+      "to": ["x1", "p1"]
+    },
+    {
+      "id": "b8",
+      "from": ["iv", "→"],
+      "to": ["x1", "iv"]
+    },
+    {
+      "id": "b9",
+      "from": ["p2", "→"],
+      "to": ["x2", "p2"]
+    },
+    {
+      "id": "b10",
+      "from": ["p1", "→"],
+      "to": ["x2", "p1"]
+    },
+    {
+      "id": "b11",
+      "from": ["c1", "→"],
+      "to": ["x2", "c1"]
+    },
+    {
+      "id": "b12",
+      "from": ["p3", "→"],
+      "to": ["x3", "p3"]
+    },
+    {
+      "id": "b13",
+      "from": ["p2", "→"],
+      "to": ["x3", "p2"]
+    },
+    {
+      "id": "b14",
+      "from": ["c2", "→"],
+      "to": ["x3", "c2"]
+    },
+    {
+      "id": "b15",
+      "from": ["cipher", "→"],
+      "to": ["c1", "cipher"]
+    },
+    {
+      "id": "b16",
+      "from": ["x1", "→"],
+      "to": ["c1", "x1"]
+    },
+    {
+      "id": "b17",
+      "from": ["cipher", "→"],
+      "to": ["c2", "cipher"]
+    },
+    {
+      "id": "b18",
+      "from": ["x2", "→"],
+      "to": ["c2", "x2"]
+    },
+    {
+      "id": "b19",
+      "from": ["cipher", "→"],
+      "to": ["c3", "cipher"]
+    },
+    {
+      "id": "b20",
+      "from": ["x3", "→"],
+      "to": ["c3", "x3"]
+    },
+    {
+      "id": "b21",
+      "from": ["cipher", "→"],
+      "to": ["d1", "cipher"]
+    },
+    {
+      "id": "b22",
+      "from": ["c1", "→"],
+      "to": ["d1", "c1"]
+    },
+    {
+      "id": "b23",
+      "from": ["cipher", "→"],
+      "to": ["d2", "cipher"]
+    },
+    {
+      "id": "b24",
+      "from": ["c2", "→"],
+      "to": ["d2", "c2"]
+    },
+    {
+      "id": "b25",
+      "from": ["cipher", "→"],
+      "to": ["d3", "cipher"]
+    },
+    {
+      "id": "b26",
+      "from": ["c3", "→"],
+      "to": ["d3", "c3"]
+    },
+    {
+      "id": "b27",
+      "from": ["d1", "→"],
+      "to": ["u1", "d1"]
+    },
+    {
+      "id": "b28",
+      "from": ["iv", "→"],
+      "to": ["u1", "iv"]
+    },
+    {
+      "id": "b29",
+      "from": ["d2", "→"],
+      "to": ["u2", "d2"]
+    },
+    {
+      "id": "b30",
+      "from": ["u1", "→"],
+      "to": ["u2", "u1"]
+    },
+    {
+      "id": "b31",
+      "from": ["c1", "→"],
+      "to": ["u2", "c1"]
+    },
+    {
+      "id": "b32",
+      "from": ["d3", "→"],
+      "to": ["u3", "d3"]
+    },
+    {
+      "id": "b33",
+      "from": ["u2", "→"],
+      "to": ["u3", "u2"]
+    },
+    {
+      "id": "b34",
+      "from": ["c2", "→"],
+      "to": ["u3", "c2"]
+    },
+    {
+      "id": "b35",
+      "from": ["u1", "→"],
+      "to": ["out", "u1"]
+    },
+    {
+      "id": "b36",
+      "from": ["u2", "→"],
+      "to": ["out", "u2"]
+    },
+    {
+      "id": "b37",
+      "from": ["u3", "→"],
+      "to": ["out", "u3"]
+    }
+  ]
+}

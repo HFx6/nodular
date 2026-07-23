@@ -42,6 +42,32 @@ export const useSizes = (): SizeMap => useStore(sizeStore, (s) => s.sizes);
  *  editors finish mounting/growing, so mere existence isn't enough to lay out
  *  against. The `timeout` cap keeps a node that never mounts (or never stops
  *  resizing) from wedging the caller. */
+/** Resolves true when some card's measured size changes and the map then goes
+ *  quiet for `settle` ms — "content landed and the card finished growing".
+ *  Resolves false if nothing moved before `timeout`.
+ *
+ *  Counterpart to whenMeasured: that one waits for the first layout, this one
+ *  waits for the *next* one. Nodes fed by a fetch (a table, an image, a canvas
+ *  waiting on a forecast) are laid out at their empty height and then grow when
+ *  the data arrives, which is what leaves a freshly loaded graph overlapping
+ *  itself (#6). */
+export function whenGrown(timeout: number, settle = 150): Promise<boolean> {
+  return new Promise((resolve) => {
+    let quiet: ReturnType<typeof setTimeout> | undefined;
+    const done = (grew: boolean) => {
+      unsub();
+      clearTimeout(cap);
+      clearTimeout(quiet);
+      resolve(grew);
+    };
+    const unsub = sizeStore.subscribe(() => {
+      clearTimeout(quiet);
+      quiet = setTimeout(() => done(true), settle);
+    });
+    const cap = setTimeout(() => done(false), timeout);
+  });
+}
+
 export function whenMeasured(
   ids: string[],
   timeout = 3000,

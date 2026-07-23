@@ -11,12 +11,18 @@ import { ZOOM_MAX, ZOOM_MIN } from "./theme";
 import type { View } from "./types";
 import { useToast } from "./hooks/useToast";
 import { useGraph } from "./graph/useGraph";
-import { clearHistory, SEED_DOC, useGraphStore } from "./graph/store";
+import {
+  clearHistory,
+  SEED_DOC,
+  tidySilently,
+  useGraphStore,
+} from "./graph/store";
 import { nodeRect } from "./graph/geometry";
-import { sizeStore, whenMeasured } from "./graph/sizeStore";
+import { sizeStore, whenGrown, whenMeasured } from "./graph/sizeStore";
+import { resetEngine } from "./engine/core/engine";
 import type { GraphDoc } from "./graph/store";
 import { SPAWN_KINDS, type SpawnKind } from "./graph/spawn";
-import { clearSaved } from "./persist/autosave";
+import { clearSaved, saveDocName, savedDocName } from "./persist/autosave";
 import { exportFile, importFile } from "./persist/file";
 import { formatDoc } from "./editor/format";
 import type { MenuActions } from "./ui/Menu";
@@ -25,6 +31,14 @@ import { TopBar } from "./ui/TopBar";
 import { Board } from "./ui/board/Board";
 import { useBoardKeys } from "./ui/board/useBoardInput";
 import { EditorRail } from "./ui/rail/EditorRail";
+
+/** How long after a load the board keeps re-arranging itself as late data
+ *  resizes cards (#6). Long enough for a cold fetch, short enough that it is
+ *  over before the user starts editing. */
+const REFLOW_MS = 8000;
+
+/** SEED_DOC is the walkers demo, so a fresh canvas carries its name (#10). */
+const SEED_NAME = "walkers.nodular";
 
 export default function App() {
   const { note, say } = useToast();
@@ -41,6 +55,12 @@ export default function App() {
     localStorage.setItem("nodular.railW", String(railW));
   }, [railW]);
   const [view, setView] = useState<View>({ x: 0, y: 0, k: 1 });
+  // the doc on the board, named for the top bar and the export filename (#10)
+  const [docName, setDocName] = useState(() => savedDocName() ?? SEED_NAME);
+  useEffect(() => {
+    document.title = `${docName} — nodular`;
+    saveDocName(docName);
+  }, [docName]);
   // palette kind waiting for a placement click on the canvas (#18)
   const [placing, setPlacing] = useState<SpawnKind | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
@@ -150,17 +170,33 @@ export default function App() {
   // load a doc: prettify its js first, auto-arrange with estimated heights so
   // it frames sanely at once, then — heights are content-driven and only exist
   // after render — re-run the layout against measured sizes and make THAT the
-  // clean history baseline
+  // clean history baseline. Finally keep watching for a short while: a node fed
+  // by a fetch is laid out empty and grows when its data lands (#6).
+  const loadSeq = useRef(0);
   const loadDoc = async (doc: GraphDoc) => {
+    const seq = ++loadSeq.current;
     const formatted = await formatDoc(doc);
     const st = useGraphStore.getState();
     st.setDoc(formatted);
+    resetEngine(); // reused node ids must not inherit the old doc's state (#4)
     st.tidy();
     fitView();
     await whenMeasured(Object.keys(formatted.nodes));
+    if (seq !== loadSeq.current) return; // superseded by a newer load
     useGraphStore.getState().tidy();
     clearHistory();
     fitView();
+    // Re-flow on every settled growth for REFLOW_MS. Bounded rather than
+    // permanent: past the opening moments, a card growing is the user's own
+    // edit, and re-arranging the board under them would be hostile.
+    const until = performance.now() + REFLOW_MS;
+    while (seq === loadSeq.current) {
+      const left = until - performance.now();
+      if (left <= 0 || !(await whenGrown(left))) break;
+      if (seq !== loadSeq.current) return;
+      tidySilently();
+      fitView();
+    }
   };
   const tidy = () => {
     useGraphStore.getState().tidy();
@@ -169,6 +205,7 @@ export default function App() {
   };
   const menu: MenuActions = {
     onReset: () => {
+      setDocName(SEED_NAME);
       void loadDoc(SEED_DOC);
       void clearSaved();
       say("canvas reset");
@@ -177,15 +214,18 @@ export default function App() {
       void ex
         .load()
         .then((doc) => loadDoc(doc))
-        .then(() => say(ex.toast))
+        .then(() => {
+          setDocName(`${ex.id}.nodular`);
+          say(ex.toast);
+        })
         .catch(() => say(`couldn't load ${ex.name}`)),
     onTidy: tidy,
-    onExport: () => exportFile(),
+    onExport: () => exportFile(docName.replace(/\.nodular$/, "")),
     onImport: (f) =>
-      void importFile(f).then((ok) =>
-        say(ok ? `imported ${f.name}` : `couldn't read ${f.name}`),
-      ),
-    onZoomReset: () => tweenView({ x: 0, y: 0, k: 1 }),
+      void importFile(f).then((ok) => {
+        if (ok) setDocName(f.name);
+        say(ok ? `imported ${f.name}` : `couldn't read ${f.name}`);
+      }),
     onToggleRail: () => setRail((r) => !r),
   };
 
@@ -205,7 +245,14 @@ export default function App() {
   return (
     <div className="app">
       <GlobalStyles />
-      <TopBar zoom={view.k} onAdd={onAdd} onCenter={fitView} menu={menu} />
+      <TopBar
+        zoom={view.k}
+        doc={docName}
+        onAdd={onAdd}
+        onCenter={fitView}
+        onZoomReset={() => tweenView({ x: 0, y: 0, k: 1 })}
+        menu={menu}
+      />
       <div className="app-main">
         <Board
           boardRef={boardRef}

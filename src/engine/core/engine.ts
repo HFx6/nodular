@@ -11,6 +11,7 @@ import type { NodeContext, NodeInstance } from "./types";
 import { PORTS } from "./types";
 import { downstreamClosure, kahnTopo } from "./graph";
 import {
+  clearResults,
   preview,
   publishInputs,
   publishResult,
@@ -326,6 +327,27 @@ function onDocChange(
       if (!cur.has(e) && s.nodes[e.to[0]]) next.add(e.to[0]);
   }
   markDirty(next);
+}
+
+/** Tear down every node's runtime state and re-arm the whole current doc (#4).
+ *
+ *  The incremental diff in `onDocChange` is keyed on node id, which is exactly
+ *  wrong when one doc replaces another: the example docs are hand-authored and
+ *  reuse short ids (`cvs` is the canvas in both walkers and weather), so a
+ *  surviving id keeps its built-in instance, its memoized value, and its
+ *  published result — the previous demo's canvas keeps drawing under the new
+ *  demo's name. Loading a doc is not an edit, so it gets a full reset instead.
+ *  Call it *after* the store holds the new doc. */
+export function resetEngine(): void {
+  for (const st of states.values()) {
+    st.abort?.abort();
+    st.instance?.teardown?.();
+  }
+  states.clear();
+  dirty.clear();
+  forced.clear();
+  clearResults();
+  markDirty(Object.keys(useGraphStore.getState().nodes));
 }
 
 /** Boot: subscribe to the doc and mark the whole graph dirty — first load
